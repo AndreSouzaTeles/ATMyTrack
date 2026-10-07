@@ -13,3 +13,7 @@ verification/*.log
 *.jks
 *.keystore
 keystore.properties
+
+.codex-remote-attachments/
+
+tools/qr-runtime/

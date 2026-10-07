@@ -4,4 +4,4 @@
 - Incrementar a versão para cada entrega e preservar compatibilidade com projetos já importados.
 - Não prometer tempos de importação no aparelho do usuário com base apenas em resultados do emulador. Medir e registrar ambiente e arquivos do benchmark.
 - Identidade visual sempre em tons azuis sobre fundo escuro, sem verde/turquesa. Vermelho/âmbar ficam reservados a alertas técnicos de áudio e erros.
-- O símbolo da marca é um T minimalista com propagação sonora; manter ícone, logo, splash e PNGs consistentes.
+- A arte de ícone enviada pelo usuário em 07/10/2026 é a identidade vigente; manter ícone, logo, splash e PNGs consistentes com essa imagem.

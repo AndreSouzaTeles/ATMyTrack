@@ -1,0 +1,1 @@
+QR decoded byte-for-byte with independent ZXing decoder. UTF-8 CRC C2A9 verified. No payment performed.

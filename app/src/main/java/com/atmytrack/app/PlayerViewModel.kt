@@ -230,16 +230,22 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
         list.getOrNull(index + delta)?.let(::select)
     }
     fun split() = update { p -> p.copy(stems=p.stems.map { s -> s.copy(bus="",route=if(listOf("click","guide","guia","clk","metro").any { s.name.contains(it,true) })"LEFT" else "RIGHT") },clickRoute="LEFT") }
+    fun smartClick(enabled:Boolean) {
+        if(enabled && (!playback.value.ready || playback.value.preparing)) { message("Aguarde a preparação do áudio antes do Smart Click.");return }
+        update { it.copy(smartClick=enabled) }
+        if(enabled)analyzeTempo()
+    }
     fun analyzeTempo(force:Boolean=false) {
         val p=library.value.current ?: return
         if(playback.value.projectId!=p.id || !playback.value.ready || playback.value.preparing) { message("Aguarde a preparação do áudio antes do Smart Click.");return }
         if(workJob?.isActive==true)return
-        if(!force && p.analysisKey==analysis.key(p) && p.detectedBpm>0)return
+        if(!force && p.analysisKey==analysis.key(p) && p.detectedBpm>0) { if(p.smartClick)update { it.copy(bpm=p.detectedBpm) };return }
         workJob=viewModelScope.launch {
             mutable.update { it.copy(background="Smart Click: analisando ${TempoDetector.reference(p.stems).name}…") }
             try {
                 val result=withContext(Dispatchers.IO) { analysis.tempo(p) }
-                persist(library.value.projects.map { if(it.id==p.id)it.copy(detectedBpm=result.bpm,confidence=result.confidence,analysisKey=analysis.key(p)) else it })
+                persist(library.value.projects.map { if(it.id==p.id)it.copy(detectedBpm=result.bpm,confidence=result.confidence,analysisKey=analysis.key(p),bpm=if(it.smartClick && result.bpm in 30.0..300.0)result.bpm else it.bpm) else it })
+                library.value.current?.takeIf { it.id==p.id }?.let { engine.update(it) }
                 if(result.bpm==0.0)message("Não foram encontradas batidas suficientemente regulares. Ajuste o BPM manualmente.")
             } catch(e:Exception) { if(e is CancellationException)throw e; message("Falha na análise: ${e.message}") }
             finally { mutable.update { it.copy(background=null) } }

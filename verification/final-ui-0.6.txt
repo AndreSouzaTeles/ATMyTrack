@@ -1,0 +1,9 @@
+
+com.atmytrack.app.PlaybackInstrumentedTest:........
+com.atmytrack.app.Layout05Test:.
+
+Time: 39.321
+
+OK (9 tests)
+
+

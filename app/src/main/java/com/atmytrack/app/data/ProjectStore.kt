@@ -22,7 +22,7 @@ class ProjectStore(private val root: File) {
         catch (e: Exception) { file.failWrite(stream); throw e }
     }
     private fun encode(p: Project): JSONObject = JSONObject().apply {
-        put("id", p.id); put("name", p.name); put("rate", p.sampleRate); put("bpm", p.bpm)
+        put("selectedMarker",p.selectedMarker); put("smartClick",p.smartClick); put("id", p.id); put("name", p.name); put("rate", p.sampleRate); put("bpm", p.bpm)
         put("beats", p.beats); put("denominator", p.denominator); put("multiplier", p.multiplier)
         put("click", p.click); put("clickVolume", p.clickVolume); put("master", p.master)
         put("masterMute", p.masterMute); put("loop", p.loop); put("key", p.key); put("artwork", p.artwork)
@@ -55,7 +55,7 @@ class ProjectStore(private val root: File) {
         buses=(j.optJSONArray("buses") ?: JSONArray()).objects().map { Bus(it.getString("id"),it.getString("name"),it.getDouble("volume").toFloat(),it.getBoolean("mute"),it.getString("destination")) },
         semitones=j.optInt("semitones"),targetKey=j.optString("targetKey"),pitchTracks=(j.optJSONArray("pitchTracks") ?: JSONArray()).strings(),
         clickSound=j.optString("clickSound","Classic"),accent=j.optBoolean("accent",true),clickRoute=j.optString("clickRoute","BOTH"),
-        detectedBpm=j.optDouble("detectedBpm",0.0),confidence=j.optDouble("confidence",0.0),beatOffset=j.optLong("beatOffset"),analysisKey=j.optString("analysisKey")
+        detectedBpm=j.optDouble("detectedBpm",0.0),confidence=j.optDouble("confidence",0.0),beatOffset=j.optLong("beatOffset"),analysisKey=j.optString("analysisKey"),selectedMarker=j.optString("selectedMarker"),smartClick=j.optBoolean("smartClick")
     )
     private fun JSONArray.objects() = (0 until length()).map { getJSONObject(it) }
     private fun JSONArray.strings() = (0 until length()).map { getString(it) }

@@ -31,6 +31,14 @@ object ConsoleMath {
             }
         }
     }
+    fun routePhysical(input:FloatArray,output:FloatArray,count:Int,channels:Int,destination:String) {
+        val channel=destination.substringAfter(':').toIntOrNull() ?: -1
+        require(channel in 0 until channels) { "Saída física indisponível. Atualize a saída e revise o bus." }
+        repeat(count) { output[it*channels+channel]+=(input[it*2]+input[it*2+1])*.5f }
+    }
+    fun outputChoices(channels:Int)=listOf("BOTH" to "MASTER · estéreo")+
+        (0 until channels).map { "MONO:$it" to "OUT ${it+1}/$channels · mono" }+
+        (0 until channels-1 step 2).map { "OUT:$it" to "OUT ${it+1}–${it+2} · par estéreo" }
     private val names=listOf("C","C#","D","D#","E","F","F#","G","G#","A","A#","B")
     fun note(value: String): Int = names.indexOf(mapOf("Db" to "C#","Eb" to "D#","Gb" to "F#","Ab" to "G#","Bb" to "A#")[value] ?: value)
     fun transpose(origin: String, destination: String): Int { val d=note(destination)-note(origin); return if(d>6)d-12 else if(d< -6)d+12 else d }

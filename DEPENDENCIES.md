@@ -25,7 +25,7 @@ MediaExtractor, MediaCodec, AudioTrack, AtomicFile, SharedPreferences e org.json
 - Fontes fixadas em `app/src/main/cpp/vendor`; textos MIT preservados ali e em `app/src/main/assets/licenses`, incluídos no APK. A licença permite distribuição comercial mediante preservação desses avisos. Não há dependência GPL ou serviço pago de pitch.
 - Compatibilidade de build verificada em arm64-v8a, armeabi-v7a e x86_64, com NDK 28.2.13676358 e CMake 3.22.1. Funcionamento do DSP medido no Android x86_64; isso não certifica todos os dispositivos/ABIs físicos.
 
-A identidade ATMyTrack é construída em VectorDrawable original, incluindo foreground/background adaptive icon e splash. Nenhum asset do aplicativo da referência foi reutilizado.
+A identidade atual usa a imagem PNG fornecida pelo usuário em 07/10/2026. As identidades vetoriais anteriores são preservadas somente como histórico.
 
 ## Ferramentas de teste da 0.4.0 (fora do APK)
 
@@ -36,3 +36,7 @@ A correção do relógio ADTS foi conferida contra `AACExtractor.cpp` do AOSP; o
 ## Referências da importação 0.2.0
 
 Nenhuma dependência nova. A leitura de PCM/container segue [RIFF](https://learn.microsoft.com/en-us/windows/win32/xaudio2/resource-interchange-file-format--riff-) e [WAVEFORMATEXTENSIBLE](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ksmedia/ns-ksmedia-waveformatextensible); o processamento em lotes usa a API documentada de [MediaCodec](https://developer.android.com/reference/android/media/MediaCodec).
+
+## QR Code 0.6 (ferramentas fora do APK)
+
+qrcode 8.2 (BSD), Pillow 12.3.0 (MIT-CMU) e zxing-cpp 3.1.1 (Apache-2.0), instalados apenas em `tools/qr-runtime`, geram e verificam o PNG do Pix. Nenhuma biblioteca de pagamentos ou código dessas ferramentas entra no APK; apenas a imagem gerada. Reproduzir com `tools/generate-support-qr.py`.

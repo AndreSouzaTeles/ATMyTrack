@@ -1,3 +1,13 @@
+# 0.6.0 — Biblioteca, seções e novos controles
+
+- Arte de ícone enviada pelo usuário aplicada a logo, splash e todas as densidades.
+- Imagem de projeto com prévia e fundo atenuado; busca por nome/tom e biblioteca lateral.
+- Tracks centralizadas, arraste visual do canal inteiro, defaults unity e botão 0dB.
+- Canais físicos mono e pares de saída para buses; loop de seção conectado à engine.
+- Editor de seção com timeline/posição; toolbar agrupada, páginas Playback/Mixer e remoção de aviso textual de clip.
+- Smart Click como flag com aplicação automática; Play/Pausar e Fechar fixos no metrônomo.
+- Globo de nomes interativo, 20 exemplos claramente identificados, rascunho local de nome e compartilhamento manual; link, Pix e QR verificado.
+
 # 0.5.1 — Identidade T azul
 
 - Ícone, logo e splash com T geométrico e propagação sonora, exclusivamente em azuis sobre fundo escuro.

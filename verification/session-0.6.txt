@@ -1,0 +1,10 @@
+19 distinct synthetic musical stems, WAV16/24, MP3/M4A/AAC/FLAC, mono/stereo, 44.1/48/96kHz, 330s. metadata=512 ms totalReady=601 ms prepEngine=35 ms
+elapsed=6ms frame=100096 underruns=0 starvation=0 producerWaits=7 pss=146516KiB
+seek 30 at 3301ms resumed frame=1440000
+seek 60 at 8872ms resumed frame=2880000
+seek 120 at 15863ms resumed frame=5760000
+seek 180 at 21458ms resumed frame=8641088
+seek 0 at 28522ms resumed frame=0
+elapsed=32222ms frame=237184 underruns=0 starvation=0 producerWaits=98 pss=142680KiB
+elapsed=63450ms frame=1739712 underruns=0 starvation=0 producerWaits=182 pss=141520KiB
+wall=65756ms cpu=32050ms gc=17 PSS=153536..153536KiB underruns=0 starvation=0 interactions=61

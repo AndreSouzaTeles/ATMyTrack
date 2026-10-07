@@ -126,7 +126,7 @@ class AudioEngine(private val context: Context) {
             checkCancelled()
             val device=context.getSystemService(AudioManager::class.java).getDevices(AudioManager.GET_DEVICES_OUTPUTS)
                 .firstOrNull { it.type==AudioDeviceInfo.TYPE_USB_DEVICE || it.type==AudioDeviceInfo.TYPE_USB_HEADSET }
-            outputChannels=device?.channelCounts?.filter { it in 2..8 }?.maxOrNull() ?: 2
+            outputChannels=device?.channelCounts?.filter { it in 2..32 }?.maxOrNull() ?: 2
             outputName=device?.productName?.toString() ?: "Saída padrão Android"
             deviceId=device?.id
             val min = AudioTrack.getMinBufferSize(p.sampleRate, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_FLOAT)
@@ -134,7 +134,7 @@ class AudioEngine(private val context: Context) {
             fun create(channels:Int) = AudioTrack.Builder()
                 .setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
                 .setAudioFormat(AudioFormat.Builder().setSampleRate(p.sampleRate).setEncoding(AudioFormat.ENCODING_PCM_FLOAT).apply {
-                    if(channels==2)setChannelMask(AudioFormat.CHANNEL_OUT_STEREO) else setChannelIndexMask((1 shl channels)-1)
+                    if(channels==2)setChannelMask(AudioFormat.CHANNEL_OUT_STEREO) else setChannelIndexMask(if(channels==32)-1 else (1 shl channels)-1)
                 }.build())
                 .setTransferMode(AudioTrack.MODE_STREAM).setBufferSizeInBytes(maxOf(min * 2, 4096 * channels * 4)).build()
             val track=try { create(outputChannels) } catch(_:Exception) { outputChannels=2; create(2) }
@@ -156,11 +156,15 @@ class AudioEngine(private val context: Context) {
         }
     } }
     fun update(p: Project) { commands.offer { if (p.id == project?.id) {
-        if(project?.loop!=p.loop) {
+        val reposition=project?.loopSection!=p.loopSection
+        if(!reposition && project?.loop!=p.loop) {
             endFrame=if(p.loop)Long.MAX_VALUE else (absolutePosition()/p.frames.coerceAtLeast(1)+1)*p.frames
             ending=!p.loop && cursor>=endFrame
         }
+        val position=audiblePosition()
         project = p; busBuffers=p.buses.associate { it.id to (busBuffers[it.id] ?: FloatArray(1024)) }; configureGains(p)
+        if(reposition) { val resume=playing;reset(position);if(resume) { primeReaders(cursor);pump?.start() };publish(force=true) }
+
     } } }
     private fun configureGains(p:Project) {
         channelGains=p.stems.associate { it.id to it.volume*ConsoleMath.dcaGain(it,p) }
@@ -205,6 +209,7 @@ class AudioEngine(private val context: Context) {
         check(!outputUnavailable) { "Atualize a saída e revise o routing antes de reproduzir." }
         if (playing) return@offer
         if (cursor >= p.frames) reset(0)
+        p.loopSection?.let { if(cursor !in it.start until it.end)reset(it.start) }
         primeReaders(cursor)
         pump!!.start(); playing = true; ending = false; publish(force = true)
     } }
@@ -229,7 +234,8 @@ class AudioEngine(private val context: Context) {
     fun clearError() { mutable.value = mutable.value.copy(error = null) }
     private fun reset(frame: Long) {
         pump?.reset();limiter.reset()
-        cursor = frame;endFrame=if(project?.loop==true)Long.MAX_VALUE else project?.frames ?: 0; base = frame; headBase = sink?.playbackHeadPosition?.toLong()?.and(0xffffffffL) ?: 0
+        val bounded=project?.loopSection?.let { frame.coerceIn(it.start,it.end-1) } ?: frame
+        cursor = bounded;endFrame=if(project?.loop==true)Long.MAX_VALUE else project?.frames ?: 0; base = bounded; headBase = sink?.playbackHeadPosition?.toLong()?.and(0xffffffffL) ?: 0
         ending = false
     }
     private fun primeReaders(frame:Long) {
@@ -253,7 +259,7 @@ class AudioEngine(private val context: Context) {
         if(!playing)return cursor
         val absolute=absolutePosition();val total=project?.frames ?: 0
         if(total<=0)return 0
-        return if(absolute>=endFrame)total else absolute%total
+        return if(absolute>=endFrame)total else project?.playbackFrame(absolute) ?: 0
     }
     private fun render() {
         val p = project ?: return
@@ -267,8 +273,8 @@ class AudioEngine(private val context: Context) {
             return
         }
         if(queue.full) { java.util.concurrent.locks.LockSupport.parkNanos(5_000_000);return }
-        val renderFrame=if(p.frames>0)cursor%p.frames else 0
-        val count = minOf(512L, p.frames-renderFrame,endFrame-cursor).toInt()
+        val renderFrame=p.playbackFrame(cursor)
+        val count = minOf(512L, (p.loopSection?.end ?: p.frames)-renderFrame,endFrame-cursor).toInt()
         if (count <= 0) { ending = true; return }
         output.fill(0f)
         hardware.fill(0f); busBuffers.values.forEach { it.fill(0f) }
@@ -303,9 +309,11 @@ class AudioEngine(private val context: Context) {
                 level=maxOf(level,kotlin.math.abs(buffer[frame*2]),kotlin.math.abs(buffer[frame*2+1]))
             }
             busGains[bus.id]=gain
-            if(bus.destination.startsWith("OUT:")) {
+            if(bus.destination.startsWith("MONO:")) {
+                ConsoleMath.routePhysical(buffer,hardware,count,outputChannels,bus.destination)
+            } else if(bus.destination.startsWith("OUT:")) {
                 val pair=bus.destination.substringAfter(':').toIntOrNull() ?: 0
-                check(pair>=2 && pair%2==0 && pair+1<outputChannels) { "Destino físico indisponível: ${bus.name}. Revise o routing." }
+                check(pair>=0 && pair%2==0 && pair+1<outputChannels) { "Destino físico indisponível: ${bus.name}. Revise o routing." }
                 repeat(count) { hardware[it*outputChannels+pair]+=buffer[it*2]; hardware[it*outputChannels+pair+1]+=buffer[it*2+1] }
             } else ConsoleMath.route(buffer,output,count,1f,0f,bus.destination)
             busLevels[bus.id]=level

@@ -5,7 +5,7 @@ import java.util.UUID
 data class Stem(
     val id: String = UUID.randomUUID().toString(), val name: String,
     val pcm: String, val frames: Long, val source: String = "",
-    val volume: Float = 0.8f, val pan: Float = 0f, val mute: Boolean = false,
+    val volume: Float = 1f, val pan: Float = 0f, val mute: Boolean = false,
     val solo: Boolean = false, val format: PcmFormat = PcmFormat(),
     val external: Boolean = false, val compressed: Boolean = false, val fingerprint: String = "",
     val bus: String = "", val route: String = "BOTH", val pitchFile: String = "", val pitchApplied: Int = 0, val sourceRate: Int = 0, val sourceFrames: Long = 0
@@ -17,16 +17,22 @@ data class Project(
     val sampleRate: Int, val stems: List<Stem>, val bpm: Double = 70.0,
     val beats: Int = 4, val denominator: Int = 4, val multiplier: Double = 1.0,
     val click: Boolean = false, val clickVolume: Float = 0.35f,
-    val master: Float = 0.8f, val masterMute: Boolean = false,
+    val master: Float = 1f, val masterMute: Boolean = false,
     val loop: Boolean = false, val key: String = "—", val artwork: String = "",
     val markers: List<Marker> = emptyList(),
     val dcas: List<Dca> = emptyList(), val buses: List<Bus> = emptyList(),
     val semitones: Int = 0, val targetKey: String = "", val pitchTracks: List<String> = emptyList(),
     val clickSound: String = "Classic", val accent: Boolean = true, val clickRoute: String = "BOTH",
     val detectedBpm: Double = 0.0, val confidence: Double = 0.0, val beatOffset: Long = 0,
-    val analysisKey: String = ""
+    val analysisKey: String = "", val selectedMarker: String = "", val smartClick: Boolean = false
 ) {
     val frames: Long get() = stems.maxOfOrNull { it.frames } ?: 0L
+    val loopSection: Marker? get() = if(loop) markers.find { it.id==selectedMarker && MusicTime.validMarker(it.start,it.end,frames) } else null
+    fun playbackFrame(absolute:Long):Long {
+        val section=loopSection
+        return if(section!=null && absolute>=section.end) section.start+(absolute-section.end)%(section.end-section.start)
+        else if(frames>0) absolute%frames else 0
+    }
     val seconds: Double get() = frames.toDouble() / sampleRate
 }
 

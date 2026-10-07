@@ -11,6 +11,16 @@ import java.nio.file.Files
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [28], application = android.app.Application::class)
 class ProjectStoreTest {
+    @Test fun loopSelectionSmartClickAndPhysicalBusSurviveReopen() {
+        val dir=Files.createTempDirectory("atmytrack-section").toFile()
+        try {
+            val section=Marker(name="Verse",start=1200,end=2400)
+            val p=Project(name="Saved",sampleRate=48000,stems=listOf(Stem(name="Stem",pcm="s",frames=5000,volume=.4f)),markers=listOf(section),selectedMarker=section.id,loop=true,smartClick=true,buses=listOf(Bus(name="R",destination="MONO:1")))
+            ProjectStore(dir).save(listOf(p));val loaded=ProjectStore(dir).load().single()
+            assertEquals(p,loaded);assertEquals(1200L,loaded.playbackFrame(2400));assertEquals(.4f,loaded.stems.single().volume,0f)
+        } finally { dir.deleteRecursively() }
+    }
+
     @Test fun mixedRateOriginsSurviveReopenAndOldMarkerPaletteMigrates() {
         val dir=Files.createTempDirectory("atmytrack-rates").toFile()
         try {

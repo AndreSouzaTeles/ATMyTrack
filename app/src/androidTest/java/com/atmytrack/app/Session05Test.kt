@@ -24,7 +24,7 @@ class Session05Test {
         val vm=ViewModelProvider(compose.activity)[PlayerViewModel::class.java]
         val files=File(context.getExternalFilesDir(null),"session-0.5").listFiles()!!.filter { it.extension!="json" }.sortedBy { it.name }
         assertEquals(19,files.size)
-        val report=File(context.getExternalFilesDir(null),"session-0.5.txt")
+        val report=File(context.getExternalFilesDir(null),"session-${InstrumentationRegistry.getArguments().getString("reportVersion") ?: "0.5"}.txt")
         val started=SystemClock.elapsedRealtime()
         compose.waitUntil(30000) { vm.library.value.busy==null }
         val old=vm.library.value.selected
@@ -52,7 +52,7 @@ class Session05Test {
             val elapsed=SystemClock.elapsedRealtime()-wallStart
             // Actual UI actions repeatedly exercise layout and gesture dispatch.
             if(turn%10==0) {
-                compose.onNodeWithText(if(page==0)"▼ PAGE 2 · MIXER" else "▲ PAGE 1 · PLAYBACK").performClick();page=1-page
+                compose.onNodeWithText(if(page==0)"Mixer" else "Playback").performClick();page=1-page
                 compose.onNodeWithText("Ⅱ PAUSAR").assertIsDisplayed()
                 compose.onNodeWithText("METRÔNOMO").performScrollTo().performClick()
                 compose.onNodeWithText("FECHAR").performClick()

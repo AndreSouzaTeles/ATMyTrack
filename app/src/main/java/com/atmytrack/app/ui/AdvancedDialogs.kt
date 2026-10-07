@@ -77,7 +77,7 @@ internal fun GroupDialog(p:Project,token:String,outputs:Int,vm:PlayerViewModel,c
     var name by remember(token) { mutableStateOf(dca?.name ?: bus?.name ?: if(isDca)"DCA ${p.dcas.size+1}" else "BUS ${p.buses.size+1}") }
     var members by remember(token) { mutableStateOf(dca?.members ?: p.stems.filter { id.isNotEmpty() && it.bus==id }.map { it.id }) }
     var destination by remember(token) { mutableStateOf(bus?.destination ?: "BOTH") }
-    val destinations=listOf("BOTH" to "MASTER • estéreo", "LEFT" to "MASTER • LEFT", "RIGHT" to "MASTER • RIGHT")+(2 until outputs-1 step 2).map { "OUT:$it" to "USB OUT ${it+1}/${it+2}" }
+    val destinations=ConsoleMath.outputChoices(outputs)+listOf("LEFT" to "MASTER · esquerdo", "RIGHT" to "MASTER · direito")
     AlertDialog(onDismissRequest=close,title={Text(if(isDca)"DCA / Grupo" else "Bus / Routing")},text={
         Column(Modifier.verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(8.dp)) {
             OutlinedTextField(name,{name=it},label={Text("Nome")},singleLine=true)

@@ -49,9 +49,9 @@ class PlaybackInstrumentedTest {
         compose.waitUntil(20000){vm.library.value.busy==null && vm.library.value.selected!=previous && vm.playback.value.projectId==vm.library.value.selected}
         compose.runOnUiThread { vm.dismissError();vm.dismissImportReport();vm.update { it.copy(bpm=72.0) };vm.analyzeTempo(true) }
         assertNull(vm.library.value.busy)
-        compose.onNodeWithText("▼ PAGE 2 · MIXER").performClick()
+        compose.onNodeWithText("Mixer").performClick()
         compose.onNodeWithText("+ DCA").assertExists()
-        compose.onNodeWithText("▲ PAGE 1 · PLAYBACK").performClick()
+        compose.onNodeWithText("Playback").performClick()
         compose.waitUntil(15000){vm.library.value.background==null && vm.library.value.current!!.detectedBpm>0}
         assertEquals(120.0,vm.library.value.current!!.detectedBpm,1.0)
         assertEquals(72.0,vm.library.value.current!!.bpm,0.0)
@@ -59,7 +59,7 @@ class PlaybackInstrumentedTest {
     @Test fun doubleTapFineGainAllFadersAndDragRemainIndependent() {
         val (vm,p)=prepared(listOf("FaderTrack"))
         compose.runOnUiThread { vm.update { it.copy(master=.3f,stems=it.stems.map { s->s.copy(volume=.4f) },dcas=listOf(Dca(name="Fine DCA",volume=.2f)),buses=listOf(Bus(name="Fine BUS",volume=.2f))) } }
-        compose.onNodeWithText("▼ PAGE 2 · MIXER").performClick()
+        compose.onNodeWithText("Mixer").performClick()
         compose.onNodeWithContentDescription("Canais").performScrollTo()
         for(name in listOf("FaderTrack","Fine DCA","Fine BUS","MASTER")) {
             if(name!="MASTER")compose.onNodeWithContentDescription("Canais").performScrollToNode(hasContentDescription(if(name=="FaderTrack")"Arrastar $name" else name))
@@ -133,13 +133,13 @@ class PlaybackInstrumentedTest {
         compose.waitUntil(10000) { vm.playback.value.playing && vm.playback.value.frame > 16000 }
         val beforePage = vm.playback.value.frame
         val pageUnderruns=vm.playback.value.underruns
-        compose.onNodeWithText("▼ PAGE 2 · MIXER").performClick()
+        compose.onNodeWithText("Mixer").performClick()
         compose.waitUntil(5000) { vm.playback.value.frame > beforePage + 5000 }
         assertEquals(p.id, vm.playback.value.projectId)
         assertTrue(vm.playback.value.playing)
-        compose.onNodeWithText("▲ PAGE 1 · PLAYBACK").performClick()
+        compose.onNodeWithText("Playback").performClick()
         repeat(5) {
-            compose.onNodeWithText("▼ PAGE 2 · MIXER").performClick();compose.onNodeWithText("▲ PAGE 1 · PLAYBACK").performClick()
+            compose.onNodeWithText("Mixer").performClick();compose.onNodeWithText("Playback").performClick()
             assertTrue(vm.playback.value.playing);assertEquals(p.id,vm.playback.value.projectId)
         }
         assertEquals("Changing pages must not starve the output",pageUnderruns,vm.playback.value.underruns)
@@ -174,7 +174,7 @@ class PlaybackInstrumentedTest {
         compose.waitUntil(20000) { vm.library.value.busy==null && vm.library.value.selected!=previousId && vm.library.value.current?.name=="Drag Piano" && vm.playback.value.projectId==vm.library.value.selected }
         compose.runOnUiThread { vm.dismissError() }
         val original=vm.library.value.current!!
-        compose.onNodeWithText("▼ PAGE 2 · MIXER").performClick()
+        compose.onNodeWithText("Mixer").performClick()
         compose.onNodeWithText("+ DCA").performScrollTo().performClick()
         compose.onNodeWithText("DCA 1").performTextReplacement("Band")
         compose.onNode(hasText("Drag Piano") and hasAnyAncestor(isDialog())).performClick()
@@ -187,7 +187,7 @@ class PlaybackInstrumentedTest {
         compose.onNodeWithText("SALVAR").performClick()
         compose.waitUntil { vm.library.value.current!!.buses.size==1 }
         assertEquals(vm.library.value.current!!.buses[0].id,vm.library.value.current!!.stems[0].bus)
-        compose.onNodeWithText("▲ PAGE 1 · PLAYBACK").performClick()
+        compose.onNodeWithText("Playback").performClick()
         val header=compose.onNodeWithContentDescription("Arrastar Drag Piano")
         header.performScrollTo()
         header.performTouchInput { down(center) }

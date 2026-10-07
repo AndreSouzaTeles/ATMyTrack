@@ -1,0 +1,13 @@
+
+com.atmytrack.app.Feature06Test:..
+com.atmytrack.app.BrandAssetsTest:.
+com.atmytrack.app.LoopControl05Test:..
+com.atmytrack.app.PlaybackInstrumentedTest:........
+com.atmytrack.app.Layout05Test:.
+com.atmytrack.app.Session05Test:.
+
+Time: 116.394
+
+OK (15 tests)
+
+

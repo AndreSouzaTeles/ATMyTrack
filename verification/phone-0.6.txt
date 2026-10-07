@@ -1,0 +1,9 @@
+
+com.atmytrack.app.Feature06Test:..
+com.atmytrack.app.Layout05Test:.
+
+Time: 22.779
+
+OK (3 tests)
+
+
