@@ -12,21 +12,7 @@ struct SupportScreen:View {
     var body:some View{Panel(title:"PLANO / PAGAMENTO"){
         Text("SeuNomeNoApp").font(.title.bold());Text("Faça parte do mundo ATMyTrack").foregroundStyle(Palette.light)
         TextField("Encontrar nome no globo",text:$query).textFieldStyle(.roundedBorder).onChange(of:query){value in if !value.isEmpty,let i=names.firstIndex(where:{$0.name.localizedStandardContains(value)}){focus(i)}}
-        TimelineView(.animation(minimumInterval:1.0/30,paused:!rotating)){time in
-            let angle=yaw+(rotating ? time.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy:10000)*0.04 : 0)
-            GeometryReader{geo in
-                ZStack{
-                    Circle().fill(RadialGradient(colors:[Palette.blue.opacity(0.25),Palette.background],center:.center,startRadius:0,endRadius:140))
-                    ForEach(Array(names.enumerated()),id:\.offset){i,person in
-                        let lat=asin(1-2*(Double(i)+0.5)/Double(max(1,names.count)))
-                        let lon=Double(i)*2.399963+angle
-                        let z=cos(lat)*cos(lon),depth=sin(lat)*sin(pitch)+z*cos(pitch)
-                        Button{focus(i)}label:{Text(person.name).font(.system(size:10+3*(depth+1)/2)).foregroundStyle(Palette.light.opacity(0.25+0.75*(depth+1)/2))}
-                            .position(x:geo.size.width/2+cos(lat)*sin(lon)*geo.size.width*0.36,y:geo.size.height/2-(sin(lat)*cos(pitch)-z*sin(pitch))*110)
-                    }
-                }.contentShape(Rectangle()).gesture(DragGesture().onChanged{v in rotating=false;yaw=v.translation.width*0.01;pitch=max(-1.5,min(1.5,-v.translation.height*0.01))})
-            }.frame(height:280)
-        }
+        GlobeView(names:names,yaw:$yaw,pitch:$pitch,rotating:$rotating,focus:focus)
         Button(rotating ? "PAUSAR GLOBO":"GIRAR AUTOMATICAMENTE"){rotating.toggle()}
         if names.contains(where:{$0.demo}){Text("Demonstração: os nomes fictícios não representam pagamentos recebidos.").font(.caption).foregroundStyle(.secondary)}
         Text("Contribuições acima de R$ 10 permitem incluir seu nome no globo ATMyTrack após conferência e inclusão manual.")
@@ -54,4 +40,34 @@ struct HelpScreen:View {
         Text("iOS 0.1.0 • Primeira portabilidade. Testes no simulador não certificam comportamento de interfaces USB ou desempenho no aparelho físico.").font(.caption).foregroundStyle(.secondary)
     }}
     private func section(_ title:String,_ text:String)->some View{VStack(alignment:.leading,spacing:8){Text(title).font(.headline).foregroundStyle(Palette.light);Text(text).foregroundStyle(.secondary)}}
+}
+
+private struct GlobeView:View {
+    let names:[Supporter]
+    @Binding var yaw:Double
+    @Binding var pitch:Double
+    @Binding var rotating:Bool
+    let focus:(Int)->Void
+    var body:some View {
+        TimelineView(.animation(minimumInterval:1.0/30,paused:!rotating)){time in
+            let angle=yaw+(rotating ? time.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy:10000)*0.04:0)
+            GeometryReader{geo in
+                ZStack{
+                    Circle().fill(RadialGradient(colors:[Palette.blue.opacity(0.25),Palette.background],center:.center,startRadius:0,endRadius:140))
+                    ForEach(names.indices,id:\.self){i in
+                        name(i,angle:angle,width:Double(geo.size.width),height:Double(geo.size.height))
+                    }
+                }.contentShape(Rectangle()).gesture(DragGesture().onChanged{v in rotating=false;yaw=Double(v.translation.width)*0.01;pitch=max(-1.5,min(1.5,-Double(v.translation.height)*0.01))})
+            }.frame(height:280)
+        }
+    }
+    private func name(_ i:Int,angle:Double,width:Double,height:Double)->some View {
+        let lat=asin(1.0-2.0*(Double(i)+0.5)/Double(max(1,names.count)))
+        let lon=Double(i)*2.399963+angle
+        let z=cos(lat)*cos(lon)
+        let depth=sin(lat)*sin(pitch)+z*cos(pitch)
+        let x=width/2.0+cos(lat)*sin(lon)*width*0.36
+        let y=height/2.0-(sin(lat)*cos(pitch)-z*sin(pitch))*110.0
+        return Button{focus(i)}label:{Text(names[i].name).font(.system(size:CGFloat(10.0+3.0*(depth+1.0)/2.0))).foregroundStyle(Palette.light.opacity(0.25+0.75*(depth+1.0)/2.0))}.position(x:CGFloat(x),y:CGFloat(y))
+    }
 }

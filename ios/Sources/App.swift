@@ -193,10 +193,10 @@ struct Fader:View {
             ZStack{
                 Capsule().fill(Palette.background).frame(width:8)
                 ForEach([-60,-40,-30,-20,-10,-5,0,5,10],id:\.self){db in
-                    HStack{Text("\(db)").font(.system(size:10)).foregroundStyle(db==0 ? Palette.light : .secondary);Spacer();Rectangle().fill(db==0 ? Palette.blue : .gray).frame(width:26,height:db==0 ? 2:1);Spacer().frame(width:21)}.position(x:geo.size.width/2,y:height*(1-Double(db+80)/90))
+                    HStack{Text("\(db)").font(.system(size:10)).foregroundStyle(db==0 ? Palette.light : .secondary);Spacer();Rectangle().fill(db==0 ? Palette.blue : .gray).frame(width:26,height:db==0 ? 2:1);Spacer().frame(width:21)}.position(x:geo.size.width/2,y:height*CGFloat(1.0-Double(db+80)/90.0))
                 }
-                RoundedRectangle(cornerRadius:4).fill(Palette.light).frame(width:38,height:22).overlay(Rectangle().fill(Palette.blue).frame(width:30,height:3)).position(x:geo.size.width/2,y:height*(1-position))
-            }.contentShape(Rectangle()).gesture(DragGesture(minimumDistance:0).onChanged{value in gain=Music.gain((1-max(0,min(height,value.location.y))/height)*90-80)}).onTapGesture(count:2){gain=1}
+                RoundedRectangle(cornerRadius:4).fill(Palette.light).frame(width:38,height:22).overlay(Rectangle().fill(Palette.blue).frame(width:30,height:3)).position(x:geo.size.width/2,y:height*CGFloat(1.0-position))
+            }.contentShape(Rectangle()).gesture(DragGesture(minimumDistance:0).onChanged{value in gain=Music.gain(Double(1.0-max(0,min(height,value.location.y))/height)*90.0-80.0)}).onTapGesture(count:2){gain=1}
         }.frame(height:235).padding(.vertical,12)
         Button("0dB"){gain=1}.buttonStyle(.bordered).frame(minHeight:44)
     }.alert("Nível em dB",isPresented:$editing){TextField("−80 até +10",text:$entered).keyboardType(.numbersAndPunctuation);Button("Cancelar",role:.cancel){};Button("Aplicar"){if let db=Double(entered.replacingOccurrences(of:",",with:".")){gain=Music.gain(min(10,max(-80,db)))}}}}
