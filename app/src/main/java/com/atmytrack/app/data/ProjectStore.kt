@@ -50,7 +50,7 @@ class ProjectStore(private val root: File) {
         multiplier = j.getDouble("multiplier"), click = j.getBoolean("click"), clickVolume = j.getDouble("clickVolume").toFloat(),
         master = j.getDouble("master").toFloat(), masterMute = j.getBoolean("masterMute"), loop = j.getBoolean("loop"),
         key = j.getString("key"), artwork = j.getString("artwork"),
-        markers = j.getJSONArray("markers").objects().map { m -> Marker(m.getString("id"), m.getString("name"), m.getLong("start"), m.getLong("end"), m.getLong("color").let { if(it==0xFF39E0B8L)0xFF3B82F6L else if(it==0xFF8E89FFL)0xFF60A5FAL else it }) },
+        markers = j.getJSONArray("markers").objects().map { m -> Marker(m.getString("id"), m.getString("name"), m.getLong("start"), m.getLong("end"), m.getLong("color").let { when(it) { 0xFF93C5FDL, 0xFF60A5FAL, 0xFF3B82F6L, 0xFF1D4ED8L -> it; 0xFF39E0B8L -> 0xFF3B82F6L; else -> 0xFF60A5FAL } }) },
         dcas=(j.optJSONArray("dcas") ?: JSONArray()).objects().map { Dca(it.getString("id"),it.getString("name"),it.getJSONArray("members").strings(),it.getDouble("volume").toFloat(),it.getBoolean("mute")) },
         buses=(j.optJSONArray("buses") ?: JSONArray()).objects().map { Bus(it.getString("id"),it.getString("name"),it.getDouble("volume").toFloat(),it.getBoolean("mute"),it.getString("destination")) },
         semitones=j.optInt("semitones"),targetKey=j.optString("targetKey"),pitchTracks=(j.optJSONArray("pitchTracks") ?: JSONArray()).strings(),

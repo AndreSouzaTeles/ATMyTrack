@@ -9,7 +9,7 @@ import java.io.File
 class BrandAssetsTest {
     @Test fun exportDensitiesAndVerifyAdaptiveSafeZone() {
         val context=InstrumentationRegistry.getInstrumentation().targetContext
-        val folder=File(context.getExternalFilesDir(null),"brand-0.5").apply { mkdirs() }
+        val folder=File(context.getExternalFilesDir(null),"brand-0.5.1").apply { mkdirs() }
         fun save(bitmap:Bitmap,name:String) { File(folder,name).outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG,100,it) };bitmap.recycle() }
         for(size in listOf(48,72,96,144,192,512)) {
             val bitmap=Bitmap.createBitmap(size,size,Bitmap.Config.ARGB_8888);val canvas=Canvas(bitmap)

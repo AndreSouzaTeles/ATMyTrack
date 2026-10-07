@@ -321,7 +321,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
         }
         val error = library.message ?: playback.error
         if (error != null) AlertDialog(onDismissRequest = vm::dismissError, title = { Text("ATMyTrack") }, text = { Text(error) }, confirmButton = { TextButton(onClick = vm::dismissError) { Text("ENTENDI") } })
-        if (help) AlertDialog(onDismissRequest = { help = false }, title = { Text("ATMyTrack • 0.5") }, text = {
+        if (help) AlertDialog(onDismissRequest = { help = false }, title = { Text("ATMyTrack • 0.5.1") }, text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("1. Importe uma pasta ou selecione as stems.\n2. Ajuste volume, pan, mute e solo.\n3. Defina BPM e compasso; o CLICK acompanha a timeline.\n4. Crie seções para saltar aos trechos da música.")
                 Text("A importação depende dos decoders disponíveis no Android. WAV, MP3, AAC/M4A, FLAC e OGG/Opus são tentados; arquivos incompatíveis geram erro.", color = Muted)
@@ -441,7 +441,7 @@ private fun Fader(value: Float, name: String, modifier: Modifier, change: (Float
             if(detailed || db in compactLabels)
                 drawContext.canvas.nativeCanvas.drawText(if(db == -80f)"−∞" else if(db>0)"+${db.toInt()}" else db.toInt().toString(),0f,tick+3.dp.toPx(),paint)
         }
-        drawRoundRect(Color(0xFF424A50), Offset(mid-12.dp.toPx(), y-8.dp.toPx()), Size(24.dp.toPx(),16.dp.toPx()), androidx.compose.ui.geometry.CornerRadius(3.dp.toPx()))
+        drawRoundRect(Color(0xFF334155), Offset(mid-12.dp.toPx(), y-8.dp.toPx()), Size(24.dp.toPx(),16.dp.toPx()), androidx.compose.ui.geometry.CornerRadius(3.dp.toPx()))
         drawLine(Blue,Offset(mid-10.dp.toPx(),y),Offset(mid+10.dp.toPx(),y),2.dp.toPx())
     }
 }
@@ -546,8 +546,8 @@ private fun MarkerEditor(p: Project, frame: Long, vm: PlayerViewModel, close: ()
             OutlinedTextField(name, { name = it }, label = { Text("Nome • INTRO, VERSO, REFRÃO…") }, singleLine = true)
             OutlinedTextField(start, { start = it }, label = { Text("Início • segundos ou mm:ss") }, singleLine = true)
             OutlinedTextField(end, { end = it }, label = { Text("Fim • segundos ou mm:ss") }, singleLine = true)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) { listOf(0xFF60A5FA, 0xFF3B82F6, 0xFFFFC66D, 0xFFFF777C).forEach { c ->
-                Box(Modifier.size(48.dp).clip(RoundedCornerShape(8.dp)).background(Color(c)).border(if (color == c) 3.dp else 0.dp, White, RoundedCornerShape(8.dp)).clickable { color = c }.semantics { contentDescription = "Cor ${listOf(0xFF60A5FA, 0xFF3B82F6, 0xFFFFC66D, 0xFFFF777C).indexOf(c) + 1}"; selected = color == c })
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) { listOf(0xFF93C5FD, 0xFF60A5FA, 0xFF3B82F6, 0xFF1D4ED8).forEach { c ->
+                Box(Modifier.size(48.dp).clip(RoundedCornerShape(8.dp)).background(Color(c)).border(if (color == c) 3.dp else 0.dp, White, RoundedCornerShape(8.dp)).clickable { color = c }.semantics { contentDescription = "Cor ${listOf(0xFF93C5FD, 0xFF60A5FA, 0xFF3B82F6, 0xFF1D4ED8).indexOf(c) + 1}"; selected = color == c })
             } }
             if (!valid) Text("Informe um nome e um intervalo dentro da música.", color = Muted, fontSize = 12.sp)
             p.markers.sortedBy { it.start }.forEach { m -> Row(verticalAlignment = Alignment.CenterVertically) {

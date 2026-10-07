@@ -1,3 +1,11 @@
+# 0.5.1 — Identidade T azul
+
+- Ícone, logo e splash com T geométrico e propagação sonora, exclusivamente em azuis sobre fundo escuro.
+- PNGs em todas as densidades e versões vetoriais atualizados.
+- Seções com quatro tons azuis; cores antigas normalizadas ao abrir a biblioteca.
+- Fader com acabamento azul-acinzentado. Alertas técnicos de nível alto/clip preservados.
+- Ícone padrão não oferece recoloração monocromática pelo tema do launcher.
+
 # Histórico
 
 ## 0.5.0

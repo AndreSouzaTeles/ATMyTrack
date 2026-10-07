@@ -1,0 +1,10 @@
+
+com.atmytrack.app.BrandAssetsTest:.
+com.atmytrack.app.PlaybackInstrumentedTest:........
+com.atmytrack.app.Layout05Test:.
+
+Time: 26.802
+
+OK (10 tests)
+
+

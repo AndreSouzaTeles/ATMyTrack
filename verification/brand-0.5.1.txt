@@ -1,0 +1,8 @@
+
+com.atmytrack.app.BrandAssetsTest:.
+
+Time: 0.488
+
+OK (1 test)
+
+

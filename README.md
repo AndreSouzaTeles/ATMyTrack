@@ -1,9 +1,9 @@
-# ATMyTrack — Android 0.5.0
+# ATMyTrack — Android 0.5.1
 
 Atualização incremental do player multitrack em Kotlin/Compose para Android 8.0+ (API 26). Preserva a biblioteca e os áudios internos das versões anteriores.
 
 ## Instalação
-Baixe o [APK 0.5.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.5.0/ATMyTrack-0.5.0-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.5.0).
+Baixe o [APK 0.5.1](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.5.1/ATMyTrack-0.5.1-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.5.1).
 
 Instale `dist/ATMyTrack-debug.apk` sobre a versão anterior, sem desinstalar. A assinatura de desenvolvimento foi mantida. O APK inclui arm64-v8a, armeabi-v7a e x86_64. Não exige conta ou assinatura. A origem de nuvem pode precisar de conexão/download.
 
@@ -62,7 +62,7 @@ adb push verification/fixtures-0.4/. /sdcard/Android/data/com.atmytrack.app/file
 Os testes instrumentados da 0.4 exigem as fixtures acima, incluindo a subpasta `tempo`. Para regenerá-las, execute `tools/generate-fixtures.py` (dependência de desenvolvimento descrita em `DEPENDENCIES.md`) e `tools/generate-tempo-fixtures.py` (biblioteca padrão Python). A suíte inclui reprodução real de 181 segundos; reserve vários minutos. As fixtures e FFmpeg não são incluídos no APK.
 Relatório: `verification/REPORT-0.4.md`. Benchmark compara explicitamente o decoder integral 0.1.0 preservado no APK de teste com o importador atual; não é uma comparação direta contra 0.2.0, nem promessa de tempo em hardware real.
 
-Licenças e commits fixados em `DEPENDENCIES.md`; avisos MIT do DSP incluídos nos assets do APK. Identidade atual: A geométrico azul com travessa azul-clara; símbolo, wordmark SVG, PNGs, adaptive/monochrome e splash acompanham a interface. Assets atuais em `branding/0.5` e `branding/*-0.5.svg`. Versões anteriores permanecem como histórico.
+Licenças e commits fixados em `DEPENDENCIES.md`; avisos MIT do DSP incluídos nos assets do APK. Identidade atual: T geométrico com degradê azul e dois traços de propagação sonora; símbolo, wordmark SVG, PNGs, adaptive/monochrome e splash acompanham a interface. Assets atuais em `branding/0.5.1` e `branding/*-0.5.1.svg`. Versões anteriores permanecem como histórico.
 
 ### Sessão de regressão 0.5
 `python tools/generate-session-05.py` produz 19 stems musicais sintéticas independentes, de 330 segundos, com ritmos/frequências distintos, WAV16/24, MP3/M4A/AAC/FLAC, mono/estéreo e 44,1/48/96 kHz. Não são gravações fornecidas pelo usuário. Copie `verification/session-0.5` para `/sdcard/Android/data/com.atmytrack.app/files/`. O teste `Session05Test` executa dez minutos com scroll, páginas, faders/pan/mute/solo, menu do metrônomo e seeks; requer alguns minutos adicionais de preparo. `Profile05Test` aceita argumentos `fixtures=session-0.5`, `label=...` e `longTwo=true` para perfil progressivo 1/2/4/8/12/19 com duas tracks por dois minutos.
