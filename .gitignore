@@ -21,3 +21,4 @@ ios/Info.plist
 
 tools/qr-runtime/
 tools/ios-runtime/
+verification/ios-artifacts-*/

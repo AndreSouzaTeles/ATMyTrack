@@ -1,8 +1,12 @@
-# ATMyTrack — Android 0.7.0
+# ATMyTrack
 
 ## iPhone e iPad
 
 A versão nativa iOS está em [`ios/`](ios/README.md), com SwiftUI, AVAudioEngine e o DSP Signalsmith compartilhado. Veja o [guia de instalação pelo Windows](ios/INSTALL-IPHONE.md). O pacote iOS é entregue **sem assinatura** e precisa ser assinado para o aparelho antes de instalar; não é um APK nem uma publicação na App Store. A biblioteca Android não é alterada pela portabilidade.
+
+[Baixar prévia iOS 0.1.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/ios-v0.1.0) · [Testes e limitações](verification/REPORT-iOS-0.1.0.md).
+
+## Android 0.7.0
 
 Atualização incremental do player multitrack em Kotlin/Compose para Android 8.0+ (API 26). Preserva a biblioteca e os áudios internos das versões anteriores.
 

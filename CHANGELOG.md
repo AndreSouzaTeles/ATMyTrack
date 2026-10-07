@@ -1,3 +1,11 @@
+# iOS 0.1.0 — primeira portabilidade
+
+- Aplicativo nativo SwiftUI para iPhone/iPad, iOS 16+, com identidade e recursos adaptados do Android.
+- Engine C++ com ring de áudio, AVAudioSourceNode, importação AVAudioConverter, mixer/DCA/BUS/rotas, markers/loop, metrônomo/Smart Click, pitch e velocidade Signalsmith.
+- Afinador local YIN, menu, projetos, pagamento e ajuda. Persistência própria no sandbox iOS.
+- Build macOS no GitHub Actions e testes no simulador; pacote ARM64 sem assinatura para posterior assinatura pessoal.
+- Instalação no dispositivo físico e equivalência integral ao Android dependem de validação adicional. Android permanece 0.7.0.
+
 # 0.7.0 — Velocidade, afinador e navegação
 
 - Time-stretch real 50–200%, seleção independente de pitch, defaults seguros para bibliotecas antigas e alerta de dessincronização personalizada.
@@ -80,10 +88,3 @@
 ## 0.1.0
 
 Primeira Fase 1 funcional: importação, biblioteca, reprodução multitrack, mixer, metrônomo, markers e persistência.
-# iOS 0.1.0 — primeira portabilidade
-
-- Aplicativo nativo SwiftUI para iPhone/iPad, iOS 16+, com identidade e recursos adaptados do Android.
-- Engine C++ com ring de áudio, AVAudioSourceNode, importação AVAudioConverter, mixer/DCA/BUS/rotas, markers/loop, metrônomo/Smart Click, pitch e velocidade Signalsmith.
-- Afinador local YIN, menu, projetos, pagamento e ajuda. Persistência própria no sandbox iOS.
-- Build macOS no GitHub Actions e testes no simulador; pacote ARM64 sem assinatura para posterior assinatura pessoal.
-- Instalação no dispositivo físico e equivalência integral ao Android dependem de validação adicional. Android permanece 0.7.0.
