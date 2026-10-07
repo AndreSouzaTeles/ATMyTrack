@@ -1,0 +1,10 @@
+
+com.atmytrack.app.LoopControl05Test:..
+com.atmytrack.app.PlaybackInstrumentedTest:........
+com.atmytrack.app.Layout05Test:.
+
+Time: 31.402
+
+OK (11 tests)
+
+

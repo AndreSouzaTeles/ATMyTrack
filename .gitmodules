@@ -1,0 +1,6 @@
+[submodule "app/src/main/cpp/vendor/stretch"]
+	path = app/src/main/cpp/vendor/stretch
+	url = https://github.com/Signalsmith-Audio/signalsmith-stretch.git
+[submodule "app/src/main/cpp/vendor/linear"]
+	path = app/src/main/cpp/vendor/linear
+	url = https://github.com/Signalsmith-Audio/linear.git

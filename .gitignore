@@ -1,0 +1,15 @@
+.gradle/
+.kotlin/
+**/build/
+local.properties
+*.iml
+.idea/
+tools/fixture-runtime/
+**/.cxx/
+*.apk
+verification/fixtures-*/
+verification/session-0.5/
+verification/*.log
+*.jks
+*.keystore
+keystore.properties

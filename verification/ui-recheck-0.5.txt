@@ -1,0 +1,24 @@
+
+com.atmytrack.app.PlaybackInstrumentedTest:........
+com.atmytrack.app.Session05Test:
+Error in nineteenIndependentStemsWithLiveUiAndSeek(com.atmytrack.app.Session05Test):
+java.lang.AssertionError: No underruns in the complete session expected:<0> but was:<1>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at com.atmytrack.app.Session05Test.nineteenIndependentStemsWithLiveUiAndSeek(Session05Test.kt:87)
+
+
+Time: 73.026
+There was 1 failure:
+1) nineteenIndependentStemsWithLiveUiAndSeek(com.atmytrack.app.Session05Test)
+java.lang.AssertionError: No underruns in the complete session expected:<0> but was:<1>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at com.atmytrack.app.Session05Test.nineteenIndependentStemsWithLiveUiAndSeek(Session05Test.kt:87)
+
+FAILURES!!!
+Tests run: 9,  Failures: 1
+
+

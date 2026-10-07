@@ -1,0 +1,8 @@
+
+com.atmytrack.app.PlaybackInstrumentedTest:.
+
+Time: 6.312
+
+OK (1 test)
+
+

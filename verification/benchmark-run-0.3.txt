@@ -1,0 +1,8 @@
+
+com.atmytrack.app.ImportBenchmark:..
+
+Time: 16.864
+
+OK (2 tests)
+
+

@@ -1,0 +1,9 @@
+
+com.atmytrack.app.PlaybackInstrumentedTest:........
+com.atmytrack.app.Release04AudioTest:.
+
+Time: 30.234
+
+OK (9 tests)
+
+

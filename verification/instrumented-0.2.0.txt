@@ -1,0 +1,9 @@
+
+com.atmytrack.app.ImportBenchmark:..
+com.atmytrack.app.PlaybackInstrumentedTest:...
+
+Time: 31.383
+
+OK (5 tests)
+
+

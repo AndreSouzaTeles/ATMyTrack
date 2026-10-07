@@ -1,0 +1,116 @@
+[
+  {
+    "name": "01-Click.wav",
+    "rate": 48000,
+    "channels": 1,
+    "bytes": 31680078
+  },
+  {
+    "name": "02-Kick.mp3",
+    "rate": 48000,
+    "channels": 1,
+    "bytes": 5280812
+  },
+  {
+    "name": "03-Snare.m4a",
+    "rate": 48000,
+    "channels": 1,
+    "bytes": 484876
+  },
+  {
+    "name": "04-HiHat.aac",
+    "rate": 48000,
+    "channels": 1,
+    "bytes": 1918985
+  },
+  {
+    "name": "05-Tom.flac",
+    "rate": 48000,
+    "channels": 1,
+    "bytes": 825233
+  },
+  {
+    "name": "06-Shaker.wav",
+    "rate": 48000,
+    "channels": 1,
+    "bytes": 47520102
+  },
+  {
+    "name": "07-Tambourine.mp3",
+    "rate": 48000,
+    "channels": 1,
+    "bytes": 5280812
+  },
+  {
+    "name": "08-Bass.m4a",
+    "rate": 48000,
+    "channels": 1,
+    "bytes": 3426493
+  },
+  {
+    "name": "09-GuitarL.aac",
+    "rate": 48000,
+    "channels": 2,
+    "bytes": 3762935
+  },
+  {
+    "name": "10-GuitarR.flac",
+    "rate": 48000,
+    "channels": 1,
+    "bytes": 9247597
+  },
+  {
+    "name": "11-Piano.wav",
+    "rate": 44100,
+    "channels": 2,
+    "bytes": 58212078
+  },
+  {
+    "name": "12-Organ.mp3",
+    "rate": 48000,
+    "channels": 1,
+    "bytes": 5280812
+  },
+  {
+    "name": "13-Pad.m4a",
+    "rate": 48000,
+    "channels": 2,
+    "bytes": 4377137
+  },
+  {
+    "name": "14-Strings.aac",
+    "rate": 48000,
+    "channels": 1,
+    "bytes": 3349023
+  },
+  {
+    "name": "15-Synth.flac",
+    "rate": 96000,
+    "channels": 2,
+    "bytes": 54744743
+  },
+  {
+    "name": "16-Percussion.wav",
+    "rate": 48000,
+    "channels": 1,
+    "bytes": 47520102
+  },
+  {
+    "name": "17-Lead.mp3",
+    "rate": 48000,
+    "channels": 2,
+    "bytes": 5280812
+  },
+  {
+    "name": "18-BackingL.m4a",
+    "rate": 48000,
+    "channels": 1,
+    "bytes": 3872132
+  },
+  {
+    "name": "19-BackingR.aac",
+    "rate": 48000,
+    "channels": 2,
+    "bytes": 5398033
+  }
+]

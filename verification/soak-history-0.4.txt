@@ -1,0 +1,3 @@
+24 mixed stems, 181 seconds, 1789 snapshots, max underruns=261, PSS before=90006KB after=107791KB. Loop/pause/seek/pitch reader swap passed.
+24 mixed stems, 181 seconds, 1787 snapshots, max underruns=1, PSS before=100568KB after=116279KB. Loop/pause/seek/pitch reader swap passed.
+24 mixed stems, 181 seconds, 1788 snapshots, steady underruns=0, max underruns=1, events=[179276ms/frame 0: 1], PSS before=156020KB after=136495KB. Loop/pause/seek/pitch reader swap passed.

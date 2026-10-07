@@ -1,0 +1,5 @@
+
+Algorithm : SHA256
+Hash      : D97D4BCE79C817AFF4E2905BA8D7ECEF33E8D7482E6C3EC06290F466EFBB504B
+Path      : D:\Projetos\ATMyTrack\dist\ATMyTrack-0.3.0-debug.apk
+

@@ -1,0 +1,4 @@
+package: name='com.atmytrack.app' versionCode='3' versionName='0.3.0' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'
+sdkVersion:'26'
+targetSdkVersion:'36'
+native-code: 'arm64-v8a' 'armeabi-v7a' 'x86_64'

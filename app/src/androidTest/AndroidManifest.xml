@@ -1,0 +1,6 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- Test APK only: emulates a cloud provider with unknown length and a non-seekable stream. -->
+        <provider android:name="com.atmytrack.app.NonSeekableAudioProvider" android:authorities="com.atmytrack.app.test.stream" android:exported="true" />
+    </application>
+</manifest>

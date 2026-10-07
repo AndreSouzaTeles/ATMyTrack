@@ -1,0 +1,9 @@
+01-Click: native=48000Hz target=48000Hz frames=15840000, max seek=2ms sample error=0.0
+02-Kick: native=48000Hz target=48000Hz frames=15841152, max seek=2ms sample error=0.0
+03-Snare: native=48000Hz target=48000Hz frames=15841024, max seek=1ms sample error=0.0
+04-HiHat: native=48000Hz target=48000Hz frames=15841280, max seek=1ms sample error=0.0
+05-Tom: native=48000Hz target=48000Hz frames=15840000, max seek=1ms sample error=0.0
+06-Shaker: native=48000Hz target=48000Hz frames=15840000, max seek=1ms sample error=0.0
+07-Tambourine: native=48000Hz target=48000Hz frames=15841152, max seek=1ms sample error=0.0
+08-Bass: native=48000Hz target=48000Hz frames=15841024, max seek=1ms sample error=0.0
+09-GuitarL: native=48000Hz target=48000Hz frames=15841280, max seek=1ms sample error=0.008972168

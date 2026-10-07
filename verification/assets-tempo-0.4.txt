@@ -1,0 +1,9 @@
+
+com.atmytrack.app.BrandAssetsTest:.
+com.atmytrack.app.Release04AudioTest:.
+
+Time: 1.104
+
+OK (2 tests)
+
+

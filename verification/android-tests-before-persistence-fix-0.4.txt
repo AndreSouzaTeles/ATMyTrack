@@ -1,0 +1,29 @@
+
+com.atmytrack.app.AdvancedAudioTest:....
+com.atmytrack.app.BrandAssetsTest:.
+com.atmytrack.app.BufferedReaderTest:..
+com.atmytrack.app.ImportBenchmark:..
+com.atmytrack.app.PlaybackInstrumentedTest:
+Error in doubleTapFineGainAllFadersAndDragRemainIndependent(com.atmytrack.app.PlaybackInstrumentedTest):
+androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 1000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:755)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:362)
+	at androidx.compose.ui.test.junit4.ComposeTestRule.waitUntil$default(ComposeTestRule.jvm.kt:137)
+	at com.atmytrack.app.PlaybackInstrumentedTest.doubleTapFineGainAllFadersAndDragRemainIndependent(PlaybackInstrumentedTest.kt:81)
+.......
+com.atmytrack.app.Release04AudioTest:.....
+com.atmytrack.app.SourceProviderTest:.
+
+Time: 287.573
+There was 1 failure:
+1) doubleTapFineGainAllFadersAndDragRemainIndependent(com.atmytrack.app.PlaybackInstrumentedTest)
+androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 1000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:755)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:362)
+	at androidx.compose.ui.test.junit4.ComposeTestRule.waitUntil$default(ComposeTestRule.jvm.kt:137)
+	at com.atmytrack.app.PlaybackInstrumentedTest.doubleTapFineGainAllFadersAndDragRemainIndependent(PlaybackInstrumentedTest.kt:81)
+
+FAILURES!!!
+Tests run: 23,  Failures: 1
+
+

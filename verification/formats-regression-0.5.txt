@@ -1,0 +1,11 @@
+Aligned.aac: 251ms, 8641536 frames, seek error 4.5776367E-4, direct=true, max seek 402ms, drift 0 frames, [8544000=3.3569336E-4, 4320000=4.5776367E-4, 48000=0.0, 0=0.0]
+Aligned.flac: 14ms, 8640000 frames, seek error 0.0, direct=true, max seek 45ms, drift 0 frames, [8544000=0.0, 4320000=0.0, 48000=0.0, 0=0.0]
+Aligned.m4a: 13ms, 8641024 frames, seek error 0.0, direct=true, max seek 89ms, drift 0 frames, [8544000=0.0, 4320000=0.0, 48000=0.0, 0=0.0]
+Aligned.mp3: 4ms, 8641152 frames, seek error 0.0, direct=true, max seek 512ms, drift 0 frames, [8544000=0.0, 4320000=0.0, 48000=0.0, 0=0.0]
+Aligned.ogg: 31ms, 8640000 frames, seek error 0.0, direct=true, max seek 115ms, drift 0 frames, [8544000=0.0, 4320000=0.0, 48000=0.0, 0=0.0]
+Aligned.opus: 41ms, 8640000 frames, seek error 0.0, direct=true, max seek 140ms, drift 0 frames, [8544000=0.0, 4320000=0.0, 48000=0.0, 0=0.0]
+Aligned.wav: 2ms, 8640000 frames, seek error 0.0, direct=true, max seek 0ms, drift 0 frames, [8544000=0.0, 4320000=0.0, 48000=0.0, 0=0.0]
+Mixed 1 formats: 398ms; no copies
+Mixed 5 formats: 44ms; no copies
+Mixed 10 formats: 162ms; no copies
+Mixed 24 formats: 598ms; no copies

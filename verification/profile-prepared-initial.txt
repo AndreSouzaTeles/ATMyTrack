@@ -1,0 +1,7 @@
+API 35 sdk_gphone64_x86_64; each duration=12000 ms; CPU=process ms/wall ms, 100%=one core
+n=1 metadata=103ms ready=8344ms cpu=904ms gc=1 pss=83193KiB underruns=0 readMax=1.591464ms clippedBlocks=0 frame=576640 error=null
+n=2 metadata=251ms ready=3275ms cpu=930ms gc=0 pss=84638KiB underruns=0 readMax=0.762968ms clippedBlocks=0 frame=576640 error=null
+n=4 metadata=246ms ready=25161ms cpu=1271ms gc=1 pss=84551KiB underruns=0 readMax=1.373217ms clippedBlocks=0 frame=576640 error=null
+n=8 metadata=473ms ready=30286ms cpu=1610ms gc=0 pss=87191KiB underruns=0 readMax=13.446797ms clippedBlocks=84 frame=576640 error=null
+n=12 metadata=266ms ready=287ms cpu=2207ms gc=0 pss=86535KiB underruns=0 readMax=1.015234ms clippedBlocks=1148 frame=576640 error=null
+n=19 metadata=264ms ready=284ms cpu=3019ms gc=1 pss=86193KiB underruns=0 readMax=2.294266ms clippedBlocks=1140 frame=571200 error=null

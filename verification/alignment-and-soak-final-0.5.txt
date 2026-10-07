@@ -1,0 +1,9 @@
+
+com.atmytrack.app.CacheAlignment05Test:.
+com.atmytrack.app.Session05Test:.
+
+Time: 779.154
+
+OK (2 tests)
+
+

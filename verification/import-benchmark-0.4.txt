@@ -1,0 +1,9 @@
+Android 15 / sdk_gphone64_x86_64; API 35
+Files generated locally; generation excluded. Two passes with reversed order. New importer 0.4.0 reads persistent local metadata without copying. Baseline is the retained 0.1.0 full decoder.
+format,pass,input_bytes,legacy_ms,new_ms,legacy_cache_bytes,new_cache_bytes,max_sample_error,legacy_frames,new_frames,errors_start_mid_tail
+WAV mono16 300s,1,28800044,2063,1,115200000,0,0.0,14400000,14400000,0.0/0.0/0.0
+WAV mono16 300s,2,28800044,2051,1,115200000,0,0.0,14400000,14400000,0.0/0.0/0.0
+WAV stereo24 180s,1,51840044,1828,1,69120000,0,3.0398369E-5,8640000,8640000,3.0398369E-5/3.0398369E-5/3.0398369E-5
+WAV stereo24 180s,2,51840044,1575,1,69120000,0,3.0398369E-5,8640000,8640000,3.0398369E-5/3.0398369E-5/3.0398369E-5
+AAC stereo 60s,1,1454897,2837,13,23035904,0,0.0,2879488,2879488,0.0/0.0/0.0
+AAC stereo 60s,2,1454897,2922,12,23035904,0,0.0,2879488,2879488,0.0/0.0/0.0

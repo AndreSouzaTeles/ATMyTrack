@@ -1,0 +1,23 @@
+19 distinct 330s stems; fresh cache keys, unchanged source bytes; metadata=525ms
+prepared=0/19 elapsed=2ms
+prepared=1/19 elapsed=28ms
+prepared=2/19 elapsed=15170ms
+prepared=3/19 elapsed=17651ms
+prepared=4/19 elapsed=22457ms
+prepared=5/19 elapsed=22483ms
+prepared=6/19 elapsed=33134ms
+prepared=7/19 elapsed=37971ms
+prepared=8/19 elapsed=50386ms
+prepared=9/19 elapsed=55296ms
+prepared=10/19 elapsed=57348ms
+prepared=11/19 elapsed=57975ms
+prepared=12/19 elapsed=73893ms
+prepared=13/19 elapsed=77176ms
+prepared=15/19 elapsed=86778ms
+prepared=16/19 elapsed=92416ms
+prepared=17/19 elapsed=102581ms
+prepared=18/19 elapsed=110116ms
+prepared=19/19 elapsed=118621ms
+coldTotal=119172ms enginePrep=118620ms
+cachedReopen=34ms
+Fresh cache samples: all 19 stems bit-exact at frame zero.

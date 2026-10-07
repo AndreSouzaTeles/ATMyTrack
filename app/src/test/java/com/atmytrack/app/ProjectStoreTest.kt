@@ -1,0 +1,81 @@
+package com.atmytrack.app
+
+import com.atmytrack.app.data.*
+import org.junit.Assert.*
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import java.nio.file.Files
+
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [28], application = android.app.Application::class)
+class ProjectStoreTest {
+    @Test fun mixedRateOriginsSurviveReopenAndOldMarkerPaletteMigrates() {
+        val dir=Files.createTempDirectory("atmytrack-rates").toFile()
+        try {
+            val p=Project(name="Mixed",sampleRate=48000,stems=listOf(
+                Stem(name="44k",pcm="a.wav",frames=48000,sourceRate=44100,sourceFrames=44100),
+                Stem(name="96k",pcm="b.flac",frames=48000,sourceRate=96000,sourceFrames=96000,compressed=true)),
+                markers=listOf(Marker(name="Old",start=0,end=48000,color=0xFF39E0B8)))
+            ProjectStore(dir).save(listOf(p))
+            val loaded=ProjectStore(dir).load().single()
+            assertEquals(p.stems,loaded.stems)
+            assertEquals(0xFF3B82F6L,loaded.markers.single().color)
+        } finally { dir.deleteRecursively() }
+    }
+    @Test fun separateInstancesSerializeReadersAndAtomicWriters() {
+        val dir=Files.createTempDirectory("atmytrack-concurrent").toFile()
+        val workers=java.util.concurrent.Executors.newFixedThreadPool(2)
+        try {
+            val writer=ProjectStore(dir);val reader=ProjectStore(dir)
+            val p=Project(name="0",sampleRate=48000,stems=List(40){Stem(name="Track $it",pcm="audio/$it",frames=96000)})
+            writer.save(listOf(p))
+            val start=java.util.concurrent.CountDownLatch(1)
+            val save=workers.submit { start.await();repeat(40) { writer.save(listOf(p.copy(name="${it+1}"))) } }
+            val read=workers.submit { start.await();repeat(80) { assertEquals(p.stems,reader.load().single().stems) } }
+            start.countDown();save.get();read.get()
+            assertEquals(p.copy(name="40"),reader.load().single())
+        } finally { workers.shutdownNow();dir.deleteRecursively() }
+    }
+    @Test fun nativePcmMetadataRoundTripAndOldProjectsRemainReadable() {
+        val dir = Files.createTempDirectory("atmytrack-upgrade").toFile()
+        try {
+            val p = Project(name = "PCM24", sampleRate = 48000, stems = listOf(Stem(name = "Guitar", pcm = "audio/1.audio", frames = 500, format = PcmFormat(1, PcmEncoding.S24, 80))))
+            val store = ProjectStore(dir); store.save(listOf(p))
+            assertEquals(p, store.load().single())
+            val file = java.io.File(dir, "library.json")
+            val json = org.json.JSONObject(file.readText())
+            val stem = json.getJSONArray("projects").getJSONObject(0).getJSONArray("stems").getJSONObject(0)
+            stem.remove("channels"); stem.remove("encoding"); stem.remove("dataOffset")
+            file.writeText(json.toString())
+            assertEquals(PcmFormat(), store.load().single().stems.single().format)
+        } finally { dir.deleteRecursively() }
+    }
+    @Test fun roundTripPreservesEveryProjectAndMixerSetting() {
+        val dir = Files.createTempDirectory("atmytrack-store").toFile()
+        try {
+            val store = ProjectStore(dir)
+            assertEquals(emptyList<Project>(), store.load())
+            val project = Project(name = "Canção çã", sampleRate = 44100,
+                stems = listOf(Stem(id="a",name = "Bass", pcm = "audio/x/1.pcm", frames = 987654L, volume = .42f, pan = -.35f, mute = true, solo = true,source="content://fixture/a",external=true,compressed=true,fingerprint="sha256-fixture",bus="bus",route="LEFT",pitchFile="pitch/a.pcm",pitchApplied=3)),
+                bpm = 72.1, beats = 6, denominator = 8, multiplier = .5, click = true, clickVolume = .23f,
+                master = .74f, masterMute = true, loop = true, key = "Gb", artwork = "artwork/x.jpg",
+                markers = listOf(Marker(name = "REFRÃO", start = 123, end = 12345, color = 0xFF3B82F6)),
+                dcas=listOf(Dca(name="Band",members=listOf("a","b"),volume=.4f,mute=true)),buses=listOf(Bus(name="Guide",volume=.6f,mute=true,destination="OUT:2")),
+                semitones=3,targetKey="A",pitchTracks=listOf("a"),clickSound="Wood",accent=false,clickRoute="LEFT",detectedBpm=71.96,confidence=.94,beatOffset=1234,analysisKey="abc")
+            store.save(listOf(project))
+            assertEquals(listOf(project), ProjectStore(dir).load())
+            store.save(emptyList())
+            assertEquals(emptyList<Project>(), ProjectStore(dir).load())
+        } finally { dir.deleteRecursively() }
+    }
+    @Test fun damagedLibraryRaisesErrorInsteadOfSilentlyLosingProjects() {
+        val dir = Files.createTempDirectory("atmytrack-corrupt").toFile()
+        try {
+            java.io.File(dir, "library.json").writeText("not json")
+            assertThrows(Exception::class.java) { ProjectStore(dir).load() }
+            assertEquals("not json", java.io.File(dir, "library.json").readText())
+        } finally { dir.deleteRecursively() }
+    }
+}

@@ -1,0 +1,48 @@
+
+com.atmytrack.app.BrandAssetsTest:.
+com.atmytrack.app.Preparation05Test:..
+com.atmytrack.app.PlaybackInstrumentedTest:..
+Error in realImportPlaybackPauseSeekMixerAndSavedLibrary(com.atmytrack.app.PlaybackInstrumentedTest):
+java.lang.AssertionError: Semantic Node has no parent layout with a Scroll SemanticsAction
+	at androidx.compose.ui.test.ActionsKt.scrollToNode(Actions.kt:97)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
+	at com.atmytrack.app.PlaybackInstrumentedTest.realImportPlaybackPauseSeekMixerAndSavedLibrary(PlaybackInstrumentedTest.kt:131)
+....
+Error in fiveTracksReorderToFirstAndReopenProject(com.atmytrack.app.PlaybackInstrumentedTest):
+androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 8000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:755)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:362)
+	at com.atmytrack.app.PlaybackInstrumentedTest.fiveTracksReorderToFirstAndReopenProject(PlaybackInstrumentedTest.kt:89)
+
+com.atmytrack.app.Session05Test:
+Error in nineteenIndependentStemsWithLiveUiAndSeek(com.atmytrack.app.Session05Test):
+java.lang.AssertionError: No underruns in the complete session expected:<0> but was:<1>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at com.atmytrack.app.Session05Test.nineteenIndependentStemsWithLiveUiAndSeek(Session05Test.kt:87)
+
+
+Time: 224.844
+There were 3 failures:
+1) realImportPlaybackPauseSeekMixerAndSavedLibrary(com.atmytrack.app.PlaybackInstrumentedTest)
+java.lang.AssertionError: Semantic Node has no parent layout with a Scroll SemanticsAction
+	at androidx.compose.ui.test.ActionsKt.scrollToNode(Actions.kt:97)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
+	at com.atmytrack.app.PlaybackInstrumentedTest.realImportPlaybackPauseSeekMixerAndSavedLibrary(PlaybackInstrumentedTest.kt:131)
+2) fiveTracksReorderToFirstAndReopenProject(com.atmytrack.app.PlaybackInstrumentedTest)
+androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 8000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:755)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:362)
+	at com.atmytrack.app.PlaybackInstrumentedTest.fiveTracksReorderToFirstAndReopenProject(PlaybackInstrumentedTest.kt:89)
+3) nineteenIndependentStemsWithLiveUiAndSeek(com.atmytrack.app.Session05Test)
+java.lang.AssertionError: No underruns in the complete session expected:<0> but was:<1>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at com.atmytrack.app.Session05Test.nineteenIndependentStemsWithLiveUiAndSeek(Session05Test.kt:87)
+
+FAILURES!!!
+Tests run: 12,  Failures: 3
+
+

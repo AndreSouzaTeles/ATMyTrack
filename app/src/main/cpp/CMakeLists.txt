@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.22)
+project(atmytrack_dsp)
+add_library(atmytrack_dsp SHARED pitch.cpp)
+target_compile_features(atmytrack_dsp PRIVATE cxx_std_17)
+target_compile_options(atmytrack_dsp PRIVATE -O3)
+target_include_directories(atmytrack_dsp PRIVATE vendor/stretch vendor/linear/include)

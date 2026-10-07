@@ -1,0 +1,27 @@
+19 distinct synthetic musical stems, WAV16/24, MP3/M4A/AAC/FLAC, mono/stereo, 44.1/48/96kHz, 330s. metadata=1245 ms totalReady=1355 ms prepEngine=70 ms
+elapsed=4ms frame=118592 underruns=0 starvation=0 producerWaits=11 pss=126777KiB
+seek 30 at 3773ms resumed frame=1440000
+seek 60 at 9311ms resumed frame=2880000
+seek 120 at 16691ms resumed frame=5760000
+seek 180 at 22217ms resumed frame=8641088
+seek 0 at 29260ms resumed frame=0
+elapsed=32955ms frame=233920 underruns=0 starvation=0 producerWaits=99 pss=126495KiB
+elapsed=64028ms frame=1729920 underruns=0 starvation=0 producerWaits=182 pss=134603KiB
+elapsed=95281ms frame=3241152 underruns=0 starvation=0 producerWaits=259 pss=137339KiB
+elapsed=126493ms frame=4729536 underruns=0 starvation=0 producerWaits=333 pss=126263KiB
+elapsed=157655ms frame=6228800 underruns=0 starvation=0 producerWaits=427 pss=127015KiB
+elapsed=189304ms frame=7767232 underruns=0 starvation=0 producerWaits=489 pss=129103KiB
+elapsed=220825ms frame=9252352 underruns=0 starvation=0 producerWaits=577 pss=136803KiB
+elapsed=251715ms frame=10726592 underruns=0 starvation=0 producerWaits=647 pss=136360KiB
+elapsed=282595ms frame=12220416 underruns=0 starvation=0 producerWaits=720 pss=133852KiB
+elapsed=314099ms frame=13732736 underruns=0 starvation=0 producerWaits=778 pss=133820KiB
+elapsed=345433ms frame=15239616 underruns=0 starvation=0 producerWaits=851 pss=136256KiB
+elapsed=376661ms frame=897600 underruns=0 starvation=0 producerWaits=929 pss=137188KiB
+elapsed=408042ms frame=2387072 underruns=0 starvation=0 producerWaits=987 pss=144494KiB
+elapsed=438934ms frame=3875456 underruns=0 starvation=0 producerWaits=1064 pss=143750KiB
+elapsed=470012ms frame=5371456 underruns=0 starvation=0 producerWaits=1146 pss=141858KiB
+elapsed=501194ms frame=6873984 underruns=0 starvation=0 producerWaits=1234 pss=144702KiB
+elapsed=532382ms frame=8375424 underruns=0 starvation=0 producerWaits=1321 pss=134730KiB
+elapsed=563714ms frame=9864896 underruns=0 starvation=0 producerWaits=1403 pss=145306KiB
+elapsed=594582ms frame=11365248 underruns=0 starvation=0 producerWaits=1492 pss=145670KiB
+wall=600715ms cpu=267991ms gc=117 PSS=121756..146602KiB underruns=0 starvation=0 interactions=575

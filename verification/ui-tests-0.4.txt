@@ -1,0 +1,9 @@
+
+com.atmytrack.app.PlaybackInstrumentedTest:.......
+com.atmytrack.app.BufferedReaderTest:..
+
+Time: 22.875
+
+OK (9 tests)
+
+

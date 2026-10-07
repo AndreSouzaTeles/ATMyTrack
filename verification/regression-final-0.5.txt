@@ -1,0 +1,15 @@
+
+com.atmytrack.app.ColdPreparation05Test:.
+com.atmytrack.app.Profile05Test:.
+com.atmytrack.app.AdvancedAudioTest:....
+com.atmytrack.app.SourceProviderTest:.
+com.atmytrack.app.Preparation05Test:..
+com.atmytrack.app.PlaybackInstrumentedTest:........
+com.atmytrack.app.BrandAssetsTest:.
+com.atmytrack.app.Release04AudioTest:......
+
+Time: 526.34
+
+OK (24 tests)
+
+

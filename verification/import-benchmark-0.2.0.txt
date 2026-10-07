@@ -1,0 +1,9 @@
+Android 15 / sdk_gphone64_x86_64; API 35
+Files generated locally; generation excluded. Two passes with reversed order. Times include internal copy for 0.2.0.
+format,pass,input_bytes,legacy_ms,new_ms,legacy_cache_bytes,new_cache_bytes,max_sample_error
+WAV mono16 300s,1,28800044,1863,23,115200000,28800044,0.0
+WAV mono16 300s,2,28800044,1747,13,115200000,28800044,0.0
+WAV stereo24 180s,1,51840044,1616,22,69120000,51840044,3.0398369E-5
+WAV stereo24 180s,2,51840044,1608,22,69120000,51840044,3.0398369E-5
+AAC stereo 60s,1,1454897,3454,3165,23035904,11517952,0.0
+AAC stereo 60s,2,1454897,3404,3269,23035904,11517952,0.0
