@@ -81,6 +81,14 @@ enum Music {
     static func time(_ seconds: Double) -> String { let s = max(0,Int(seconds)); return String(format:"%02d:%02d",s/60,s%60) }
     static func db(_ gain: Float) -> Double { gain > 0 ? max(-80,20*log10(Double(gain))) : -80 }
     static func gain(_ db: Double) -> Float { db <= -79.9 ? 0 : Float(pow(10,db/20)) }
+    static let faderPoints:[(Double,Double)]=[(0,-80),(0.06,-60),(0.14,-40),(0.23,-30),(0.35,-20),(0.5,-10),(0.64,-5),(0.78,0),(0.89,5),(1,10)]
+    private static func interpolate(_ value:Double,_ points:[(Double,Double)])->Double {
+        let i=(1..<points.count).first{value<=points[$0].0} ?? points.count-1
+        let a=points[i-1],b=points[i]
+        return a.1+(b.1-a.1)*min(1,max(0,(value-a.0)/(b.0-a.0)))
+    }
+    static func faderPosition(_ gain:Float)->Double {interpolate(db(gain),faderPoints.map{($0.1,$0.0)})}
+    static func faderGain(_ position:Double)->Float {gain((interpolate(position,faderPoints)*10).rounded()/10)}
 }
 struct Tuning: Identifiable {
     var id: String

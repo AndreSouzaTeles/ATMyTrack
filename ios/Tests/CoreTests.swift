@@ -1,4 +1,5 @@
 import XCTest
+import AVFoundation
 @testable import ATMyTrack
 
 final class CoreTests:XCTestCase {
@@ -43,6 +44,8 @@ final class CoreTests:XCTestCase {
     func testA4AndInstrumentDefinitions(){
         XCTAssertEqual(Music.frequency(69),440);XCTAssertEqual(Music.frequency(57,a4:432),216)
         XCTAssertEqual(Instrument.all.count,13);XCTAssertEqual(Music.note(23),"B0");XCTAssertEqual(Music.note(40),"E2")
+        XCTAssertEqual(Music.faderPosition(1),0.78,accuracy:0.0001)
+        XCTAssertEqual(Music.faderGain(0.78),1,accuracy:0.0001)
     }
     func testStretchDurationPitchAndCombinedProcessing() throws {
         try Files.ensure()
@@ -80,5 +83,22 @@ final class CoreTests:XCTestCase {
         for _ in 0..<10{result.withUnsafeMutableBufferPointer{atm_read(core,$0.baseAddress,512)};Thread.sleep(forTimeInterval:0.011)}
         XCTAssertEqual(result[0],0.01,accuracy:0.001);XCTAssertEqual(result[1],0,accuracy:0.001)
         XCTAssertTrue((1000...2024).contains(atm_position(core)));atm_stop(core)
+    }
+    @MainActor func testNativeOutputAndImportedWave() async throws {
+        let library=Library();try TestFixture.create(in:library)
+        guard let song=library.projects.first(where:{$0.name=="Sessão de teste iOS"}) else{return XCTFail("Import failed")}
+        XCTAssertEqual(song.stems.count,2)
+        XCTAssertEqual(song.stems[0].frames,48000*30)
+        let player=Player(library:library);player.select(song)
+        for _ in 0..<100 {if !player.preparing{break};try await Task.sleep(nanoseconds:100_000_000)}
+        XCTAssertFalse(player.preparing)
+        player.play();try await Task.sleep(nanoseconds:2_000_000_000)
+        XCTAssertNil(player.error);XCTAssertTrue(player.playing);XCTAssertGreaterThan(player.transport.seconds,1)
+        player.seek(10);try await Task.sleep(nanoseconds:500_000_000)
+        XCTAssertGreaterThanOrEqual(player.transport.seconds,10)
+        player.pause();let position=player.transport.seconds
+        try await Task.sleep(nanoseconds:300_000_000)
+        XCTAssertEqual(player.transport.seconds,position)
+        player.stop();XCTAssertEqual(player.transport.seconds,0)
     }
 }

@@ -15,6 +15,7 @@ void atm_read(void *engine, float *output, int frames);
 int64_t atm_position(void *engine);
 int64_t atm_underruns(void *engine);
 float atm_peak(void *engine);
+float atm_track_peak(void *engine, int index);
 int atm_stretch(const char *source, const char *destination, int64_t frames, double speed, int semitones);
 double atm_yin(const float *samples, int count, double rate, double *rms, double *confidence);
 #ifdef __cplusplus

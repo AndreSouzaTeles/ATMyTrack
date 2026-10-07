@@ -17,6 +17,7 @@ struct Track {
     FILE *file = nullptr;
     int64_t frames = 0, cursor = -1;
     float gain = 1, pan = 0, previous = 0;
+    std::atomic<float> peak{0};
     int route = -1;
     ~Track() { if(file) fclose(file); }
 };
@@ -61,6 +62,7 @@ struct Core {
                 if(n==0)break;
                 for(auto &p:tracks) {
                     auto &t=*p; std::fill(input.begin(),input.end(),0);
+                    float trackPeak=0;
                     int count=static_cast<int>(std::min<int64_t>(n,std::max<int64_t>(0,t.frames-cursor)));
                     if(count>0) {
                         if(t.cursor!=cursor)fseeko(t.file,cursor*2*sizeof(float),SEEK_SET);
@@ -68,9 +70,11 @@ struct Core {
                     }
                     for(int i=0;i<n;++i) {
                         float g=t.previous+(t.gain-t.previous)*(i+1)/n;
+                        trackPeak=std::max(trackPeak,std::max(std::abs(input[i*2]*g),std::abs(input[i*2+1]*g)));
                         route(dst.data()+(base+i)*channels,input[i*2]*g*(1-std::max(0.f,t.pan)),input[i*2+1]*g*(1+std::min(0.f,t.pan)),t.route);
                     }
                     t.previous=t.gain;
+                    t.peak.store(trackPeak);
                 }
                 if(clickGain>0 && bpm>0) {
                     double period=rate*60/bpm;
@@ -141,6 +145,10 @@ void atm_read(void *p,float *out,int frames) {
 int64_t atm_position(void *p) {return static_cast<Core*>(p)->position;}
 int64_t atm_underruns(void *p) {return static_cast<Core*>(p)->underruns;}
 float atm_peak(void *p) {return static_cast<Core*>(p)->peak;}
+float atm_track_peak(void *p,int index) {
+    auto c=static_cast<Core*>(p);
+    return index>=0&&index<static_cast<int>(c->tracks.size())?c->tracks[index]->peak.load():0;
+}
 int atm_stretch(const char *source,const char *destination,int64_t frames,double speed,int semitones) {
     if(speed<.5||speed>2||frames<0)return -1;
     FILE *in=fopen(source,"rb"),*out=fopen(destination,"wb");

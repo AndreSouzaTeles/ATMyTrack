@@ -5,6 +5,7 @@ import Combine
     @Published var seconds = 0.0
     @Published var peak: Float = 0
     @Published var underruns: Int64 = 0
+    @Published var levels: [String:Float] = [:]
 }
 @MainActor final class Player: ObservableObject {
     @Published var song: Song?
@@ -40,6 +41,7 @@ import Combine
             transport.seconds=Double(atm_position(core))/48000
             transport.peak=atm_peak(core)
             transport.underruns=atm_underruns(core)
+            transport.levels=Dictionary(uniqueKeysWithValues:coreTracks.enumerated().map{($0.element,atm_track_peak(core,Int32($0.offset)))})
             if !song.loop && transport.seconds>=song.seconds {pause()}
         }
     }

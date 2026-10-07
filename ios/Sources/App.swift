@@ -173,7 +173,7 @@ struct ChannelStrip:View {
             Text(stem.pan==0 ? "PAN · C" : String(format:"PAN · %.0f",stem.pan*100)).font(.caption).foregroundStyle(.secondary)
             Slider(value:Binding(get:{Double(stem.pan)},set:{v in edit{$0.pan=Float(v)}}),in:-1...1)
             HStack{Button("S"){edit{$0.solo.toggle()}}.tint(stem.solo ? Palette.blue : .gray);Button("M"){edit{$0.mute.toggle()}}.tint(stem.mute ? Palette.blue : .gray)}.buttonStyle(.borderedProminent)
-            Fader(gain:Binding(get:{stem.volume},set:{v in edit{$0.volume=v}}))
+            HStack{Fader(gain:Binding(get:{stem.volume},set:{v in edit{$0.volume=v}}));LevelMeter(clock:player.transport,id:stem.id)}
             Menu {Button("MASTER"){edit{$0.bus=""}};ForEach(player.song?.buses ?? []){bus in Button(bus.name){edit{$0.bus=bus.id}}};Divider();Button("Estéreo"){edit{$0.route = -1}};Button("Esquerda"){edit{$0.route = -2}};Button("Direita"){edit{$0.route = -3}}}label:{Text(stem.bus.isEmpty ? "MASTER / ROUTING" : "BUS / ROUTING").font(.caption2)}
         }.padding(10).frame(width:146).background(Palette.panel,in:RoundedRectangle(cornerRadius:14))
     }
@@ -189,14 +189,14 @@ struct Fader:View {
     var body:some View{VStack(spacing:10){
         Button(gain==0 ? "−∞ dB" : String(format:"%+.1f dB",Music.db(gain))){entered=String(format:"%.1f",Music.db(gain));editing=true}.font(.subheadline.monospacedDigit())
         GeometryReader{geo in
-            let height=geo.size.height,position=(Music.db(gain)+80)/90
+            let height=geo.size.height,position=Music.faderPosition(gain)
             ZStack{
                 Capsule().fill(Palette.background).frame(width:8)
                 ForEach([-60,-40,-30,-20,-10,-5,0,5,10],id:\.self){db in
-                    HStack{Text("\(db)").font(.system(size:10)).foregroundStyle(db==0 ? Palette.light : .secondary);Spacer();Rectangle().fill(db==0 ? Palette.blue : .gray).frame(width:26,height:db==0 ? 2:1);Spacer().frame(width:21)}.position(x:geo.size.width/2,y:height*CGFloat(1.0-Double(db+80)/90.0))
+                    HStack{Text("\(db)").font(.system(size:10)).foregroundStyle(db==0 ? Palette.light : .secondary);Spacer();Rectangle().fill(db==0 ? Palette.blue : .gray).frame(width:26,height:db==0 ? 2:1);Spacer().frame(width:21)}.position(x:geo.size.width/2,y:height*CGFloat(1.0-Music.faderPosition(Music.gain(Double(db)))))
                 }
                 RoundedRectangle(cornerRadius:4).fill(Palette.light).frame(width:38,height:22).overlay(Rectangle().fill(Palette.blue).frame(width:30,height:3)).position(x:geo.size.width/2,y:height*CGFloat(1.0-position))
-            }.contentShape(Rectangle()).gesture(DragGesture(minimumDistance:0).onChanged{value in gain=Music.gain(Double(1.0-max(0,min(height,value.location.y))/height)*90.0-80.0)}).onTapGesture(count:2){gain=1}
+            }.contentShape(Rectangle()).gesture(DragGesture(minimumDistance:0).onChanged{value in gain=Music.faderGain(Double(1.0-max(0,min(height,value.location.y))/height))}).onTapGesture(count:2){gain=1}
         }.frame(height:235).padding(.vertical,12)
         Button("0dB"){gain=1}.buttonStyle(.bordered).frame(minHeight:44)
     }.alert("Nível em dB",isPresented:$editing){TextField("−80 até +10",text:$entered).keyboardType(.numbersAndPunctuation);Button("Cancelar",role:.cancel){};Button("Aplicar"){if let db=Double(entered.replacingOccurrences(of:",",with:".")){gain=Music.gain(min(10,max(-80,db)))}}}}
@@ -208,4 +208,13 @@ struct TrackDrop:DropDelegate {
     func dropEntered(info:DropInfo){guard let id=dragging,id != target else{return};player.edit{song in guard let from=song.stems.firstIndex(where:{$0.id==id}),let to=song.stems.firstIndex(where:{$0.id==target}) else{return};song.stems.move(fromOffsets:IndexSet(integer:from),toOffset:to>from ? to+1:to)}}
     func performDrop(info:DropInfo)->Bool{dragging=nil;return true}
     func dropUpdated(info:DropInfo)->DropProposal?{DropProposal(operation:.move)}
+}
+struct LevelMeter:View {
+    @ObservedObject var clock:Transport
+    var id:String?
+    var body:some View {
+        let value=id.flatMap{clock.levels[$0]} ?? clock.peak
+        let normalized=max(0,min(1,(Music.db(value)+60)/60))
+        return GeometryReader{geo in ZStack(alignment:.bottom){Capsule().fill(Palette.background);Capsule().fill(value>=1 ? Color.red : value>0.85 ? Color.orange : Palette.blue).frame(height:geo.size.height*CGFloat(normalized))}}.frame(width:6,height:235)
+    }
 }
