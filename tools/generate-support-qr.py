@@ -1,4 +1,4 @@
-"""Generate the supplied Pix QR and verify it with an independent decoder.
+"""Generate a reference Pix QR (does not overwrite the user-supplied app image) and verify it with an independent decoder.
 
 Development only:
 python -m pip install --target tools/qr-runtime qrcode[pil]==8.2 zxing-cpp==3.1.1
@@ -17,7 +17,7 @@ from PIL import Image
 source = root / "app/src/main/java/com/atmytrack/app/ui/LibraryAndSupport.kt"
 payload = re.search(r'private const val pix="([^"]+)"', source.read_text(encoding="utf-8")).group(1)
 assert format(binascii.crc_hqx(payload[:-4].encode("utf-8"), 0xFFFF), "04X") == payload[-4:]
-destination = root / "app/src/main/res/drawable-nodpi/support_pix.png"
+destination = root / "verification/generated-reference-pix.png"
 qrcode.make(payload, box_size=8, border=4).save(destination)
 decoded = zxingcpp.read_barcode(Image.open(destination))
 assert decoded is not None and decoded.bytes == payload.encode("utf-8")

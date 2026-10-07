@@ -1,3 +1,8 @@
+# 0.6.1 — QR Code enviado pelo usuário
+
+- Substitui o QR gerado pela imagem JPG fornecida, sem edição.
+- Texto decodificado corresponde ao Pix Copia e Cola já configurado.
+
 # 0.6.0 — Biblioteca, seções e novos controles
 
 - Arte de ícone enviada pelo usuário aplicada a logo, splash e todas as densidades.

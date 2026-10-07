@@ -1,9 +1,9 @@
-# ATMyTrack — Android 0.6.0
+# ATMyTrack — Android 0.6.1
 
 Atualização incremental do player multitrack em Kotlin/Compose para Android 8.0+ (API 26). Preserva a biblioteca e os áudios internos das versões anteriores.
 
 ## Instalação
-Baixe o [APK 0.6.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.6.0/ATMyTrack-0.6.0-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.6.0).
+Baixe o [APK 0.6.1](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.6.1/ATMyTrack-0.6.1-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.6.1).
 
 Instale `dist/ATMyTrack-debug.apk` sobre a versão anterior, sem desinstalar. A assinatura de desenvolvimento foi mantida. O APK inclui arm64-v8a, armeabi-v7a e x86_64. Não exige conta ou assinatura. A origem de nuvem pode precisar de conexão/download.
 
@@ -25,7 +25,7 @@ Validação, capturas e limites: [relatório da versão](verification/REPORT-0.6
 - Arrastar o nome move visualmente o canal inteiro; nomes centralizados. Barra de ferramentas agrupada e páginas Playback/Mixer.
 - Buses oferecem cada canal físico (OUT 1/2 e OUT 2/2 em uma saída de dois canais), pares estéreo e envio ao master. Canais físicos diretos não passam pelo fader master. Somente canais aceitos pela saída Android são oferecidos; interfaces USB físicas exigem validação no aparelho.
 - SeuNomeNoApp: globo giratório com arraste, foco por toque e busca. Os 20 nomes de demonstração são explicitamente fictícios. Nome do formulário fica salvo apenas no aparelho; o usuário pode compartilhar sua identificação e comprovante pelo canal escolhido. Não existe recebimento automático, verificação bancária ou publicação automática. Inclusão real é manual no asset `supporters.json`, com `demo=false`.
-- Pix: link Nubank, Copia e Cola e QR gerado a partir do texto fornecido. Conteúdo do QR decodificado e conferido byte a byte; CRC validado. Nenhum pagamento foi realizado no teste.
+- Pix: link Nubank, Copia e Cola e QR da imagem enviada pelo usuário, preservada sem edição na 0.6.1. Texto decodificado conferido com o Pix Copia e Cola; CRC textual UTF-8 validado. Nenhum pagamento foi realizado no teste.
 
 ## Controles
 O transporte fica **fixo no topo** em ambas as páginas: PLAY/PAUSE, STOP, reiniciar, próximo projeto, posição/duração, BPM e compasso. Cards de músicas e **+** aparecem imediatamente abaixo. Playback contém waveform e seções; Mixer acrescenta DCA, BUS e routing. Conteúdo e canais têm rolagem independente; navegar não reinicia o áudio. Interface escura azul; níveis altos âmbar, clipping vermelho. O limiter protege a saída; clipping aparece somente nos medidores, sem mensagem no topo.

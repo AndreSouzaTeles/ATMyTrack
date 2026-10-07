@@ -1,0 +1,8 @@
+
+com.atmytrack.app.Feature06Test:.
+
+Time: 12.064
+
+OK (1 test)
+
+

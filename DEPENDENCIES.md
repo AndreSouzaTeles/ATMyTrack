@@ -39,4 +39,4 @@ Nenhuma dependência nova. A leitura de PCM/container segue [RIFF](https://learn
 
 ## QR Code 0.6 (ferramentas fora do APK)
 
-qrcode 8.2 (BSD), Pillow 12.3.0 (MIT-CMU) e zxing-cpp 3.1.1 (Apache-2.0), instalados apenas em `tools/qr-runtime`, geram e verificam o PNG do Pix. Nenhuma biblioteca de pagamentos ou código dessas ferramentas entra no APK; apenas a imagem gerada. Reproduzir com `tools/generate-support-qr.py`.
+qrcode 8.2 (BSD), Pillow 12.3.0 (MIT-CMU) e zxing-cpp 3.1.1 (Apache-2.0), instalados apenas em `tools/qr-runtime`, geram uma imagem de referência e verificam a leitura do Pix. Desde a 0.6.1, o APK usa o JPG fornecido pelo usuário, preservado sem alterações. Nenhuma biblioteca de pagamentos ou código dessas ferramentas entra no APK. `tools/generate-support-qr.py` gera somente a referência em `verification`, sem substituir a imagem do app.

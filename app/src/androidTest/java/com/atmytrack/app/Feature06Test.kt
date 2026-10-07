@@ -59,6 +59,8 @@ class Feature06Test {
     compose.onNodeWithText("SALVAR MEU NOME").performScrollTo().performClick()
     compose.onNodeWithText("Nome salvo neste aparelho. Ele ainda não foi enviado nem publicado.").assertExists()
     InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot().let { bitmap -> File(context.getExternalFilesDir(null),"supporter-form-0.6.png").outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG,100,it) };bitmap.recycle() }
+    compose.onNodeWithContentDescription("QR Code Pix ATMyTrack").performScrollTo().assertIsDisplayed()
+    InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot().let { bitmap -> File(context.getExternalFilesDir(null),"pix-screen-0.6.1.png").outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG,100,it) };bitmap.recycle() }
     compose.onNodeWithText("FECHAR").performClick()
  }
  @Test fun selectedSectionLoopsAndCanBeDisabledDuringPlayback()=runBlocking {

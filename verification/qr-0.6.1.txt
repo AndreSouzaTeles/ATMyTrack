@@ -1,0 +1,1 @@
+Source JPG preserved byte-for-byte. ZXing reads QR in source and app screenshot. Decoded text equals existing Pix Copia e Cola. Original QR stores Latin-1 bytes; textual UTF-8 CRC is C2A9. No payment executed.
