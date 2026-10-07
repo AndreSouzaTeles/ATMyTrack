@@ -155,6 +155,9 @@ import Combine
         try session.setPreferredSampleRate(48000)
         try session.setPreferredIOBufferDuration(512.0/48000)
         try session.setActive(true)
+        if session.maximumOutputNumberOfChannels>2 {
+            try? session.setPreferredOutputNumberOfChannels(min(16,session.maximumOutputNumberOfChannels))
+        }
         let engine=AVAudioEngine()
         let available=engine.outputNode.inputFormat(forBus:0).channelCount
         channels=max(2,min(16,Int(available)))
@@ -181,6 +184,7 @@ import Combine
             return noErr
         }
         engine.attach(node);engine.connect(node,to:engine.mainMixerNode,format:format)
+        engine.connect(engine.mainMixerNode,to:engine.outputNode,format:engine.outputNode.inputFormat(forBus:0))
         engine.prepare();self.engine=engine
     }
     func applyMixer() {

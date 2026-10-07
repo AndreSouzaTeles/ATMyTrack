@@ -7,16 +7,18 @@ struct PitchReading {var frequency=0.0;var rms=0.0;var confidence=0.0}
     @Published var active=false
     @Published var denied=false
     @Published var error:String?
+    var visible=false
+    var foreground=true
     private var engine:AVAudioEngine?
     private var generation=UUID()
     func request() {
         AVAudioSession.sharedInstance().requestRecordPermission { allowed in DispatchQueue.main.async {
             self.denied = !allowed
-            if allowed {self.start()}
+            if allowed && self.visible && self.foreground {self.start()}
         }}
     }
     func start() {
-        guard engine==nil else{return}
+        guard engine==nil,visible,foreground else{return}
         guard AVAudioSession.sharedInstance().recordPermission == .granted else {denied=true;return}
         do {
             let session=AVAudioSession.sharedInstance()

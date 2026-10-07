@@ -33,14 +33,15 @@ struct PlayerScreen: View {
     @State private var mixer=false
     @State private var removing:Song?
     @State private var dragging:String?
+    @State private var libraryNavigation=0
     var body:some View {
         VStack(spacing:10) {
             header
             if player.preparing {HStack{ProgressView();Text(player.progress).font(.caption);Spacer()}.padding(.horizontal)}
             TransportBar(player:player,clock:player.transport)
-            ScrollView {
+            ScrollViewReader { proxy in ScrollView {
                 VStack(alignment:.leading,spacing:16) {
-                    projects
+                    projects.id("projects")
                     if let song=player.song {
                         HStack{VStack(alignment:.leading){Text(song.name).font(.title2.bold());Text("\(song.stems.count) TRACKS · 48 kHz · ESTÉREO").font(.caption).foregroundStyle(.secondary)};Spacer();Button("EDITAR"){destination = .project}}
                         if !mixer {
@@ -66,7 +67,7 @@ struct PlayerScreen: View {
                         if mixer {Button("DCA • BUS • ROUTING"){destination = .groups}.buttonStyle(.borderedProminent)}
                     } else {ContentUnavailable()}
                 }.padding(.horizontal,16).padding(.bottom,20)
-            }
+            }.onChange(of:libraryNavigation){_ in proxy.scrollTo("projects",anchor:.top)} }
             Picker("Página",selection:$mixer){Text("Playback").tag(false);Text("Mixer").tag(true)}.pickerStyle(.segmented).padding(.horizontal).padding(.bottom,4)
         }
         .background(Palette.background.ignoresSafeArea())
@@ -74,7 +75,7 @@ struct PlayerScreen: View {
             switch page {
             case .menu: MainMenu {chosen in
                 destination=nil
-                if chosen == nil {mixer=false}
+                if chosen == nil {mixer=false;libraryNavigation+=1}
                 else {DispatchQueue.main.asyncAfter(deadline:.now()+0.3){if chosen == .tuner {player.pause()};destination=chosen}}
             }
             case .search: SearchProjects(library:library){player.select($0);destination=nil;mixer=false}

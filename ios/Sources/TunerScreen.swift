@@ -43,9 +43,9 @@ struct TunerScreen:View {
         }
         if let error=tuner.error{Text(error).foregroundStyle(.orange);Button("Tentar novamente"){tuner.start()}}
         Text("Análise local e offline. Nenhum áudio é gravado ou enviado. O player fica pausado enquanto você afina.").font(.caption).foregroundStyle(.secondary)
-    }.onAppear{if AVAudioSession.sharedInstance().recordPermission == .granted{tuner.start()}}
-        .onDisappear{tuner.stop()}
-        .onChange(of:scene){phase in if phase == .active {if AVAudioSession.sharedInstance().recordPermission == .granted{tuner.start()}}else{tuner.stop()}}
+    }.onAppear{tuner.visible=true;tuner.foreground=scene == .active;if AVAudioSession.sharedInstance().recordPermission == .granted{tuner.start()}}
+        .onDisappear{tuner.visible=false;tuner.stop()}
+        .onChange(of:scene){phase in tuner.foreground=phase == .active;if phase == .active {if AVAudioSession.sharedInstance().recordPermission == .granted{tuner.start()}}else{tuner.stop()}}
         .onReceive(NotificationCenter.default.publisher(for:AVAudioSession.interruptionNotification)){_ in tuner.stop()}
         .onReceive(NotificationCenter.default.publisher(for:AVAudioSession.routeChangeNotification)){event in
             if let reason=event.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt,reason != AVAudioSession.RouteChangeReason.categoryChange.rawValue{tuner.stop();tuner.error="A entrada de áudio mudou. Toque em Tentar novamente."}

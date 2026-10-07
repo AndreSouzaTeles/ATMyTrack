@@ -101,4 +101,27 @@ final class CoreTests:XCTestCase {
         XCTAssertEqual(player.transport.seconds,position)
         player.stop();XCTAssertEqual(player.transport.seconds,0)
     }
+    @MainActor func testNativeNineteenTracksAndSpeed() async throws {
+        let library=Library();try TestFixture.create(in:library)
+        guard var song=library.projects.first(where:{$0.name=="Sessão de teste iOS"}) else{return XCTFail("Import failed")}
+        let originals=song.stems
+        song.id=UUID().uuidString;song.name="Perfil 19 tracks iOS"
+        song.stems=(0..<19).map{i in var stem=originals[i%originals.count];stem.id=UUID().uuidString;stem.volume=0.1;stem.name="Track \(i+1)";return stem}
+        let player=Player(library:library);player.select(song)
+        for _ in 0..<100 {if !player.preparing{break};try await Task.sleep(nanoseconds:100_000_000)}
+        for speed in [100,80,120] {
+            if speed != 100 {
+                player.transform(speed:speed,speedTracks:Set(song.stems.map(\.id)))
+                for _ in 0..<1200 {if !player.preparing{break};try await Task.sleep(nanoseconds:100_000_000)}
+            }
+            XCTAssertFalse(player.preparing);XCTAssertNil(player.error)
+            player.seek(0);player.play();let start=Date()
+            try await Task.sleep(nanoseconds:3_000_000_000)
+            print("IOS_PROFILE tracks=19 speed=\(speed) elapsed=\(Date().timeIntervalSince(start)) position=\(player.transport.seconds) underruns=\(player.transport.underruns)")
+            XCTAssertTrue(player.playing);XCTAssertGreaterThan(player.transport.seconds,2)
+            XCTAssertEqual(player.transport.underruns,0)
+            player.stop()
+        }
+        library.delete(song)
+    }
 }
