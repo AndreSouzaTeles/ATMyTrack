@@ -32,6 +32,8 @@ targets:
       path: Info.plist
       properties:
         CFBundleDisplayName: ATMyTrack
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSMicrophoneUsageDescription: O ATMyTrack precisa acessar o microfone para identificar a nota tocada pelo seu instrumento. A análise acontece somente neste aparelho.
         UIBackgroundModes: [audio]
         UILaunchScreen:

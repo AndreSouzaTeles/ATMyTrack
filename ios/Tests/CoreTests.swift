@@ -42,6 +42,7 @@ final class CoreTests:XCTestCase {
         XCTAssertEqual(restored,song);song.semitones=0;XCTAssertEqual(song.speed,75)
     }
     func testA4AndInstrumentDefinitions(){
+        XCTAssertEqual(Bundle.main.object(forInfoDictionaryKey:"CFBundleShortVersionString") as? String,"0.1.0")
         XCTAssertEqual(Music.frequency(69),440);XCTAssertEqual(Music.frequency(57,a4:432),216)
         XCTAssertEqual(Instrument.all.count,13);XCTAssertEqual(Music.note(23),"B0");XCTAssertEqual(Music.note(40),"E2")
         XCTAssertEqual(Music.faderPosition(1),0.78,accuracy:0.0001)
