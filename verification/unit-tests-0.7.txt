@@ -1,0 +1,9 @@
+{'tests': 40, 'failures': 0, 'errors': 0, 'skipped': 0}
+com.atmytrack.app.AdtsTimingTest: 1 tests, 0 failures
+com.atmytrack.app.ConsoleTest: 8 tests, 0 failures
+com.atmytrack.app.CoreTest: 6 tests, 0 failures
+com.atmytrack.app.PreparedAudioTest: 4 tests, 0 failures
+com.atmytrack.app.ProjectStoreTest: 7 tests, 0 failures
+com.atmytrack.app.Session06Test: 4 tests, 0 failures
+com.atmytrack.app.SpeedTunerTest: 4 tests, 0 failures
+com.atmytrack.app.WavHeaderTest: 6 tests, 0 failures

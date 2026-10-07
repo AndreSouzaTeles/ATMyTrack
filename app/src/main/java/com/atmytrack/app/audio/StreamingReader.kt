@@ -122,7 +122,7 @@ class StreamingReader(private val context: Context, private val stem: Stem, priv
 
 object Readers {
     fun open(context:Context,s:Stem,rate:Int,block:Int=512,original:Boolean=false):FrameReader {
-        if(!original && s.pitchFile.isNotEmpty()) return PcmReader(File(context.filesDir,s.pitchFile),s.frames,block,PcmFormat())
+        if(!original && s.pitchFile.isNotEmpty()) return PcmReader(File(context.filesDir,s.pitchFile),kotlin.math.round(s.frames/(s.dspSpeed/100.0)).toLong(),block,PcmFormat())
         if(s.sourceRate!=0 && s.sourceRate!=rate) {
             val native=s.copy(frames=if(s.sourceFrames>0)s.sourceFrames else (s.frames.toDouble()*s.sourceRate/rate).roundToLong())
             return ResampledReader(open(context,native,s.sourceRate,4096,original),s.sourceRate,rate,s.frames)

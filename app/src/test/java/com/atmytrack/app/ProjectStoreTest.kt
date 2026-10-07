@@ -11,6 +11,29 @@ import java.nio.file.Files
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [28], application = android.app.Application::class)
 class ProjectStoreTest {
+    @Test fun speedMigrationPreservesOldDataAndEmptySelection() {
+        val dir=Files.createTempDirectory("speed-migration").toFile()
+        try {
+            val old=Project(name="Old",sampleRate=48000,stems=listOf(Stem(name="Guitar",pcm="old.wav",frames=96000,volume=.4f,pan=-.3f)),markers=listOf(Marker(name="Verse",start=0,end=48000)),semitones=2,pitchTracks=listOf("guitar"))
+            ProjectStore(dir).save(listOf(old))
+            val file=java.io.File(dir,"library.json")
+            val doc=org.json.JSONObject(file.readText());val j=doc.getJSONArray("projects").getJSONObject(0)
+            j.remove("speed");j.remove("speedTracks");j.remove("speedPreset");j.getJSONArray("stems").getJSONObject(0).remove("dspSpeed")
+            file.writeText(doc.toString())
+            val migrated=ProjectStore(dir).load().single()
+            assertEquals(old,migrated);assertEquals(100,migrated.speed);assertEquals(old.stems.map { it.id },migrated.selectedSpeedTracks)
+            val edited=migrated.copy(speed=80,speedTracks=emptyList(),speedPreset=80)
+            ProjectStore(dir).save(listOf(edited));assertEquals(edited,ProjectStore(dir).load().single())
+            val projects=listOf(
+                migrated.copy(id="A",speed=81,speedPreset=80,speedTracks=migrated.stems.map { it.id },stems=migrated.stems.map { it.copy(dspSpeed=81,pitchFile="pitch/A/combined.pcm",pitchApplied=2) }),
+                migrated.copy(id="B",semitones=0,speed=100,pitchTracks=emptyList()),
+                migrated.copy(id="C",semitones=-1,speed=120,speedPreset=120,speedTracks=migrated.stems.map { it.id },stems=migrated.stems.map { it.copy(dspSpeed=120,pitchFile="pitch/C/combined.pcm",pitchApplied=-1) }))
+            ProjectStore(dir).save(projects)
+            val reopened=ProjectStore(dir).load()
+            for(id in listOf("A","B","C","A"))assertEquals(projects.first { it.id==id },reopened.first { it.id==id })
+        } finally { dir.deleteRecursively() }
+    }
+
     @Test fun loopSelectionSmartClickAndPhysicalBusSurviveReopen() {
         val dir=Files.createTempDirectory("atmytrack-section").toFile()
         try {

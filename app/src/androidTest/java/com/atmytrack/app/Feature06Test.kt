@@ -48,9 +48,9 @@ class Feature06Test {
     compose.onNodeWithText("↻ LOOP").performClick()
     compose.waitUntil(10000) { vm.playback.value.frame in 48000 until 96000 }
     compose.runOnUiThread { vm.stop();vm.update { it.copy(loop=false) } }
-    compose.onNodeWithContentDescription("Logo ATMyTrack").performClick()
-    compose.onNodeWithText("Central de ajuda").assertIsDisplayed()
-    compose.onNodeWithText("SeuNomeNoApp").performClick()
+    compose.onNodeWithContentDescription("Abrir menu principal").performClick()
+    compose.onNodeWithText("CENTRAL DE DÚVIDAS").assertIsDisplayed()
+    compose.onNodeWithText("PLANO / PAGAMENTO").performClick()
     compose.onNodeWithContentDescription("Globo de nomes; arraste para girar").assertIsDisplayed()
     compose.onNodeWithText("⌕ Encontrar um nome no globo").performTextInput("Ana Carolina")
     compose.onNodeWithText("Ana Carolina Silva").assertExists()

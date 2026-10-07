@@ -1,9 +1,21 @@
-# ATMyTrack — Android 0.6.1
+# ATMyTrack — Android 0.7.0
 
 Atualização incremental do player multitrack em Kotlin/Compose para Android 8.0+ (API 26). Preserva a biblioteca e os áudios internos das versões anteriores.
 
+## Atualização 0.7.0
+
+- **TOM + VELOCIDADE**, lado a lado. Velocidade de 50% a 200%, passos de 1%, presets, seleção própria de tracks (todas por padrão) e aviso antes de velocidades diferentes. Reset de tom e velocidade independentes.
+- Um único processamento Signalsmith Stretch combina pitch e tempo antes da reprodução. A engine continua lendo PCM; 100% sem pitch usa bypass real. A preparação mostra track/progresso e mantém o áudio anterior tocando. A troca de velocidade preserva a posição musical, com breve rebufferização e entrada suavizada; não é automação instantânea de tempo.
+- Tempo total/atual, BPM e click interno acompanham a velocidade global. Markers continuam salvos na timeline original; seek e loop convertem para frames de reprodução. Seleção personalizada mantém a referência original de timeline/click e pode dessincronizar as tracks.
+- Menu **☰**: Projetos (biblioteca existente), Afinador, Plano / Pagamento e Central de dúvidas. QR Code e conteúdo de ajuda preservados.
+- Afinador offline com AudioRecord, YIN, confiança, rejeição de sinal fraco, estabilização, nota/oitava/Hz/cents, tolerância de ±3 cents e indicação azul. 12 instrumentos + Cromático, corda AUTO/manual, cinco afinações para violão/guitarra, A4 de 400 a 480 Hz (padrão/reset 440 Hz).
+- O afinador pausa o player e não o retoma automaticamente. Microfone solicitado apenas nesta ferramenta e liberado ao sair, perder foco de tela ou ir para segundo plano. Nenhum áudio é salvo ou enviado.
+- Cache DSP remove percentuais antigos; orçamento de 2 GiB para o conjunto, com proteção do projeto ativo (que pode exceder esse tamanho). Caches de outros projetos podem ser recriados ao reabrir; originais nunca são apagados. Configurações persistidas por projeto e preferências globais do afinador.
+
+Resultados, ambiente, cenários e limites: [relatório 0.7.0](verification/REPORT-0.7.0.md).
+
 ## Instalação
-Baixe o [APK 0.6.1](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.6.1/ATMyTrack-0.6.1-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.6.1).
+Baixe o [APK 0.7.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.7.0/ATMyTrack-0.7.0-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.7.0).
 
 Instale `dist/ATMyTrack-debug.apk` sobre a versão anterior, sem desinstalar. A assinatura de desenvolvimento foi mantida. O APK inclui arm64-v8a, armeabi-v7a e x86_64. Não exige conta ou assinatura. A origem de nuvem pode precisar de conexão/download.
 

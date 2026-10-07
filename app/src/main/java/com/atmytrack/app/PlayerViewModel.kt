@@ -39,7 +39,7 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
             try {
                 val projects = withContext(Dispatchers.IO) {
                     store.load().also { projects ->
-                        if(!engine.state.value.playing && !engine.state.value.preparing)PlaybackCache(app).prune(projects)
+                        if(!engine.state.value.playing && !engine.state.value.preparing) { PlaybackCache(app).prune(projects);PitchRenderer(app).prune(projects,engine.state.value.projectId.ifBlank { prefs.getString("selected","") ?: "" }) }
                         val retained = projects.map { it.id }.toSet() + engine.state.value.projectId
                         val audioRoot = File(app.filesDir, "audio").canonicalFile
                         audioRoot.listFiles()?.filter { it.isDirectory && it.name !in retained }?.forEach { candidate ->
@@ -91,6 +91,7 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
     fun stem(id: String, transform: (Stem) -> Stem) = update { p -> p.copy(stems = p.stems.map { if (it.id == id) transform(it) else it }) }
     fun select(p: Project) {
         if (library.value.busy != null || p.id == library.value.selected) return
+        if(library.value.background?.startsWith("Preparando")==true) { message("Aguarde a preparação terminar antes de trocar de projeto.");return }
         mutable.value = mutable.value.copy(selected = p.id)
         prefs.edit().putString("selected", p.id).apply()
         activate(p)
@@ -107,18 +108,24 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
                             if(fingerprint==s.fingerprint)s else {
                                 val fresh=AudioImporter(getApplication()).import(listOf(Uri.parse(s.source)),p.name) {} 
                                 val meta=fresh.stems.single()
-                                s.copy(frames=(meta.frames.toDouble()*p.sampleRate/fresh.sampleRate).roundToLong(),sourceRate=fresh.sampleRate,sourceFrames=meta.frames,format=meta.format,external=meta.external,compressed=meta.compressed,pcm=meta.pcm,fingerprint=fingerprint,pitchFile="",pitchApplied=0)
+                                s.copy(frames=(meta.frames.toDouble()*p.sampleRate/fresh.sampleRate).roundToLong(),sourceRate=fresh.sampleRate,sourceFrames=meta.frames,format=meta.format,external=meta.external,compressed=meta.compressed,pcm=meta.pcm,fingerprint=fingerprint,pitchFile="",pitchApplied=0,dspSpeed=100)
                             }
                         }
                     }
-                    if(stems!=p.stems)p.copy(stems=stems.map { it.copy(pitchFile="",pitchApplied=0) },detectedBpm=0.0,confidence=0.0,analysisKey="",semitones=0,targetKey="",pitchTracks=emptyList()) else p
+                    if(stems!=p.stems)p.copy(stems=stems.map { it.copy(pitchFile="",pitchApplied=0,dspSpeed=100) },detectedBpm=0.0,confidence=0.0,analysisKey="",semitones=0,targetKey="",pitchTracks=emptyList(),speed=100,speedTracks=null) else p
                 }
                 if(library.value.selected!=p.id)return@launch
                 val latest=library.value.current ?: return@launch
                 val ready=if(updated==p)latest else updated.copy(name=latest.name,master=latest.master,masterMute=latest.masterMute,
                     stems=latest.stems.map { live -> updated.stems.first { it.id==live.id }.copy(volume=live.volume,pan=live.pan,mute=live.mute,solo=live.solo,bus=live.bus,route=live.route) },dcas=latest.dcas,buses=latest.buses)
                 if(ready!=latest)persist(library.value.projects.map { if(it.id==p.id)ready else it })
-                engine.load(ready)
+                val prepared=if(ready.stems.any { s -> s.pitchFile.isNotBlank() && File(getApplication<Application>().filesDir,s.pitchFile).length()!=kotlin.math.round(s.frames/(s.dspSpeed/100.0)).toLong()*8 }) {
+                    mutable.update { it.copy(background="Preparando ${ready.speed}%…") }
+                    try { withContext(Dispatchers.IO) { ready.copy(stems=PitchRenderer(getApplication()).render(ready,ready.semitones,ready.pitchTracks) { text->mutable.update { it.copy(background=text) } }) } }
+                    finally { mutable.update { it.copy(background=null) } }
+                } else ready
+                if(prepared!=ready)persist(library.value.projects.map { if(it.id==p.id)prepared else it })
+                engine.load(prepared)
                 while(playback.value.preparing || playback.value.projectId!=ready.id) {
                     if(playback.value.error!=null)return@launch
                     delay(50)
@@ -251,20 +258,31 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
             finally { mutable.update { it.copy(background=null) } }
         }
     }
+    fun applySpeed(percent:Int,ids:List<String>,preset:Int=percent) {
+        val p=library.value.current ?: return
+        applyDsp(p.key,p.targetKey,p.semitones,p.pitchTracks,percent,ids,preset)
+    }
     fun applyPitch(origin:String,destination:String,semitones:Int,ids:List<String>) {
         val p=library.value.current ?: return
+        applyDsp(origin,destination,semitones,ids,p.speed,p.selectedSpeedTracks,p.speedPreset)
+    }
+    private fun applyDsp(origin:String,destination:String,semitones:Int,ids:List<String>,speed:Int,speedIds:List<String>,preset:Int) {
+        val p=library.value.current ?: return
         if(workJob?.isActive==true)return
-        if(playback.value.projectId!=p.id || !playback.value.ready || playback.value.preparing) { message("Aguarde a preparação do projeto antes de aplicar o tom.");return }
+        if(playback.value.preparing) { message("Aguarde a preparação do projeto antes de aplicar a alteração.");return }
         workJob=viewModelScope.launch {
-            mutable.update { it.copy(background="Preparando alteração de tom…") }
+            mutable.update { it.copy(background="Preparando $speed%…") }
             try {
-                val rendered=withContext(Dispatchers.IO) { PitchRenderer(getApplication()).render(p,semitones,ids) { text->mutable.update { it.copy(background=text) } } }
-                fun changed(current:Project)=current.copy(key=origin,targetKey=destination,semitones=semitones,pitchTracks=ids,stems=current.stems.map { s ->
-                    val r=rendered.first { it.id==s.id }; s.copy(pitchFile=r.pitchFile,pitchApplied=r.pitchApplied)
+                val rendered=withContext(Dispatchers.IO) { PitchRenderer(getApplication()).render(p.copy(speed=speed,speedTracks=speedIds),semitones,ids) { text->mutable.update { it.copy(background=text) } } }
+                fun changed(current:Project)=current.copy(key=origin,targetKey=destination,semitones=semitones,pitchTracks=ids,speed=speed,speedTracks=speedIds,speedPreset=preset,stems=current.stems.map { s ->
+                    val r=rendered.first { it.id==s.id }; s.copy(pitchFile=r.pitchFile,pitchApplied=r.pitchApplied,dspSpeed=r.dspSpeed)
                 })
-                if(library.value.selected==p.id)library.value.current?.let { engine.applyPreparedPitch(changed(it)) }
+                val needsLoad=playback.value.projectId!=p.id || !playback.value.ready
+                if(library.value.selected==p.id && !needsLoad)library.value.current?.let { engine.applyPreparedPitch(changed(it)) }
                 persist(library.value.projects.map { if(it.id==p.id)changed(it) else it })
-            } catch(e:Exception) { if(e is CancellationException)throw e; message("Pitch não aplicado: ${e.message}") }
+                if(library.value.selected==p.id && needsLoad)library.value.current?.let(::activate)
+                withContext(Dispatchers.IO) { PitchRenderer(getApplication()).prune(library.value.projects,library.value.selected) }
+            } catch(e:Exception) { if(e is CancellationException)throw e; message("Alteração não aplicada. ${e.message} Abra TOM ou VELOCIDADE para tentar novamente ou retornar ao original.") }
             finally { mutable.update { it.copy(background=null) } }
         }
     }

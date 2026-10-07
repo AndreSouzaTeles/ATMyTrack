@@ -1,0 +1,27 @@
+sdk_gphone64_x86_64 API 35; 8s mono WAV 48k PCM16 synthetic 220Hz; 6s per playback; process CPU (one core=100%); independent readers/caches
+speed=100 n=2 prep19=0ms wall=6038ms cpu=240ms pss=133515KiB underruns=0 starvation=0 maxRead=0.736869ms
+speed=100 n=4 prep19=0ms wall=6035ms cpu=307ms pss=132242KiB underruns=0 starvation=0 maxRead=1.041509ms
+speed=100 n=8 prep19=0ms wall=6037ms cpu=466ms pss=133178KiB underruns=0 starvation=0 maxRead=1.250265ms
+speed=100 n=12 prep19=0ms wall=6055ms cpu=598ms pss=134490KiB underruns=0 starvation=0 maxRead=1.384498ms
+speed=100 n=19 prep19=0ms wall=6056ms cpu=856ms pss=124646KiB underruns=0 starvation=0 maxRead=2.638836ms
+speed=80 n=2 prep19=6973ms wall=6035ms cpu=309ms pss=125022KiB underruns=0 starvation=0 maxRead=1.612374ms
+speed=80 n=4 prep19=6973ms wall=6037ms cpu=444ms pss=125482KiB underruns=0 starvation=0 maxRead=1.889385ms
+speed=80 n=8 prep19=6973ms wall=6059ms cpu=728ms pss=127954KiB underruns=0 starvation=0 maxRead=2.693182ms
+speed=80 n=12 prep19=6973ms wall=6080ms cpu=965ms pss=127998KiB underruns=0 starvation=0 maxRead=1.959423ms
+speed=80 n=19 prep19=6973ms wall=6126ms cpu=1476ms pss=125154KiB underruns=0 starvation=0 maxRead=1.946196ms
+speed=120 n=2 prep19=4689ms wall=6036ms cpu=296ms pss=124786KiB underruns=0 starvation=0 maxRead=1.988098ms
+speed=120 n=4 prep19=4689ms wall=6036ms cpu=435ms pss=125246KiB underruns=0 starvation=0 maxRead=1.874597ms
+speed=120 n=8 prep19=4689ms wall=6057ms cpu=671ms pss=126426KiB underruns=0 starvation=0 maxRead=1.679638ms
+speed=120 n=12 prep19=4689ms wall=6057ms cpu=957ms pss=128046KiB underruns=0 starvation=0 maxRead=2.308108ms
+speed=120 n=19 prep19=4689ms wall=6077ms cpu=1409ms pss=125294KiB underruns=0 starvation=0 maxRead=2.206533ms
+speed=90 n=2 prep19=6161ms wall=6037ms cpu=307ms pss=124826KiB underruns=0 starvation=0 maxRead=2.690032ms
+speed=90 n=4 prep19=6161ms wall=6037ms cpu=464ms pss=125278KiB underruns=0 starvation=0 maxRead=2.157512ms
+speed=90 n=8 prep19=6161ms wall=6057ms cpu=712ms pss=126442KiB underruns=0 starvation=0 maxRead=1.919151ms
+speed=90 n=12 prep19=6161ms wall=6077ms cpu=977ms pss=128070KiB underruns=0 starvation=0 maxRead=2.364507ms
+speed=90 n=19 prep19=6161ms wall=6079ms cpu=1444ms pss=125298KiB underruns=0 starvation=0 maxRead=2.929693ms
+speed=110 n=2 prep19=5943ms wall=6035ms cpu=317ms pss=124790KiB underruns=0 starvation=0 maxRead=2.083894ms
+speed=110 n=4 prep19=5943ms wall=6040ms cpu=443ms pss=125254KiB underruns=0 starvation=0 maxRead=2.763136ms
+speed=110 n=8 prep19=5943ms wall=6057ms cpu=689ms pss=126442KiB underruns=0 starvation=0 maxRead=1.877469ms
+speed=110 n=12 prep19=5943ms wall=6060ms cpu=972ms pss=128066KiB underruns=0 starvation=0 maxRead=2.00726ms
+speed=110 n=19 prep19=5943ms wall=6080ms cpu=1425ms pss=125298KiB underruns=0 starvation=0 maxRead=2.198173ms
+Live 100→90→80→110→100 +2 pitch; mixer/pan/mute/solo; seek25/50/75%; loops100/80/120 passed.

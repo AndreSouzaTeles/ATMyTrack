@@ -1,0 +1,6 @@
+
+com.atmytrack.app.Tools07UiTest:.
+
+Time: 17.214
+
+OK (1 test)

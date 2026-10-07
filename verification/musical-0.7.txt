@@ -1,0 +1,5 @@
+19 DISTINCT synthetic musical stems: first20s of session0.5; WAV16/24 MP3 M4A AAC FLAC, 44.1/48/96k, mono/stereo; device sdk_gphone64_x86_64 API35.
+speed=80 pitch=+2 selected=18 preparation=22038ms
+wall=15036ms cpu=3799ms PSS=132377KiB underruns=0 starvation=0 maxRead=4.77092ms
+speed=120 pitch=+2 selected=18 preparation=15555ms
+wall=15039ms cpu=3798ms PSS=131161KiB underruns=0 starvation=0 maxRead=6.554903ms

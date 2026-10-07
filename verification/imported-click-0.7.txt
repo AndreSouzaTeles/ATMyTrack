@@ -1,0 +1,6 @@
+
+com.atmytrack.app.Speed07AudioTest:.
+
+Time: 1.39
+
+OK (1 test)

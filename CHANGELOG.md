@@ -1,3 +1,12 @@
+# 0.7.0 — Velocidade, afinador e navegação
+
+- Time-stretch real 50–200%, seleção independente de pitch, defaults seguros para bibliotecas antigas e alerta de dessincronização personalizada.
+- Cache combinado de pitch/tempo, bypass, limpeza de versões antigas e limite com proteção da sessão ativa.
+- Relógio, BPM, metronomo, seek e loops convertidos sem reescrever markers originais.
+- Hamburger menu com Projetos, Afinador, Plano / Pagamento e Central de dúvidas.
+- Afinador com microfone real, YIN local, notas/cents, instrumentos e afinações, A4 configurável e liberação via lifecycle.
+- Versão 9; mesma assinatura. Atualização sobre 0.6.1 sem apagar biblioteca.
+
 # 0.6.1 — QR Code enviado pelo usuário
 
 - Substitui o QR gerado pela imagem JPG fornecida, sem edição.

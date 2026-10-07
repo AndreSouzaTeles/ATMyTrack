@@ -1,0 +1,7 @@
+
+com.atmytrack.app.Tools07UiTest:..
+com.atmytrack.app.Musical07Test:.
+
+Time: 99.543
+
+OK (3 tests)

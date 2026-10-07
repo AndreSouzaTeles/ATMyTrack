@@ -22,7 +22,7 @@ class ProjectStore(private val root: File) {
         catch (e: Exception) { file.failWrite(stream); throw e }
     }
     private fun encode(p: Project): JSONObject = JSONObject().apply {
-        put("selectedMarker",p.selectedMarker); put("smartClick",p.smartClick); put("id", p.id); put("name", p.name); put("rate", p.sampleRate); put("bpm", p.bpm)
+        put("speed",p.speed); put("speedTracks",p.speedTracks?.let { JSONArray(it) }); put("speedPreset",p.speedPreset); put("selectedMarker",p.selectedMarker); put("smartClick",p.smartClick); put("id", p.id); put("name", p.name); put("rate", p.sampleRate); put("bpm", p.bpm)
         put("beats", p.beats); put("denominator", p.denominator); put("multiplier", p.multiplier)
         put("click", p.click); put("clickVolume", p.clickVolume); put("master", p.master)
         put("masterMute", p.masterMute); put("loop", p.loop); put("key", p.key); put("artwork", p.artwork)
@@ -35,7 +35,7 @@ class ProjectStore(private val root: File) {
             put("id", s.id); put("name", s.name); put("pcm", s.pcm); put("frames", s.frames)
             put("source", s.source); put("volume", s.volume); put("pan", s.pan); put("mute", s.mute); put("solo", s.solo)
             put("channels", s.format.channels); put("encoding", s.format.encoding.name); put("dataOffset", s.format.offset)
-            put("external",s.external); put("compressed",s.compressed); put("fingerprint",s.fingerprint); put("bus",s.bus); put("route",s.route); put("pitchFile",s.pitchFile); put("pitchApplied",s.pitchApplied);put("sourceRate",s.sourceRate);put("sourceFrames",s.sourceFrames)
+            put("external",s.external); put("compressed",s.compressed); put("fingerprint",s.fingerprint); put("bus",s.bus); put("route",s.route); put("pitchFile",s.pitchFile); put("pitchApplied",s.pitchApplied);put("dspSpeed",s.dspSpeed);put("sourceRate",s.sourceRate);put("sourceFrames",s.sourceFrames)
         } }))
         put("markers", JSONArray(p.markers.map { m -> JSONObject().apply {
             put("id", m.id); put("name", m.name); put("start", m.start); put("end", m.end); put("color", m.color)
@@ -45,7 +45,7 @@ class ProjectStore(private val root: File) {
         id = j.getString("id"), name = j.getString("name"), sampleRate = j.getInt("rate"),
         stems = j.getJSONArray("stems").objects().map { s -> Stem(s.getString("id"), s.getString("name"), s.getString("pcm"), s.getLong("frames"), s.optString("source"), s.getDouble("volume").toFloat(), s.getDouble("pan").toFloat(), s.getBoolean("mute"), s.getBoolean("solo"),
             PcmFormat(s.optInt("channels", 2), PcmEncoding.valueOf(s.optString("encoding", "FLOAT32")), s.optLong("dataOffset", 0)),
-            s.optBoolean("external"),s.optBoolean("compressed"),s.optString("fingerprint"),s.optString("bus"),s.optString("route","BOTH"),s.optString("pitchFile"),s.optInt("pitchApplied"),s.optInt("sourceRate"),s.optLong("sourceFrames")) },
+            s.optBoolean("external"),s.optBoolean("compressed"),s.optString("fingerprint"),s.optString("bus"),s.optString("route","BOTH"),s.optString("pitchFile"),s.optInt("pitchApplied"),s.optInt("sourceRate"),s.optLong("sourceFrames"),s.optInt("dspSpeed",100).coerceIn(50,200)) },
         bpm = j.getDouble("bpm"), beats = j.getInt("beats"), denominator = j.optInt("denominator", 4),
         multiplier = j.getDouble("multiplier"), click = j.getBoolean("click"), clickVolume = j.getDouble("clickVolume").toFloat(),
         master = j.getDouble("master").toFloat(), masterMute = j.getBoolean("masterMute"), loop = j.getBoolean("loop"),
@@ -55,7 +55,7 @@ class ProjectStore(private val root: File) {
         buses=(j.optJSONArray("buses") ?: JSONArray()).objects().map { Bus(it.getString("id"),it.getString("name"),it.getDouble("volume").toFloat(),it.getBoolean("mute"),it.getString("destination")) },
         semitones=j.optInt("semitones"),targetKey=j.optString("targetKey"),pitchTracks=(j.optJSONArray("pitchTracks") ?: JSONArray()).strings(),
         clickSound=j.optString("clickSound","Classic"),accent=j.optBoolean("accent",true),clickRoute=j.optString("clickRoute","BOTH"),
-        detectedBpm=j.optDouble("detectedBpm",0.0),confidence=j.optDouble("confidence",0.0),beatOffset=j.optLong("beatOffset"),analysisKey=j.optString("analysisKey"),selectedMarker=j.optString("selectedMarker"),smartClick=j.optBoolean("smartClick")
+        detectedBpm=j.optDouble("detectedBpm",0.0),confidence=j.optDouble("confidence",0.0),beatOffset=j.optLong("beatOffset"),analysisKey=j.optString("analysisKey"),selectedMarker=j.optString("selectedMarker"),smartClick=j.optBoolean("smartClick"),speed=j.optInt("speed",100).coerceIn(50,200),speedTracks=j.optJSONArray("speedTracks")?.strings(),speedPreset=j.optInt("speedPreset",100)
     )
     private fun JSONArray.objects() = (0 until length()).map { getJSONObject(it) }
     private fun JSONArray.strings() = (0 until length()).map { getString(it) }

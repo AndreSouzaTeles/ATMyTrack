@@ -59,7 +59,7 @@ private fun normalized(s:String)=Normalizer.normalize(s,Normalizer.Form.NFD).rep
                     if(filtered.isEmpty())Text("Nenhum projeto encontrado.",color=Muted)
                     HorizontalDivider()
                     OutlinedButton(onClick=support,modifier=Modifier.fillMaxWidth()) { Text("SeuNomeNoApp") }
-                    TextButton(onClick=help,modifier=Modifier.fillMaxWidth()) { Text("Central de ajuda") }
+                    TextButton(onClick=help,modifier=Modifier.fillMaxWidth()) { Text("Central de dúvidas") }
                 }
             }
         }

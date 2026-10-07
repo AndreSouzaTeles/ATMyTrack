@@ -40,3 +40,9 @@ Nenhuma dependência nova. A leitura de PCM/container segue [RIFF](https://learn
 ## QR Code 0.6 (ferramentas fora do APK)
 
 qrcode 8.2 (BSD), Pillow 12.3.0 (MIT-CMU) e zxing-cpp 3.1.1 (Apache-2.0), instalados apenas em `tools/qr-runtime`, geram uma imagem de referência e verificam a leitura do Pix. Desde a 0.6.1, o APK usa o JPG fornecido pelo usuário, preservado sem alterações. Nenhuma biblioteca de pagamentos ou código dessas ferramentas entra no APK. `tools/generate-support-qr.py` gera somente a referência em `verification`, sem substituir a imagem do app.
+
+## Velocidade e afinador 0.7
+
+Nenhuma dependência binária nova. Time-stretch e pitch usam juntos a cópia MIT já fixada de Signalsmith Stretch/Linear, com blocos de 120 ms e intervalo de análise de 10 ms, em preparação offline. O leitor de reprodução não executa o algoritmo.
+
+Afinador: implementação própria de YIN (diferença cumulativa normalizada e interpolação), baseada no [artigo de de Cheveigné e Kawahara](https://pubmed.ncbi.nlm.nih.gov/12002874/). Captura com [AudioRecord](https://developer.android.com/reference/android/media/AudioRecord), PCM mono a 48 kHz, análise local a 24 kHz, janela de 4096 amostras e salto de 768. Usa lifecycle AndroidX já presente para cancelar a captura fora de RESUMED. Não há backend nem gravação de áudio.

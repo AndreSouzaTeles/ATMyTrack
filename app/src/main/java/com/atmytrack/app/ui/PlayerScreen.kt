@@ -11,6 +11,7 @@ import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.ui.platform.LocalDensity
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -55,7 +56,7 @@ internal val Muted = Color(0xFF94A3B8)
 internal val White = Color(0xFFF8FAFC)
 internal val Red = Color(0xFFFF777C)
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun PlayerScreen(vm: PlayerViewModel) {
     val library by vm.library.collectAsState()
@@ -73,11 +74,15 @@ fun PlayerScreen(vm: PlayerViewModel) {
     var delete by remember { mutableStateOf<Project?>(null) }
     var page by rememberSaveable { mutableIntStateOf(0) }
     var pitch by remember { mutableStateOf(false) }
+    var speed by remember { mutableStateOf(false) }
+    var tuner by remember { mutableStateOf(false) }
     var group by remember { mutableStateOf<String?>(null) }
     var routing by remember { mutableStateOf<String?>(null) }
     var metronome by remember { mutableStateOf(false) }
     val channelList = rememberLazyListState()
     val projectList = rememberLazyListState()
+    val mainScroll=rememberScrollState()
+    val uiScope=rememberCoroutineScope()
     LaunchedEffect(library.selected,library.projects.size) {
         val index=library.projects.indexOfFirst { it.id==library.selected }
         if(index>=0)projectList.scrollToItem(index)
@@ -118,13 +123,15 @@ fun PlayerScreen(vm: PlayerViewModel) {
         outline=Muted,outlineVariant=Control,inverseSurface=White,inverseOnSurface=Bg)) {
         Surface(Modifier.fillMaxSize(), color = Bg) {
             BoxWithConstraints(Modifier.safeDrawingPadding()) {
+                val screenWidth=maxWidth
                 val compact = maxHeight < 500.dp
                 val wide = maxWidth >= 840.dp
                 val narrow = maxWidth < 400.dp
                 val mixerHeight = when { compact->410.dp;wide && page==1->(maxHeight-302.dp).coerceAtLeast(450.dp);else->470.dp }
                 Column(Modifier.fillMaxSize()) {
                     if(p==null || (!wide && !compact)) Row(Modifier.fillMaxWidth().padding(horizontal = if (narrow) 8.dp else 16.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Image(painterResource(R.drawable.brand_art), "Logo ATMyTrack", Modifier.size(if (narrow) 32.dp else 40.dp).clickable { navigation=true })
+                        MenuButton { navigation=true }
+                        Image(painterResource(R.drawable.brand_art), "Logo ATMyTrack", Modifier.size(if (narrow) 28.dp else 36.dp))
                         Text("ATMyTrack", fontWeight = FontWeight.Bold, fontSize = if (narrow) 16.sp else 20.sp)
                         Spacer(Modifier.weight(1f))
                         TextButton(onClick = { importDialog = true }, enabled = library.busy == null) { Text(if (narrow) "IMPORTAR" else "+ IMPORTAR") }
@@ -181,7 +188,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
                     } else {
                             Row(Modifier.fillMaxWidth().padding(horizontal=12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                 if(wide || compact) {
-                                    Image(painterResource(R.drawable.brand_art),"Logo ATMyTrack",Modifier.size(32.dp).clickable { navigation=true })
+                                    MenuButton { navigation=true }
                                     Text("ATMyTrack",fontWeight=FontWeight.Bold,fontSize=15.sp)
                                 }
                                 SmallButton("|◀", onClick = { vm.seek(0) })
@@ -192,17 +199,17 @@ fun PlayerScreen(vm: PlayerViewModel) {
                                 SmallButton("■", onClick = vm::stop)
                                 SmallButton("▶|", onClick = { if(playback.playing)vm.message("Pause antes de trocar de projeto.") else vm.adjacent(1) })
                                 if(wide || compact) Column(Modifier.padding(horizontal=8.dp)) {
-                                    Text("${MusicTime.time(playback.frame.toDouble()/p.sampleRate)} / ${MusicTime.time(p.seconds)}", color=Blue)
-                                    Text("${"%.1f".format(p.bpm)} BPM · ${p.beats}/${p.denominator}", color=Muted, fontSize=12.sp)
+                                    Text("${MusicTime.time(playback.frame.toDouble()/p.sampleRate/p.timelineScale)} / ${MusicTime.time(p.playbackSeconds)}", color=Blue)
+                                    Text("${"%.1f".format(p.effectiveBpm)} BPM · ${p.beats}/${p.denominator}", color=Muted, fontSize=12.sp)
                                 }
                                 if(wide || compact) {
                                     TextButton(onClick={importDialog=true},enabled=library.busy==null) { Text("IMPORTAR",fontSize=11.sp) }
                                     SearchButton { search=true }
                                 }
                             }
-                            if(!wide && !compact) Text("${MusicTime.time(playback.frame.toDouble()/p.sampleRate)} / ${MusicTime.time(p.seconds)}    •    ${"%.1f".format(p.bpm)} BPM    •    ${p.beats}/${p.denominator}", color = Blue)
+                            if(!wide && !compact) Text("${MusicTime.time(playback.frame.toDouble()/p.sampleRate/p.timelineScale)} / ${MusicTime.time(p.playbackSeconds)}    •    ${"%.1f".format(p.effectiveBpm)} BPM    •    ${p.beats}/${p.denominator}", color = Blue)
 
-                        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Column(Modifier.weight(1f).verticalScroll(mainScroll).padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             LazyRow(Modifier.semantics { contentDescription="Projetos" },state=projectList,horizontalArrangement = Arrangement.spacedBy(10.dp), contentPadding = PaddingValues(vertical = 4.dp)) {
                                 items(library.projects, key = { it.id }) { project ->
                                     ProjectCard(project, project.id == p.id, compact || wide, { delete = project }) {
@@ -220,13 +227,16 @@ fun PlayerScreen(vm: PlayerViewModel) {
                             }
                             if (page == 0) Timeline(p, playback.frame, wide, library.waveform, vm::seek)
                             Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Panel).padding(6.dp),verticalArrangement=Arrangement.spacedBy(4.dp)) {
-                                Row(Modifier.horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
+                                FlowRow(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {
                                     if(page==0) {
                                         SmallButton("↻ LOOP", p.loop, { vm.update { it.copy(loop=!it.loop) } })
                                         SmallButton("+ SEÇÃO",onClick={markers=true})
                                     }
                                     SmallButton("METRÔNOMO",p.click,{metronome=true})
-                                    SmallButton("TOM ${p.key}",p.semitones!=0,{pitch=true})
+                                    Row(Modifier.width(if(wide)300.dp else (screenWidth-36.dp).coerceAtMost(340.dp)),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
+                                        DspButton("TOM",if(p.semitones==0)"ORIGINAL" else "%+d semitons".format(p.semitones),p.semitones!=0,Modifier.weight(1f)) { pitch=true }
+                                        DspButton("VELOCIDADE","${p.speed}%",p.speed!=100,Modifier.weight(1f)) { speed=true }
+                                    }
                                     if(page==1) {
                                         SmallButton("+ DCA",onClick={group="DCA:"});SmallButton("+ BUS",onClick={group="BUS:"})
                                         SmallButton("STEREO SPLIT",onClick=vm::split);SmallButton("ATUALIZAR SAÍDA",onClick=vm::refreshOutput)
@@ -311,7 +321,17 @@ fun PlayerScreen(vm: PlayerViewModel) {
                 }
             }
         }
-        if(navigation || search) ProjectLibraryMenu(library.projects,search,{ navigation=false;search=false },{ project ->
+        if(navigation) MainMenu({navigation=false}) { destination ->
+            navigation=false
+            when(destination) {
+                MainDestination.PROJECTS -> { page=0;uiScope.launch { mainScroll.scrollTo(0) } }
+                MainDestination.TUNER -> { vm.pause();tuner=true }
+                MainDestination.PAYMENT -> supporters=true
+                MainDestination.HELP -> help=true
+            }
+        }
+        if(tuner && !playback.playing) TunerScreen { tuner=false }
+        if(search) ProjectLibraryMenu(library.projects,search,{ navigation=false;search=false },{ project ->
             if(playback.playing)vm.pause()
             vm.select(project);navigation=false;search=false
         },{ navigation=false;help=true },{ navigation=false;supporters=true })
@@ -331,6 +351,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
         if (p != null && edit) ProjectEditor(p, vm, { edit = false }, { art.launch(arrayOf("image/*")) }, { edit = false; delete = p })
         if (p != null && markers) MarkerEditor(p, playback.frame, vm, { markers = false })
         if (p != null && metronome) MetronomeEditor(p, vm) { metronome = false }
+        if(p!=null && speed) SpeedDialog(p,vm,library.background!=null) { speed=false }
         if (p != null && pitch) PitchDialog(p, vm, library.background != null) { pitch = false }
         if (p != null && group != null) GroupDialog(p, group!!, playback.outputChannels, vm) { group = null }
         if (p != null && routing != null) p.stems.find { it.id == routing }?.let { RoutingDialog(p,it,vm) { routing = null } }
@@ -341,12 +362,13 @@ fun PlayerScreen(vm: PlayerViewModel) {
         }
         val error = library.message ?: playback.error
         if (error != null) AlertDialog(onDismissRequest = vm::dismissError, title = { Text("ATMyTrack") }, text = { Text(error) }, confirmButton = { TextButton(onClick = vm::dismissError) { Text("ENTENDI") } })
-        if (help) AlertDialog(onDismissRequest = { help = false }, title = { Text("ATMyTrack • 0.6.1") }, text = {
+        if (help) AlertDialog(onDismissRequest = { help = false }, title = { Text("ATMyTrack • 0.7.0") }, text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("1. Importe uma pasta ou selecione as stems.\n2. Ajuste volume, pan, mute e solo.\n3. Defina BPM e compasso; o CLICK acompanha a timeline.\n4. Crie seções para saltar aos trechos da música.")
                 Text("A importação depende dos decoders disponíveis no Android. WAV, MP3, AAC/M4A, FLAC e OGG/Opus são tentados; arquivos incompatíveis geram erro.", color = Muted)
                 Text("Saída estéreo ou canais USB anunciados pelo Android. BPM manual não muda a velocidade das stems. A unidade do BPM é a figura do denominador do compasso. Click e stems passam pelo master.", color = Muted)
                 Text("TOM processa as tracks selecionadas em background, preservando a duração. Smart Click aplica o BPM ao ativar. Mixer reúne DCA, buses e roteamento. Segure o nome superior do canal para reordenar.", color = Muted)
+                Text("VELOCIDADE altera o tempo preservando o tom. Use todas as tracks para manter a sincronização. O preparo ocorre antes da troca; extremos podem ter mais artefatos. AFINADOR usa o microfone apenas nesta tela e pausa o player.", color = Muted)
                 Text("Bibliotecas: AndroidX/Compose, Kotlin e Coroutines (Apache 2.0). Pitch: Signalsmith Stretch e Linear (MIT). Identidade visual original ATMyTrack.", fontSize = 12.sp)
             }
         }, confirmButton = { TextButton(onClick = { help = false }) { Text("FECHAR") } })
@@ -375,7 +397,7 @@ private fun ProjectCard(p: Project, selected: Boolean, compact: Boolean, remove:
         bitmap?.let { Image(it, null, Modifier.matchParentSize(), contentScale = ContentScale.Crop, alpha = .28f) }
         Column(Modifier.padding(start=12.dp,end=40.dp,top=12.dp,bottom=12.dp).fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
             Text(p.name, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text("${p.key}  •  ${p.bpm.roundToInt()} BPM  •  ${MusicTime.time(p.seconds)}", color = LightBlue, fontSize = 11.sp)
+            Text("${p.key}  •  ${p.effectiveBpm.roundToInt()} BPM  •  ${MusicTime.time(p.playbackSeconds)}", color = LightBlue, fontSize = 11.sp)
         }
     }
 }
@@ -383,7 +405,7 @@ private fun ProjectCard(p: Project, selected: Boolean, compact: Boolean, remove:
 @Composable
 private fun Timeline(p: Project, frame: Long, compact: Boolean, peaks: List<Float>, seek: (Long) -> Unit) {
     val callback by rememberUpdatedState(seek)
-    val total = p.frames.coerceAtLeast(1)
+    val total = p.timelineFrames.coerceAtLeast(1)
     Column(Modifier.clip(RoundedCornerShape(10.dp)).background(Panel).padding(if (compact) 8.dp else 12.dp)) {
         Row(Modifier.fillMaxWidth()) { Text("TIMELINE", fontSize = 10.sp, color = Muted, letterSpacing = 2.sp); Spacer(Modifier.weight(1f)); Text("Toque ou arraste para navegar", fontSize = 10.sp, color = Muted) }
         Canvas(Modifier.fillMaxWidth().height(if (compact) 32.dp else 48.dp)
@@ -392,7 +414,7 @@ private fun Timeline(p: Project, frame: Long, compact: Boolean, peaks: List<Floa
             .pointerInput(total) { detectDragGestures { change, _ -> change.consume(); callback((change.position.x / size.width * total).toLong().coerceIn(0, total)) } }) {
             val w = size.width; val h = size.height
             for (i in 0..40) { val x = w * i / 40; drawLine(Control, Offset(x, h * .30f), Offset(x, h * if (i % 5 == 0) .85f else .6f), 1.dp.toPx()) }
-            peaks.forEachIndexed { i, v -> val px = w*i/peaks.size; drawLine(Muted, Offset(px,h*(.5f-v*.45f)), Offset(px,h*(.5f+v*.45f)), (w/peaks.size).coerceAtLeast(1f)) }
+            peaks.forEachIndexed { i, v -> val px = w*i/peaks.size*p.frames/total; drawLine(Muted, Offset(px,h*(.5f-v*.45f)), Offset(px,h*(.5f+v*.45f)), (w/peaks.size).coerceAtLeast(1f)) }
             p.markers.forEach { m -> drawRect(Color(m.color).copy(alpha = .28f), Offset(w * m.start / total, 2f), Size((w * (m.end - m.start) / total).coerceAtLeast(2f), h * .9f)) }
             val x = w * frame / total
             drawLine(Blue.copy(alpha = .4f), Offset(0f, h * .7f), Offset(x, h * .7f), 3.dp.toPx())
@@ -520,6 +542,7 @@ private fun MetronomeEditor(p: Project, vm: PlayerViewModel, close: () -> Unit) 
                 SmallButton("−", onClick = { bpm = ((bpm.toDoubleOrNull() ?: p.bpm) - 1).coerceAtLeast(30.0).toString() })
                 SmallButton("+", onClick = { bpm = ((bpm.toDoubleOrNull() ?: p.bpm) + 1).coerceAtMost(300.0).toString() })
             }
+            Text("Original: %.1f BPM · Atual: %.1f BPM".format(p.bpm,p.effectiveBpm),color=LightBlue)
             Text("Compasso", color = Muted)
             Choice("Click sound", p.clickSound, listOf("Classic","Digital","Wood","Cowbell","Soft","High Tick","Low Tick").map { it to it }) { v -> vm.update { it.copy(clickSound = v) } }
             Row(verticalAlignment = Alignment.CenterVertically) {

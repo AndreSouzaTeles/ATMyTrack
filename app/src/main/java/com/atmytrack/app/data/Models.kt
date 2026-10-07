@@ -8,7 +8,7 @@ data class Stem(
     val volume: Float = 1f, val pan: Float = 0f, val mute: Boolean = false,
     val solo: Boolean = false, val format: PcmFormat = PcmFormat(),
     val external: Boolean = false, val compressed: Boolean = false, val fingerprint: String = "",
-    val bus: String = "", val route: String = "BOTH", val pitchFile: String = "", val pitchApplied: Int = 0, val sourceRate: Int = 0, val sourceFrames: Long = 0
+    val bus: String = "", val route: String = "BOTH", val pitchFile: String = "", val pitchApplied: Int = 0, val sourceRate: Int = 0, val sourceFrames: Long = 0, val dspSpeed: Int = 100
 )
 data class Marker(val id: String = UUID.randomUUID().toString(), val name: String,
     val start: Long, val end: Long, val color: Long = 0xFF60A5FA)
@@ -24,8 +24,21 @@ data class Project(
     val semitones: Int = 0, val targetKey: String = "", val pitchTracks: List<String> = emptyList(),
     val clickSound: String = "Classic", val accent: Boolean = true, val clickRoute: String = "BOTH",
     val detectedBpm: Double = 0.0, val confidence: Double = 0.0, val beatOffset: Long = 0,
-    val analysisKey: String = "", val selectedMarker: String = "", val smartClick: Boolean = false
+    val analysisKey: String = "", val selectedMarker: String = "", val smartClick: Boolean = false,
+    val speed: Int = 100, val speedTracks: List<String>? = null, val speedPreset: Int = 100
 ) {
+    val selectedSpeedTracks: List<String> get() = speedTracks ?: stems.map { it.id }
+    val globalSpeed: Boolean get() = stems.isNotEmpty() && stems.all { it.id in selectedSpeedTracks }
+    val timelineScale: Double get() = if(globalSpeed) speed / 100.0 else 1.0
+    val effectiveBpm: Double get() = bpm * timelineScale
+    val playbackFrames: Long get() = stems.maxOfOrNull { kotlin.math.round(it.frames / (it.dspSpeed / 100.0)).toLong() } ?: 0L
+    val timelineFrames: Long get() = kotlin.math.round(playbackFrames*timelineScale).toLong()
+    val playbackSeconds: Double get() = playbackFrames.toDouble() / sampleRate
+    /** Saved markers always stay on the original musical timeline. */
+    fun engineView(): Project = copy(
+        stems=stems.map { it.copy(frames=kotlin.math.round(it.frames/(it.dspSpeed/100.0)).toLong(),dspSpeed=100) },
+        markers=markers.map { it.copy(start=kotlin.math.round(it.start/timelineScale).toLong(),end=kotlin.math.round(it.end/timelineScale).toLong()) },
+        bpm=effectiveBpm,beatOffset=kotlin.math.round(beatOffset/timelineScale).toLong(),speed=100,speedTracks=null)
     val frames: Long get() = stems.maxOfOrNull { it.frames } ?: 0L
     val loopSection: Marker? get() = if(loop) markers.find { it.id==selectedMarker && MusicTime.validMarker(it.start,it.end,frames) } else null
     fun playbackFrame(absolute:Long):Long {

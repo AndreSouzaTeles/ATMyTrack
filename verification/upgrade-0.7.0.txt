@@ -1,0 +1,1 @@
+Installed 0.7.0 code9 over 0.6.1 code8 using adb install -r. Same signed package; library JSON unchanged: 128 projects, including stems, faders, markers and settings. Unit migration test verifies default 100%/all tracks.

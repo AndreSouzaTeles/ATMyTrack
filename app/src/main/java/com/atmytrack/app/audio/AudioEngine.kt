@@ -43,6 +43,8 @@ class AudioEngine(private val context: Context) {
     private var limited=false
     private var masterGain=1f
     private val busGains=mutableMapOf<String,Float>()
+    private var timelineScale = 1.0
+    private var fadeIn = 0
     private var cursor = 0L
     private var endFrame=0L
     private var base = 0L
@@ -65,7 +67,7 @@ class AudioEngine(private val context: Context) {
                     if(devices.any { it.id == deviceId }) {
                         val position=audiblePosition(); playing=false; reset(position)
                         pump?.close();pump=null;sink=null; outputUnavailable=true; outputChannels=2
-                        mutable.value=mutable.value.copy(playing=false,frame=position,outputChannels=2,outputName="Interface desconectada",error="Interface desconectada. Use ATUALIZAR SAÍDA e revise os destinos dos buses antes de retomar.")
+                        mutable.value=mutable.value.copy(playing=false,frame=kotlin.math.round(position*timelineScale).toLong(),outputChannels=2,outputName="Interface desconectada",error="Interface desconectada. Use ATUALIZAR SAÍDA e revise os destinos dos buses antes de retomar.")
                     }
                 }
             }
@@ -92,7 +94,8 @@ class AudioEngine(private val context: Context) {
             mutable.value=mutable.value.copy(preparing=false,ready=false,preparation=mutable.value.preparation.map { if(it.id==pending)it.copy(status="ERROR",detail="Preparação cancelada") else it })
         }
     }
-    fun load(p: Project, preserve: Boolean = false) {
+    fun load(source: Project, preserve: Boolean = false) {
+        val p=source.engineView()
         val ticket=generation.incrementAndGet()
         mutable.value=mutable.value.copy(ready=false,preparing=true,error=null,preparation=p.stems.map { PreparationItem(it.id,it.name,"DISCOVERED") })
         commands.offer {
@@ -103,7 +106,7 @@ class AudioEngine(private val context: Context) {
 
         maxReadNanos=0;clippedBlocks=0
         val resume=preserve && playing
-        val position=if(preserve)audiblePosition().coerceAtMost(p.frames) else 0L
+        val position=if(preserve)(audiblePosition()*timelineScale/source.timelineScale).toLong().coerceAtMost(p.frames) else 0L
         playing = false; pump?.close();pump=null; sink = null
         readers.values.forEach { runCatching { it.close() } }; readers = emptyMap(); project = null
         val opened = mutableMapOf<String,FrameReader>()
@@ -141,7 +144,7 @@ class AudioEngine(private val context: Context) {
             if(track.state != AudioTrack.STATE_INITIALIZED) { track.release();error("Não foi possível abrir a saída estéreo.") }
             if(device!=null && !track.setPreferredDevice(device)) { track.release(); error("Não foi possível selecionar a interface USB.") }
             hardware=FloatArray(512*outputChannels)
-            sink = track;pump=OutputPump(track,outputChannels,Thread.currentThread()); readers = opened; project = p; outputUnavailable=false
+            sink = track;pump=OutputPump(track,outputChannels,Thread.currentThread()); readers = opened; project = p; timelineScale=source.timelineScale; outputUnavailable=false
             busBuffers=p.buses.associate { it.id to FloatArray(1024) }
             configureGains(p)
             cursor = position;endFrame=if(p.loop)Long.MAX_VALUE else p.frames; base = position; headBase = 0; ending = false
@@ -155,7 +158,16 @@ class AudioEngine(private val context: Context) {
             if(ticket==generation.get())throw e
         }
     } }
-    fun update(p: Project) { commands.offer { if (p.id == project?.id) {
+    fun update(source: Project) { commands.offer { if (source.id == project?.id) {
+        val live=project!!
+        // Mixer edits may arrive while a prepared DSP swap is committing. They must
+        // never restore old cache metadata or temporal coordinates from the UI snapshot.
+        val p=source.engineView().copy(semitones=live.semitones,targetKey=live.targetKey,pitchTracks=live.pitchTracks,
+            bpm=source.bpm*timelineScale,beatOffset=kotlin.math.round(source.beatOffset/timelineScale).toLong(),
+            markers=source.markers.map { it.copy(start=kotlin.math.round(it.start/timelineScale).toLong(),end=kotlin.math.round(it.end/timelineScale).toLong()) },
+            stems=source.stems.map { s -> live.stems.find { it.id==s.id }?.let { current ->
+                s.copy(frames=current.frames,pitchFile=current.pitchFile,pitchApplied=current.pitchApplied,dspSpeed=100)
+            } ?: s })
         val reposition=project?.loopSection!=p.loopSection
         if(!reposition && project?.loop!=p.loop) {
             endFrame=if(p.loop)Long.MAX_VALUE else (absolutePosition()/p.frames.coerceAtLeast(1)+1)*p.frames
@@ -173,7 +185,8 @@ class AudioEngine(private val context: Context) {
     }
     /** Prepare only changed readers off the mixer, then swap at a shared block boundary.
      * AudioTrack, queued samples, playback head and the transport cursor are untouched. */
-    suspend fun applyPreparedPitch(p:Project) = withContext(NonCancellable) {
+    suspend fun applyPreparedPitch(source:Project) = withContext(NonCancellable) {
+        val p=source.engineView()
         val before=project ?: return@withContext
         if(before.id!=p.id)return@withContext
         val prepared=withContext(Dispatchers.IO) {
@@ -191,10 +204,21 @@ class AudioEngine(private val context: Context) {
                 val current=project
                 if(current?.id==p.id) {
                     check(current.stems.all { s -> p.stems.any { it.id==s.id && it.fingerprint==s.fingerprint } }) { "A origem mudou durante o preparo do pitch. Aplique novamente." }
+                    val changingTime=timelineScale!=source.timelineScale || current.frames!=p.frames || current.stems.zip(p.stems).any { it.first.frames!=it.second.frames }
+                    val resume=playing
+                    val originalPosition=audiblePosition()*timelineScale
+                    if(changingTime) { pump?.reset();playing=false }
                     val retired=prepared.keys.mapNotNull { readers[it] }
                     readers=readers+prepared
-                    project=current.copy(key=p.key,targetKey=p.targetKey,semitones=p.semitones,pitchTracks=p.pitchTracks,
-                        stems=current.stems.map { s -> val next=p.stems.first { it.id==s.id };s.copy(pitchFile=next.pitchFile,pitchApplied=next.pitchApplied) })
+                    project=current.copy(key=p.key,targetKey=p.targetKey,semitones=p.semitones,pitchTracks=p.pitchTracks,bpm=p.bpm,beatOffset=p.beatOffset,markers=p.markers,
+                        stems=current.stems.map { s -> val next=p.stems.first { it.id==s.id };s.copy(pitchFile=next.pitchFile,pitchApplied=next.pitchApplied,frames=next.frames) })
+                    timelineScale=source.timelineScale
+                    if(changingTime) {
+                        reset((originalPosition/timelineScale).toLong().coerceIn(0,p.frames))
+                        fadeIn=256
+                        if(resume) { primeReaders(cursor);pump?.start();playing=true }
+                    }
+                    publish(force=true)
                     cleanup.execute { retired.forEach { runCatching { it.close() } } }
                 } else cleanup.execute { prepared.values.forEach { runCatching { it.close() } } }
                 committed.complete(Unit)
@@ -222,7 +246,7 @@ class AudioEngine(private val context: Context) {
     fun stop() { commands.offer { playing = false; reset(0); publish(force = true) } }
     fun seek(frame: Long) { commands.offer {
         val resume = playing
-        reset(frame.coerceIn(0, project?.frames ?: 0))
+        reset((frame/timelineScale).toLong().coerceIn(0, project?.frames ?: 0))
         if (resume) { primeReaders(cursor); pump?.start() }
         publish(force = true)
     } }
@@ -323,6 +347,10 @@ class AudioEngine(private val context: Context) {
         if(levels.first>1f || levels.second>1f)clippedBlocks++
         repeat(count) { hardware[it*outputChannels]+=output[it*2]; hardware[it*outputChannels+1]+=output[it*2+1] }
         limited=limiter.process(hardware,count,outputChannels,p.sampleRate)
+        if(fadeIn>0) repeat(count) { f ->
+            val gain=if(fadeIn>0)1f-(fadeIn--)/256f else 1f
+            repeat(outputChannels) { ch -> hardware[f*outputChannels+ch]*=gain }
+        }
         check(queue.offer(hardware,count))
         cursor += count
         publish(peakBuffer, levels.first, levels.second)
@@ -332,6 +360,6 @@ class AudioEngine(private val context: Context) {
         val now = System.nanoTime()
         if (!force && now - lastPublish < 33_000_000) return
         lastPublish = now
-        mutable.value = PlaybackState(project?.id ?: "", playing, audiblePosition(), peaks?.toList() ?: emptyList(), left, right, underruns = sink?.underrunCount ?: 0,busPeaks=busLevels.toMap(),outputName=outputName,outputChannels=outputChannels,ready=mutable.value.ready,preparing=mutable.value.preparing,preparation=mutable.value.preparation,preparationMs=mutable.value.preparationMs,starvation=pump?.starvation ?: 0,limiting=limited,producerWaits=pump?.producerWaits ?: 0)
+        mutable.value = PlaybackState(project?.id ?: "", playing, kotlin.math.round(audiblePosition()*timelineScale).toLong(), peaks?.toList() ?: emptyList(), left, right, underruns = sink?.underrunCount ?: 0,busPeaks=busLevels.toMap(),outputName=outputName,outputChannels=outputChannels,ready=mutable.value.ready,preparing=mutable.value.preparing,preparation=mutable.value.preparation,preparationMs=mutable.value.preparationMs,starvation=pump?.starvation ?: 0,limiting=limited,producerWaits=pump?.producerWaits ?: 0)
     }
 }

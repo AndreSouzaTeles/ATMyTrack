@@ -1,0 +1,17 @@
+
+com.atmytrack.app.AdvancedAudioTest:....
+com.atmytrack.app.BufferedReaderTest:..
+com.atmytrack.app.Feature06Test:..
+com.atmytrack.app.LoopControl05Test:..
+com.atmytrack.app.Preparation05Test:..
+com.atmytrack.app.SourceProviderTest:.
+com.atmytrack.app.PlaybackInstrumentedTest:........
+com.atmytrack.app.Layout05Test:.
+com.atmytrack.app.Speed07AudioTest:...
+com.atmytrack.app.Musical07Test:.
+com.atmytrack.app.Tools07UiTest:..
+com.atmytrack.app.Release04AudioTest:.
+
+Time: 362.839
+
+OK (29 tests)
