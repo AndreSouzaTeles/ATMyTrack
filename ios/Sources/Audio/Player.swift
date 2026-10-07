@@ -164,14 +164,18 @@ import Combine
             let index=Files.source(song,stem).path.withCString {atm_add(pointer,$0,frames)}
             guard index>=0 else {throw AppError.message("A track \(stem.name) precisa ser preparada novamente.")}
         }
-        let format=AVAudioFormat(commonFormat:.pcmFormatFloat32,sampleRate:48000,channels:AVAudioChannelCount(channels),interleaved:true)!
+        let format=AVAudioFormat(standardFormatWithSampleRate:48000,channels:AVAudioChannelCount(channels))!
         let count=channels
+        let scratch=RenderScratch(channels:count)
         let node=AVAudioSourceNode(format:format) { _,_,frames,buffers in
             let list=UnsafeMutableAudioBufferListPointer(buffers)
-            guard let data=list.first?.mData else{return noErr}
-            // The source format is interleaved; no file I/O, allocation or lock here.
-            atm_read(pointer,data.assumingMemoryBound(to:Float.self),Int32(frames))
-            list[0].mDataByteSize=frames*UInt32(count)*4
+            // Deinterleave from the preallocated ring into the hardware's planar buffers.
+            guard frames<=16384 else {for buffer in list {if let p=buffer.mData{memset(p,0,Int(buffer.mDataByteSize))}};return noErr}
+            atm_read(pointer,scratch.data,Int32(frames))
+            for channel in 0..<min(count,list.count) {
+                guard let data=list[channel].mData?.assumingMemoryBound(to:Float.self) else{continue}
+                for frame in 0..<Int(frames){data[frame]=scratch.data[frame*count+channel]}
+            }
             return noErr
         }
         engine.attach(node);engine.connect(node,to:engine.mainMixerNode,format:format)
@@ -198,3 +202,8 @@ import Combine
     }
 }
 private func priority(_ name:String)->Int {let n=name.lowercased();if n.contains("click")||n.contains("metro"){return 0};if n.contains("drum")||n.contains("bateria"){return 1};return 2}
+private final class RenderScratch {
+    let data:UnsafeMutablePointer<Float>
+    init(channels:Int){data = .allocate(capacity:16384*channels);data.initialize(repeating:0,count:16384*channels)}
+    deinit{data.deallocate()}
+}

@@ -79,6 +79,6 @@ final class CoreTests:XCTestCase {
         atm_loop(core,1000,2024,1);atm_start(core,1000,48000)
         for _ in 0..<10{result.withUnsafeMutableBufferPointer{atm_read(core,$0.baseAddress,512)};Thread.sleep(forTimeInterval:0.011)}
         XCTAssertEqual(result[0],0.01,accuracy:0.001);XCTAssertEqual(result[1],0,accuracy:0.001)
-        XCTAssertTrue((1000..0.2024).contains(atm_position(core)));atm_stop(core)
+        XCTAssertTrue((1000...2024).contains(atm_position(core)));atm_stop(core)
     }
 }

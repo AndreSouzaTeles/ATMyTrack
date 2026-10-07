@@ -24,16 +24,16 @@ struct TunerScreen:View {
         }
         VStack(spacing:12){
             Text(tuner.reading.frequency>0 ? Music.note(midi) : "—").font(.system(size:88,weight:.bold,design:.rounded)).foregroundStyle(Palette.light)
-            Text(tuner.reading.frequency>0 ? String(format:"%0.2f Hz",tuner.reading.frequency) : "AGUARDANDO SINAL").font(.title3.monospacedDigit())
+            Text(tuner.reading.frequency>0 ? String(format:"%.2f Hz",tuner.reading.frequency) : "AGUARDANDO SINAL").font(.title3.monospacedDigit())
             GeometryReader{geo in
                 let x=max(-50,min(50,cents))
                 VStack{HStack{ForEach([-50,-25,0,25,50],id:\.self){n in Text("\(n)").font(.caption);if n != 50{Spacer()}}};ZStack(alignment:.leading){Capsule().fill(.gray.opacity(0.3)).frame(height:5);Rectangle().fill(Palette.blue).frame(width:4,height:26).offset(x:geo.size.width/2);if tuner.reading.frequency>0{Image(systemName:"triangle.fill").foregroundStyle(Palette.light).offset(x:(x+50)/100*(geo.size.width-14))}}}
             }.frame(height:62)
-            Text(tuner.reading.frequency>0 ? String(format:"%+0.1f cents",cents) : "TOQUE UMA CORDA").font(.system(size:28,weight:.semibold,design:.rounded))
+            Text(tuner.reading.frequency>0 ? String(format:"%+.1f cents",cents) : "TOQUE UMA CORDA").font(.system(size:28,weight:.semibold,design:.rounded))
             if tuner.reading.frequency>0{Text(abs(cents)<=3 ? "✓ AFINADO" : cents<0 ? "↑ AUMENTE A AFINAÇÃO":"↓ DIMINUA A AFINAÇÃO").font(.headline).foregroundStyle(abs(cents)<=3 ? Palette.light:.white)}
         }.frame(maxWidth:.infinity).padding(20).background(Palette.panel,in:RoundedRectangle(cornerRadius:20))
         HStack{Text("MIC").font(.caption);ProgressView(value:min(1,tuner.reading.rms*8)).tint(Palette.blue);Text(tuner.active ? "ATIVO":"PARADO").font(.caption)}
-        Stepper("A4 = \(Int(a4)) Hz",value:$a4,in:400..0.480,step:1)
+        Stepper("A4 = \(Int(a4)) Hz",value:$a4,in:400...480,step:1)
         Button("RESET 440 Hz"){a4=440}
         if !tuner.active {
             Text("O ATMyTrack precisa acessar o microfone para identificar a nota tocada pelo seu instrumento.")

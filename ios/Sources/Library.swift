@@ -30,6 +30,7 @@ struct LibraryDocument: Codable { var version = 1; var projects: [Song] }
 @MainActor final class Library: ObservableObject {
     @Published var projects: [Song] = []
     @Published var error: String?
+    private var readable=true
     init() {
         do {
             try Files.ensure()
@@ -37,9 +38,10 @@ struct LibraryDocument: Codable { var version = 1; var projects: [Song] }
             if FileManager.default.fileExists(atPath:file.path) {
                 projects = try JSONDecoder().decode(LibraryDocument.self,from:Data(contentsOf:file)).projects
             }
-        } catch { self.error = "Não foi possível abrir a biblioteca. Os arquivos existentes foram preservados."; NSLog("Library: %@",String(describing:error)) }
+        } catch { readable=false; self.error = "Não foi possível abrir a biblioteca. Os arquivos existentes foram preservados."; NSLog("Library: %@",String(describing:error)) }
     }
     func save() {
+        guard readable else {error="A biblioteca não pôde ser aberta. O arquivo existente foi preservado; restaure o backup antes de salvar novos projetos.";return}
         do { try JSONEncoder().encode(LibraryDocument(projects:projects)).write(to:Files.url("library.json"),options:.atomic) }
         catch { self.error = "Não foi possível salvar as alterações. Confira o espaço disponível.";NSLog("Save: %@",String(describing:error)) }
     }
@@ -124,13 +126,13 @@ enum AudioPreparation {
         }
         guard envelope.count>=400 else {throw AppError.message("Áudio muito curto para detectar BPM.")}
         var scores=[Double](repeating:0,count:174)
-        for lag in 24..0.172 {
+        for lag in 24...172 {
             var dot=0.0,a=0.0,b=0.0
             for i in lag..<envelope.count {dot+=envelope[i]*envelope[i-lag];a+=envelope[i]*envelope[i];b+=envelope[i-lag]*envelope[i-lag]}
             scores[lag]=dot/max(1e-12,sqrt(a*b))
         }
         let best=scores.max() ?? 0
-        guard best>0.18, let lag=(25..0.171).first(where:{scores[$0]>=best*0.85 && scores[$0]>=scores[$0-1] && scores[$0]>=scores[$0+1]}) else {throw AppError.message("Não foi encontrado um pulso estável. Use TAP ou ajuste o BPM.")}
+        guard best>0.18, let lag=(25...171).first(where:{scores[$0]>=best*0.85 && scores[$0]>=scores[$0-1] && scores[$0]>=scores[$0+1]}) else {throw AppError.message("Não foi encontrado um pulso estável. Use TAP ou ajuste o BPM.")}
         let offset=Double(envelope.firstIndex(where:{$0>(envelope.max() ?? 0)*0.2}) ?? 0)/100
         return (6000/Double(lag),offset)
     }

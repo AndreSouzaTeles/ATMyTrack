@@ -50,10 +50,16 @@ targets:
         SWIFT_OBJC_BRIDGING_HEADER: Sources/Audio/Bridge.h
     dependencies:
       - target: ATMyTrack
+  ATMyTrackUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: UITests
+    dependencies:
+      - target: ATMyTrack
 schemes:
   ATMyTrack:
     build:
       targets:
         ATMyTrack: all
     test:
-      targets: [ATMyTrackTests]
+      targets: [ATMyTrackTests, ATMyTrackUITests]

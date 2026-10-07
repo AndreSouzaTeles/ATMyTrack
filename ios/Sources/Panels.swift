@@ -27,7 +27,7 @@ struct SearchProjects:View {
         TextField("Nome do projeto ou tom",text:$query).textFieldStyle(.roundedBorder)
         Picker("Tom",selection:$key){Text("Todos").tag("Todos");ForEach(Array(Set(library.projects.map(\.key))).sorted(),id:\.self){Text($0).tag($0)}}
         ForEach(library.projects.filter{(query.isEmpty || $0.name.localizedStandardContains(query) || $0.key.localizedStandardContains(query)) && (key=="Todos" || key==$0.key)}){song in
-            Button{choose(song)}label:{VStack(alignment:.leading){Text(song.name).font(.headline);Text("\(song.key) · \(song.effectiveBPM,specifier:"%0.1f") BPM").font(.caption)}.frame(maxWidth:.infinity,alignment:.leading).padding().background(Palette.panel,in:RoundedRectangle(cornerRadius:12))}
+            Button{choose(song)}label:{VStack(alignment:.leading){Text(song.name).font(.headline);Text("\(song.key) · \(song.effectiveBPM,specifier:"%.1f") BPM").font(.caption)}.frame(maxWidth:.infinity,alignment:.leading).padding().background(Palette.panel,in:RoundedRectangle(cornerRadius:12))}
         }
     }}
 }
@@ -58,7 +58,7 @@ struct DSPPanel:View {
     @State private var preset:Int?
     var body:some View{Panel(title:speedMode ? "VELOCIDADE":"TOM"){
         Text(speedMode ? "\(Int(value))%" : "\(Int(value)>0 ? "+":"")\(Int(value)) semitons").font(.system(size:42,weight:.bold,design:.rounded)).foregroundStyle(Palette.light).frame(maxWidth:.infinity)
-        HStack{Button("−"){value=max(speedMode ? 50:-12,value-1)};Slider(value:$value,in:speedMode ? 50..0.200 : -12..0.12,step:1);Button("+"){value=min(speedMode ? 200:12,value+1)}}.font(.title2)
+        HStack{Button("−"){value=max(speedMode ? 50:-12,value-1)};Slider(value:$value,in:speedMode ? 50...200 : -12...12,step:1);Button("+"){value=min(speedMode ? 200:12,value+1)}}.font(.title2)
         if speedMode {
             Text("Todas as tracks: modo recomendado para preservar sincronização.").font(.caption).foregroundStyle(.secondary)
             LazyVGrid(columns:[GridItem(.adaptive(minimum:85))]){ForEach([50,75,80,90,100,110,125,150,200],id:\.self){n in Button(n==100 ? "ORIGINAL":"\(n)%"){value=Double(n);preset=n;apply()}.buttonStyle(.bordered)}}
@@ -79,13 +79,13 @@ struct MetronomePanel:View {
     @State private var taps=[Date]()
     var body:some View{Panel(title:"METRÔNOMO"){
         HStack{Button("TAP"){let now=Date();if let last=taps.last,now.timeIntervalSince(last)>2.2 {taps=[]};taps.append(now);taps=Array(taps.suffix(7));if taps.count>1{let bpm=Double(taps.count-1)*60/now.timeIntervalSince(taps[0]);player.edit{$0.bpm=min(300,max(30,bpm))}}}.buttonStyle(.borderedProminent);Toggle("Smart Click",isOn:Binding(get:{player.song?.smartClick ?? false},set:{v in player.edit{$0.smartClick=v};if v {player.smartTempo()}}))}
-        Text("Original: \(player.song?.bpm ?? 70,specifier:"%0.1f") BPM • Atual: \(player.song?.effectiveBPM ?? 70,specifier:"%0.1f") BPM").foregroundStyle(Palette.light)
-        Stepper("BPM \(player.song?.bpm ?? 70,specifier:"%0.1f")",value:Binding(get:{player.song?.bpm ?? 70},set:{v in player.edit{$0.bpm=v}}),in:30..0.300,step:1)
-        Stepper("Batidas: \(player.song?.beats ?? 4)",value:Binding(get:{player.song?.beats ?? 4},set:{v in player.edit{$0.beats=v}}),in:1..0.16)
+        Text("Original: \(player.song?.bpm ?? 70,specifier:"%.1f") BPM • Atual: \(player.song?.effectiveBPM ?? 70,specifier:"%.1f") BPM").foregroundStyle(Palette.light)
+        Stepper("BPM \(player.song?.bpm ?? 70,specifier:"%.1f")",value:Binding(get:{player.song?.bpm ?? 70},set:{v in player.edit{$0.bpm=v}}),in:30...300,step:1)
+        Stepper("Batidas: \(player.song?.beats ?? 4)",value:Binding(get:{player.song?.beats ?? 4},set:{v in player.edit{$0.beats=v}}),in:1...16)
         Picker("Divisão",selection:Binding(get:{player.song?.multiplier ?? 1},set:{v in player.edit{$0.multiplier=v}})){Text("0.5x").tag(0.5);Text("1x").tag(1.0);Text("2x").tag(2.0)}.pickerStyle(.segmented)
         Text("A divisão altera somente o click.").font(.caption).foregroundStyle(.secondary)
         Toggle("Acentuar primeira batida",isOn:Binding(get:{player.song?.accent ?? true},set:{v in player.edit{$0.accent=v}}))
-        Slider(value:Binding(get:{Double(player.song?.clickVolume ?? 0.35)},set:{v in player.edit{$0.clickVolume=Float(v)}}),in:0..0.1){Text("Volume")}
+        Slider(value:Binding(get:{Double(player.song?.clickVolume ?? 0.35)},set:{v in player.edit{$0.clickVolume=Float(v)}}),in:0...1){Text("Volume")}
         Picker("Timbre",selection:Binding(get:{player.song?.clickSound ?? 0},set:{v in player.edit{$0.clickSound=v}})){ForEach(Array(["Clássico","Agudo","Madeira","Digital","Suave","Estúdio","Palco"].enumerated()),id:\.offset){i,name in Text(name).tag(i)}}
         RoutePicker(route:Binding(get:{player.song?.clickRoute ?? -1},set:{v in player.edit{$0.clickRoute=v}}),channels:player.channels)
         Button(player.song?.click==true ? "PAUSAR CLICK":"PLAY"){let enabled=player.song?.click != true;player.edit{$0.click=enabled};if enabled && !player.playing {player.play()}}.buttonStyle(.borderedProminent)
@@ -119,7 +119,7 @@ struct GroupsPanel:View {
         Button("+ DCA"){player.edit{$0.dcas.append(DCA(name:"DCA \($0.dcas.count+1)"))}}
         ForEach(player.song?.dcas ?? []){dca in VStack(alignment:.leading){
             TextField("Nome",text:Binding(get:{dca.name},set:{v in updateDCA(dca.id){$0.name=v}})).textFieldStyle(.roundedBorder)
-            Slider(value:Binding(get:{Music.db(dca.volume)},set:{v in updateDCA(dca.id){$0.volume=Music.gain(v)}}),in:-80..0.10)
+            Slider(value:Binding(get:{Music.db(dca.volume)},set:{v in updateDCA(dca.id){$0.volume=Music.gain(v)}}),in:-80...10)
             Toggle("Mute",isOn:Binding(get:{dca.mute},set:{v in updateDCA(dca.id){$0.mute=v}}))
             ForEach(player.song?.stems ?? []){stem in Toggle(stem.name,isOn:Binding(get:{dca.members.contains(stem.id)},set:{v in updateDCA(dca.id){if v{$0.members.insert(stem.id)}else{$0.members.remove(stem.id)}}}))}
             Button("Excluir DCA",role:.destructive){player.edit{$0.dcas.removeAll{$0.id==dca.id}}}
@@ -127,7 +127,7 @@ struct GroupsPanel:View {
         Button("+ BUS"){player.edit{$0.buses.append(Bus(name:"BUS \($0.buses.count+1)"))}}
         ForEach(player.song?.buses ?? []){bus in VStack(alignment:.leading){
             TextField("Nome",text:Binding(get:{bus.name},set:{v in updateBus(bus.id){$0.name=v}})).textFieldStyle(.roundedBorder)
-            Slider(value:Binding(get:{Music.db(bus.volume)},set:{v in updateBus(bus.id){$0.volume=Music.gain(v)}}),in:-80..0.10)
+            Slider(value:Binding(get:{Music.db(bus.volume)},set:{v in updateBus(bus.id){$0.volume=Music.gain(v)}}),in:-80...10)
             Toggle("Mute",isOn:Binding(get:{bus.mute},set:{v in updateBus(bus.id){$0.mute=v}}))
             RoutePicker(route:Binding(get:{bus.route},set:{v in updateBus(bus.id){$0.route=v}}),channels:player.channels)
             Button("Excluir BUS",role:.destructive){player.edit{song in song.buses.removeAll{$0.id==bus.id};for i in song.stems.indices where song.stems[i].bus==bus.id{song.stems[i].bus=""}}}

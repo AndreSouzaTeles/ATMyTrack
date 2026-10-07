@@ -10,7 +10,13 @@ enum Palette {
 @main struct ATMyTrackApp: App {
     @StateObject private var library:Library
     @StateObject private var player:Player
-    init() {let lib=Library();_library=StateObject(wrappedValue:lib);_player=StateObject(wrappedValue:Player(library:lib))}
+    init() {
+        let lib=Library()
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--ui-fixture") {try? TestFixture.create(in:lib)}
+        #endif
+        _library=StateObject(wrappedValue:lib);_player=StateObject(wrappedValue:Player(library:lib))
+    }
     var body: some Scene {
         WindowGroup {
             PlayerScreen(player:player,library:library).preferredColorScheme(.dark).tint(Palette.blue)
@@ -109,7 +115,7 @@ struct PlayerScreen: View {
                 ZStack(alignment:.bottomLeading){
                     RoundedRectangle(cornerRadius:16).fill(Palette.panel)
                     if !song.artwork.isEmpty,let image=UIImage(contentsOfFile:Files.url(song.artwork).path){Image(uiImage:image).resizable().scaledToFill().frame(width:220,height:112).clipped().opacity(0.25)}
-                    VStack(alignment:.leading,spacing:6){HStack{Spacer();Button{removing=song}label:{Image(systemName:"minus.circle").foregroundStyle(.red)}};Spacer();Text(song.name).font(.headline).lineLimit(1);Text("\(song.key) · \(song.effectiveBPM,specifier:"%0.1f") BPM · \(Music.time(song.seconds))").font(.caption).foregroundStyle(Palette.light)}.padding(12)
+                    VStack(alignment:.leading,spacing:6){HStack{Spacer();Button{removing=song}label:{Image(systemName:"minus.circle").foregroundStyle(.red)}};Spacer();Text(song.name).font(.headline).lineLimit(1);Text("\(song.key) · \(song.effectiveBPM,specifier:"%.1f") BPM · \(Music.time(song.seconds))").font(.caption).foregroundStyle(Palette.light)}.padding(12)
                 }.frame(width:220,height:112).clipShape(RoundedRectangle(cornerRadius:16)).overlay(RoundedRectangle(cornerRadius:16).stroke(player.song?.id==song.id ? Palette.blue : .clear,lineWidth:2)).onTapGesture{player.select(song)}
             }
             Button{append=false;importing=true}label:{Label("NOVO PROJETO",systemImage:"plus").frame(width:190,height:110).background(Palette.panel,in:RoundedRectangle(cornerRadius:16))}.disabled(player.preparing)
@@ -134,7 +140,7 @@ struct TransportBar:View {
     @ObservedObject var clock:Transport
     var body:some View {VStack(spacing:6){
         HStack(spacing:10){Button{player.seek(0)}label:{Image(systemName:"backward.end.fill").frame(width:44,height:44)};Button{player.playing ? player.pause() : player.play()}label:{Label(player.playing ? "PAUSAR" : "PLAY",systemImage:player.playing ? "pause.fill":"play.fill").frame(maxWidth:.infinity,minHeight:48)}.buttonStyle(.borderedProminent);Button{player.stop()}label:{Image(systemName:"stop.fill").frame(width:44,height:44)};Button{player.next()}label:{Image(systemName:"forward.end.fill").frame(width:44,height:44)}}
-        HStack{Text("\(Music.time(clock.seconds)) / \(Music.time(player.song?.seconds ?? 0))").monospacedDigit();Spacer();Text("\(player.song?.effectiveBPM ?? 70,specifier:"%0.1f") BPM");Text("· \(player.song?.beats ?? 4)/\(player.song?.denominator ?? 4)")}.font(.subheadline).foregroundStyle(Palette.light)
+        HStack{Text("\(Music.time(clock.seconds)) / \(Music.time(player.song?.seconds ?? 0))").monospacedDigit();Spacer();Text("\(player.song?.effectiveBPM ?? 70,specifier:"%.1f") BPM");Text("· \(player.song?.beats ?? 4)/\(player.song?.denominator ?? 4)")}.font(.subheadline).foregroundStyle(Palette.light)
     }.padding(.horizontal,16)}
 }
 struct Timeline:View {
@@ -164,8 +170,8 @@ struct ChannelStrip:View {
     var body:some View {
         VStack(spacing:12){
             Text(stem.name).font(.subheadline.bold()).multilineTextAlignment(.center).frame(maxWidth:.infinity,minHeight:52).background(Palette.background,in:RoundedRectangle(cornerRadius:8))
-            Text(stem.pan==0 ? "PAN · C" : String(format:"PAN · %0.0f",stem.pan*100)).font(.caption).foregroundStyle(.secondary)
-            Slider(value:Binding(get:{Double(stem.pan)},set:{v in edit{$0.pan=Float(v)}}),in:-1..0.1)
+            Text(stem.pan==0 ? "PAN · C" : String(format:"PAN · %.0f",stem.pan*100)).font(.caption).foregroundStyle(.secondary)
+            Slider(value:Binding(get:{Double(stem.pan)},set:{v in edit{$0.pan=Float(v)}}),in:-1...1)
             HStack{Button("S"){edit{$0.solo.toggle()}}.tint(stem.solo ? Palette.blue : .gray);Button("M"){edit{$0.mute.toggle()}}.tint(stem.mute ? Palette.blue : .gray)}.buttonStyle(.borderedProminent)
             Fader(gain:Binding(get:{stem.volume},set:{v in edit{$0.volume=v}}))
             Menu {Button("MASTER"){edit{$0.bus=""}};ForEach(player.song?.buses ?? []){bus in Button(bus.name){edit{$0.bus=bus.id}}};Divider();Button("Estéreo"){edit{$0.route = -1}};Button("Esquerda"){edit{$0.route = -2}};Button("Direita"){edit{$0.route = -3}}}label:{Text(stem.bus.isEmpty ? "MASTER / ROUTING" : "BUS / ROUTING").font(.caption2)}
@@ -181,7 +187,7 @@ struct Fader:View {
     @State private var editing=false
     @State private var entered="0"
     var body:some View{VStack(spacing:10){
-        Button(gain==0 ? "−∞ dB" : String(format:"%+0.1f dB",Music.db(gain))){entered=String(format:"%0.1f",Music.db(gain));editing=true}.font(.subheadline.monospacedDigit())
+        Button(gain==0 ? "−∞ dB" : String(format:"%+.1f dB",Music.db(gain))){entered=String(format:"%.1f",Music.db(gain));editing=true}.font(.subheadline.monospacedDigit())
         GeometryReader{geo in
             let height=geo.size.height,position=(Music.db(gain)+80)/90
             ZStack{
