@@ -3,7 +3,7 @@ import AVFoundation
 enum TestFixture {
     @MainActor static func create(in library:Library) throws {
         guard !library.projects.contains(where:{$0.name=="Sessão de teste iOS"}) else{return}
-        var song=Song(name:"Sessão de teste iOS");song.bpm=120;song.key="A"
+        var song=Song(name:"Sessão de teste iOS");song.bpm=120;song.key="A";song.loop=true
         let format=AVAudioFormat(standardFormatWithSampleRate:48000,channels:2)!
         for (index,hz) in [220.0,110.0].enumerated() {
             let url=FileManager.default.temporaryDirectory.appendingPathComponent("\(index==0 ? "Guitarra":"Baixo").wav")

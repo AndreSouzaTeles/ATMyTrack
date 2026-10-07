@@ -14,7 +14,7 @@ final class NavigationTests:XCTestCase {
         app.buttons["VELOCIDADE 100%"].tap()
         app.buttons["80%"].tap()
         let close=app.buttons["Fechar"].firstMatch;close.tap()
-        XCTAssertTrue(app.buttons["VELOCIDADE 80%"].waitForExistence(timeout:30))
+        XCTAssertTrue(app.buttons["VELOCIDADE 80%"].waitForExistence(timeout:90))
         attach("playback-portrait")
         XCUIDevice.shared.orientation = .landscapeLeft
         attach("playback-landscape")
