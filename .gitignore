@@ -13,12 +13,11 @@ verification/*.log
 *.jks
 *.keystore
 keystore.properties
-*.ipa
-ios/ATMyTrack.xcodeproj/
-ios/Info.plist
 
 .codex-remote-attachments/
 
 tools/qr-runtime/
-tools/ios-runtime/
-verification/ios-artifacts-*/
+web/node_modules/
+web/.sites-runtime/
+web/.git/
+web/test-results/

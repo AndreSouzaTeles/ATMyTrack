@@ -7,6 +7,23 @@ import org.junit.Test
 import org.junit.Assert.*
 
 class SpeedTunerTest {
+    @Test fun measuredChromaticNoteNeverSnapsToStringTarget() {
+        val tuning=Instruments.all.first { it.id=="guitar" }.tunings.first()
+        for(midi in 23..88)for(offset in listOf(-35.0,0.0,35.0)) {
+            val detected=YinDetector().detect(signal(TuningMath.frequency(midi)*2.0.pow(offset/1200)))
+            for(manual in listOf(0,6,1)) {
+                val display=tunerDisplay(detected.frequency,tuning,manual)
+                assertEquals(midi,display.midi)
+                assertEquals(offset,display.cents,1.0)
+            }
+        }
+        val fs=tunerDisplay(TuningMath.frequency(66),tuning,1)
+        assertEquals("F#4",TuningMath.name(fs.midi))
+        assertEquals("E4",fs.target!!.label)
+        assertEquals(200.0,fs.targetCents!!,1e-6)
+        assertTrue(TuningMath.direction(fs.targetCents!!).contains("DIMINUA"))
+        assertEquals("F#4",TuningMath.name(tunerDisplay(TuningMath.frequency(66),tuning,0).midi))
+    }
     private fun signal(f:Double,harmonics:Boolean=false,amplitude:Double=.4)=FloatArray(4096) { i ->
         val phase=2*PI*f*i/24000
         (amplitude*(if(harmonics).3*sin(phase)+.55*sin(2*phase)+.15*sin(3*phase) else sin(phase))).toFloat()

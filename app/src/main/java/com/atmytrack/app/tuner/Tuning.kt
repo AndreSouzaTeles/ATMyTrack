@@ -6,6 +6,7 @@ data class PitchReading(val frequency:Double=0.0,val confidence:Double=0.0,val r
 /** YIN cumulative mean normalized difference; local interpolation, no FFT peak guessing. */
 class YinDetector(private val rate:Int=24000,private val size:Int=4096) {
     private val difference=DoubleArray(size/2)
+    private val rawDifference=DoubleArray(size/2)
     fun detect(samples:FloatArray):PitchReading {
         require(samples.size==size)
         val mean=samples.sumOf { it.toDouble() }/size
@@ -20,6 +21,7 @@ class YinDetector(private val rate:Int=24000,private val size:Int=4096) {
             var sum=0.0
             for(i in 0 until window) { val d=(samples[i]-samples[i+tau]).toDouble();sum+=d*d }
             running+=sum
+            rawDifference[tau]=sum
             difference[tau]=if(running>0)sum*tau/running else 1.0
         }
         var tau=minLag
@@ -28,7 +30,8 @@ class YinDetector(private val rate:Int=24000,private val size:Int=4096) {
                 while(tau+1<=maxLag && difference[tau+1]<difference[tau])tau++
                 val confidence=1-difference[tau]
                 if(confidence<.90)return PitchReading(rms=rms)
-                val a=difference[tau-1];val b=difference[tau];val c=difference[(tau+1).coerceAtMost(maxLag)]
+                // Interpolate the actual difference minimum, avoiding the slope introduced by CMND.
+                val a=rawDifference[tau-1];val b=rawDifference[tau];val c=rawDifference[(tau+1).coerceAtMost(maxLag)]
                 val delta=if(abs(a-2*b+c)>1e-12)(.5*(a-c)/(a-2*b+c)).coerceIn(-1.0,1.0) else 0.0
                 return PitchReading(rate/(tau+delta),confidence,rms)
             }
@@ -78,4 +81,14 @@ object TuningMath {
     fun cents(f:Double,midi:Int,a4:Double=440.0)=1200*log2(f/frequency(midi,a4))
     fun name(midi:Int)=notes[Math.floorMod(midi,12)]+(Math.floorDiv(midi,12)-1)
     fun direction(cents:Double)=when { abs(cents)<=3->"AFINADO";cents<0->"↑ AUMENTE A AFINAÇÃO";else->"↓ DIMINUA A AFINAÇÃO" }
+}
+
+/** Measured chromatic note and intended string are distinct, even far from tuning. */
+data class TunerDisplay(val midi:Int,val cents:Double,val target:StringNote?,val targetCents:Double?)
+fun tunerDisplay(frequency:Double,tuning:Tuning?,manual:Int,a4:Double=440.0):TunerDisplay {
+    val midi=TuningMath.nearest(frequency,a4)
+    val target=tuning?.strings?.find { it.number==manual }
+        ?: tuning?.strings?.minByOrNull { abs(TuningMath.cents(frequency,it.midi,a4)) }
+    return TunerDisplay(midi,TuningMath.cents(frequency,midi,a4),target,
+        target?.let { TuningMath.cents(frequency,it.midi,a4) })
 }

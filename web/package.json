@@ -1,0 +1,13 @@
+{
+  "name": "atmytrack-web",
+  "version": "0.8.0",
+  "description": "Player multitrack local para navegador",
+  "scripts": {
+    "test": "node tests/music.mjs && node tests/browser.cjs"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@playwright/test": "^1.58.2"
+  },
+  "private": "true"
+}

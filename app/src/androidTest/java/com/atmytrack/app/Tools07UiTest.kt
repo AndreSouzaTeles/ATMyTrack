@@ -47,7 +47,7 @@ class Tools07UiTest {
     val vm=ViewModelProvider(compose.activity)[PlayerViewModel::class.java]
     compose.waitUntil(30000) { vm.library.value.busy==null }
     context.getSharedPreferences("tuner",0).edit().putBoolean("asked",false).putString("instrument","acoustic").apply()
-    menu();compose.onNodeWithText("PROJETOS").assertIsDisplayed();compose.onNodeWithText("PLANO / PAGAMENTO").assertIsDisplayed();compose.onNodeWithText("CENTRAL DE DÚVIDAS").assertIsDisplayed();screenshot("menu-0.7.png")
+    menu();compose.onNodeWithText("PROJETOS").assertIsDisplayed();compose.onNodeWithText("DEIXE SUA MARCA").assertIsDisplayed();compose.onNodeWithText("CENTRAL DE DÚVIDAS").assertIsDisplayed();screenshot("menu-0.7.png")
     compose.onNodeWithText("AFINADOR").performClick()
     if(context.checkSelfPermission(Manifest.permission.RECORD_AUDIO)!=PackageManager.PERMISSION_GRANTED) {
         compose.onNodeWithText("O ATMyTrack precisa acessar o microfone para identificar a nota tocada pelo seu instrumento.").assertIsDisplayed()
@@ -78,7 +78,7 @@ class Tools07UiTest {
     compose.onNodeWithText("Instrumento: Baixo 5 cordas").performClick();compose.onNodeWithText("Cromático").performClick()
     compose.onNodeWithText("Instrumento: Cromático").assertExists();compose.onNodeWithText("FECHAR").performClick()
     menu();compose.onNodeWithText("CENTRAL DE DÚVIDAS").performClick();compose.onNodeWithText("FECHAR").performClick()
-    menu();compose.onNodeWithText("PLANO / PAGAMENTO").performClick();compose.onNodeWithContentDescription("QR Code Pix ATMyTrack").performScrollTo().assertIsDisplayed();compose.onNodeWithText("FECHAR").performClick()
+    menu();compose.onNodeWithText("DEIXE SUA MARCA").performClick();compose.onNodeWithContentDescription("QR Code Pix ATMyTrack").performScrollTo().assertIsDisplayed();compose.onNodeWithText("FECHAR").performClick()
     menu();compose.onNodeWithText("PROJETOS").performClick();compose.onNodeWithContentDescription("Pesquisar projetos").assertExists()
  }
  @Test fun speedSelectionWarningAndLiveMenu() {

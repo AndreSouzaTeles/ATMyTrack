@@ -1,0 +1,5 @@
+class Click extends AudioWorkletProcessor {
+  constructor(options){super();this.config=options.processorOptions;this.active=true;this.previousBeat=-1;this.phase=0;this.age=100;this.port.onmessage=()=>this.active=false;}
+  process(inputs,outputs){if(!this.active)return false;const out=outputs[0][0],c=this.config,beat=60/c.bpm;for(let i=0;i<out.length;i++){let position=c.position+(currentFrame+i)/sampleRate-c.when;if((currentFrame+i)/sampleRate<c.when){out[i]=0;continue;}if(c.loop&&position>=c.loop[1])position=c.loop[0]+(position-c.loop[0])%(c.loop[1]-c.loop[0]);const index=Math.floor((position+1e-7)/beat);if(index!==this.previousBeat){this.previousBeat=index;this.age=0;this.phase=0;this.frequency=(c.accent&&index%c.meter===0?1500:1000)*c.tone;this.amplitude=c.accent&&index%c.meter===0?.8:.5;}out[i]=this.age<.045?Math.sin(this.phase)*Math.exp(-this.age*100)*c.gain*this.amplitude:0;this.phase+=2*Math.PI*(this.frequency||1000)/sampleRate;this.age+=1/sampleRate;}return true;}
+}
+registerProcessor('atmytrack-click',Click);

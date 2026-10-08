@@ -12,6 +12,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.atmytrack.app.PlayerViewModel
 import com.atmytrack.app.data.Project
+import com.atmytrack.app.R
+import androidx.compose.ui.res.painterResource
 import kotlin.math.roundToInt
 
 @Composable internal fun MenuButton(click:()->Unit) {
@@ -20,16 +22,22 @@ import kotlin.math.roundToInt
     }
 }
 internal enum class MainDestination(val title:String,val symbol:String) {
-    PROJECTS("PROJETOS","▦"),TUNER("AFINADOR","♫"),PAYMENT("PLANO / PAGAMENTO","◇"),HELP("CENTRAL DE DÚVIDAS","?")
+    PROJECTS("PROJETOS","▦"),TUNER("AFINADOR","♫"),PAYMENT("DEIXE SUA MARCA","◇"),HELP("CENTRAL DE DÚVIDAS","?")
 }
 @Composable internal fun MainMenu(close:()->Unit,navigate:(MainDestination)->Unit) {
     Dialog(onDismissRequest=close,properties=DialogProperties(usePlatformDefaultWidth=false)) {
         Box(Modifier.fillMaxSize().background(Bg.copy(alpha=.65f)).clickable(onClick=close)) {
             Surface(Modifier.fillMaxHeight().widthIn(max=360.dp).fillMaxWidth().clickable(enabled=false){},color=Panel) {
                 Column(Modifier.safeDrawingPadding().padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+                    Column(Modifier.weight(1f).verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+                    Image(painterResource(R.drawable.brand_art),"Logo ATMyTrack",Modifier.size(80.dp))
                     Row(verticalAlignment=Alignment.CenterVertically) { Text("ATMyTrack",Modifier.weight(1f),fontSize=24.sp);TextButton(onClick=close){Text("FECHAR")} }
                     HorizontalDivider()
-                    MainDestination.entries.forEach { item ->
+                    listOf(MainDestination.PROJECTS,MainDestination.TUNER).forEach { item ->
+                        OutlinedButton(onClick={navigate(item)},modifier=Modifier.fillMaxWidth().heightIn(min=60.dp)) { Text(item.symbol,Modifier.padding(end=16.dp),fontSize=22.sp);Text(item.title,Modifier.weight(1f)) }
+                    }
+                    }
+                    listOf(MainDestination.PAYMENT,MainDestination.HELP).forEach { item ->
                         OutlinedButton(onClick={navigate(item)},modifier=Modifier.fillMaxWidth().heightIn(min=60.dp)) { Text(item.symbol,Modifier.padding(end=16.dp),fontSize=22.sp);Text(item.title,Modifier.weight(1f)) }
                     }
                 }

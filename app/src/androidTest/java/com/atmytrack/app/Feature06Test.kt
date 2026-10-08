@@ -50,7 +50,7 @@ class Feature06Test {
     compose.runOnUiThread { vm.stop();vm.update { it.copy(loop=false) } }
     compose.onNodeWithContentDescription("Abrir menu principal").performClick()
     compose.onNodeWithText("CENTRAL DE DÚVIDAS").assertIsDisplayed()
-    compose.onNodeWithText("PLANO / PAGAMENTO").performClick()
+    compose.onNodeWithText("DEIXE SUA MARCA").performClick()
     compose.onNodeWithContentDescription("Globo de nomes; arraste para girar").assertIsDisplayed()
     compose.onNodeWithText("⌕ Encontrar um nome no globo").performTextInput("Ana Carolina")
     compose.onNodeWithText("Ana Carolina Silva").assertExists()

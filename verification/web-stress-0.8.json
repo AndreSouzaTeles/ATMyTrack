@@ -1,0 +1,125 @@
+{
+  "environment": "Windows Chrome headless; 8s mono synthetic source shared by independent nodes; ~1.3s measured playback per case",
+  "results": [
+    {
+      "speed": 100,
+      "count": 2,
+      "prepareMs": 42,
+      "elapsedSeconds": 1.5186666666666666,
+      "audibleTracks": 2,
+      "underruns": "not exposed by Web Audio"
+    },
+    {
+      "speed": 100,
+      "count": 4,
+      "prepareMs": 5,
+      "elapsedSeconds": 1.5213333333333332,
+      "audibleTracks": 4,
+      "underruns": "not exposed by Web Audio"
+    },
+    {
+      "speed": 100,
+      "count": 8,
+      "prepareMs": 7,
+      "elapsedSeconds": 1.5213333333333332,
+      "audibleTracks": 8,
+      "underruns": "not exposed by Web Audio"
+    },
+    {
+      "speed": 100,
+      "count": 12,
+      "prepareMs": 8,
+      "elapsedSeconds": 1.5213333333333332,
+      "audibleTracks": 12,
+      "underruns": "not exposed by Web Audio"
+    },
+    {
+      "speed": 100,
+      "count": 19,
+      "prepareMs": 8,
+      "elapsedSeconds": 1.5213333333333332,
+      "audibleTracks": 19,
+      "underruns": "not exposed by Web Audio"
+    },
+    {
+      "speed": 80,
+      "count": 2,
+      "prepareMs": 2464,
+      "elapsedSeconds": 1.5186666666666668,
+      "audibleTracks": 2,
+      "underruns": "not exposed by Web Audio"
+    },
+    {
+      "speed": 80,
+      "count": 4,
+      "prepareMs": 4937,
+      "elapsedSeconds": 1.5,
+      "audibleTracks": 4,
+      "underruns": "not exposed by Web Audio"
+    },
+    {
+      "speed": 80,
+      "count": 8,
+      "prepareMs": 9902,
+      "elapsedSeconds": 1.5000000000000018,
+      "audibleTracks": 8,
+      "underruns": "not exposed by Web Audio"
+    },
+    {
+      "speed": 80,
+      "count": 12,
+      "prepareMs": 15129,
+      "elapsedSeconds": 1.5000000000000018,
+      "audibleTracks": 12,
+      "underruns": "not exposed by Web Audio"
+    },
+    {
+      "speed": 80,
+      "count": 19,
+      "prepareMs": 23722,
+      "elapsedSeconds": 1.5,
+      "audibleTracks": 19,
+      "underruns": "not exposed by Web Audio"
+    },
+    {
+      "speed": 120,
+      "count": 2,
+      "prepareMs": 1694,
+      "elapsedSeconds": 1.5,
+      "audibleTracks": 2,
+      "underruns": "not exposed by Web Audio"
+    },
+    {
+      "speed": 120,
+      "count": 4,
+      "prepareMs": 3415,
+      "elapsedSeconds": 1.5,
+      "audibleTracks": 4,
+      "underruns": "not exposed by Web Audio"
+    },
+    {
+      "speed": 120,
+      "count": 8,
+      "prepareMs": 6924,
+      "elapsedSeconds": 1.5186666666666664,
+      "audibleTracks": 8,
+      "underruns": "not exposed by Web Audio"
+    },
+    {
+      "speed": 120,
+      "count": 12,
+      "prepareMs": 10108,
+      "elapsedSeconds": 1.5,
+      "audibleTracks": 12,
+      "underruns": "not exposed by Web Audio"
+    },
+    {
+      "speed": 120,
+      "count": 19,
+      "prepareMs": 13916,
+      "elapsedSeconds": 1.5,
+      "audibleTracks": 19,
+      "underruns": "not exposed by Web Audio"
+    }
+  ]
+}

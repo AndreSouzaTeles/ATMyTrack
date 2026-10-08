@@ -46,3 +46,7 @@ qrcode 8.2 (BSD), Pillow 12.3.0 (MIT-CMU) e zxing-cpp 3.1.1 (Apache-2.0), instal
 Nenhuma dependência binária nova. Time-stretch e pitch usam juntos a cópia MIT já fixada de Signalsmith Stretch/Linear, com blocos de 120 ms e intervalo de análise de 10 ms, em preparação offline. O leitor de reprodução não executa o algoritmo.
 
 Afinador: implementação própria de YIN (diferença cumulativa normalizada e interpolação), baseada no [artigo de de Cheveigné e Kawahara](https://pubmed.ncbi.nlm.nih.gov/12002874/). Captura com [AudioRecord](https://developer.android.com/reference/android/media/AudioRecord), PCM mono a 48 kHz, análise local a 24 kHz, janela de 4096 amostras e salto de 768. Usa lifecycle AndroidX já presente para cancelar a captura fora de RESUMED. Não há backend nem gravação de áudio.
+
+## Web 0.8.0
+
+Signalsmith Stretch Web 1.3.2 (MIT) copiado do submódulo fixado, com exportação adicional da factory WASM para processamento offline em Worker; algoritmo original preservado. Sem CDN ou bibliotecas de produção adicionais. Playwright 1.58.2 somente para testes de desenvolvimento (Apache-2.0). Uso das APIs [Web Audio](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API), [AudioBuffer](https://developer.mozilla.org/en-US/docs/Web/API/AudioBuffer), AudioWorklet, Worker, MediaDevices e IndexedDB. A versão web precisa HTTPS para microfone/AudioWorklet (localhost permitido no desenvolvimento).
