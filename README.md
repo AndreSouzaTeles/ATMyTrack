@@ -1,10 +1,14 @@
 # ATMyTrack
 
-**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [Baixar APK Android](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.12.1/ATMyTrack-0.12.1-debug.apk)
+**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [Baixar APK Android](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.12.2/ATMyTrack-0.12.2-debug.apk)
 
-## Android 0.12.1
+## Android 0.12.2
 
 Atualização incremental do player multitrack em Kotlin/Compose para Android 8.0+ (API 26). Preserva a biblioteca e os áudios internos das versões anteriores.
+
+## Atualização 0.12.2 — seleção visual do Routing
+
+STEREO SPLIT recebe o destaque quando suas rotas estão aplicadas; BOTH ALL destaca o modo estéreo completo. Click interno informa o destino sem parecer um preset selecionado. Mudanças manuais incompatíveis removem o destaque. Correção no Android e na página local web, sem alterar o processamento de áudio.
 
 ## Atualização 0.12.1 — controles de Routing e metrônomo
 
@@ -72,7 +76,7 @@ Cards de projeto com altura adaptativa, nome completo e quantidade de tracks em 
 Resultados, ambiente, cenários e limites: [relatório 0.7.0](verification/REPORT-0.7.0.md).
 
 ## Instalação
-Baixe o [APK 0.12.1](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.12.1/ATMyTrack-0.12.1-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.12.1).
+Baixe o [APK 0.12.2](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.12.2/ATMyTrack-0.12.2-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.12.2).
 
 Instale `dist/ATMyTrack-debug.apk` sobre a versão anterior, sem desinstalar. A assinatura de desenvolvimento foi mantida. O APK inclui arm64-v8a, armeabi-v7a e x86_64. Não exige conta ou assinatura. A origem de nuvem pode precisar de conexão/download.
 

@@ -97,7 +97,7 @@ internal enum class MainDestination(val title:String,val symbol:String) {
 }
 
 @Composable internal fun RoutingAction(label:String,value:String,active:Boolean,modifier:Modifier,click:()->Unit) {
-    OutlinedButton(onClick=click,modifier=modifier.height(94.dp).semantics { contentDescription=label },
+    OutlinedButton(onClick=click,modifier=modifier.height(94.dp).semantics { contentDescription=label;selected=active },
         shape=androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
         colors=ButtonDefaults.outlinedButtonColors(containerColor=if(active)Blue.copy(alpha=.15f) else Control),
         border=BorderStroke(1.dp,if(active)Blue else Muted.copy(alpha=.3f)),contentPadding=PaddingValues(4.dp)) {

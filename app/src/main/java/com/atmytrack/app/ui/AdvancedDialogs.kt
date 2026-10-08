@@ -80,12 +80,12 @@ internal fun AllRoutingDialog(p:Project,outputs:Int,vm:PlayerViewModel,close:()-
             var clickMenu by remember { mutableStateOf(false) }
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
                 Box(Modifier.weight(1f)) {
-                    RoutingAction("CLICK INTERNO",when(p.clickRoute){"LEFT"->"ESQUERDA";"RIGHT"->"DIREITA";else->"ESTÉREO"},p.clickRoute!="BOTH",Modifier.fillMaxWidth()) { clickMenu=true }
+                    RoutingAction("CLICK INTERNO",when(p.clickRoute){"LEFT"->"ESQUERDA";"RIGHT"->"DIREITA";else->"ESTÉREO"},false,Modifier.fillMaxWidth()) { clickMenu=true }
                     DropdownMenu(clickMenu,{clickMenu=false}) { routes.forEach { (id,label) ->
                         DropdownMenuItem(text={Text(label)},onClick={vm.update { it.copy(clickRoute=id) };clickMenu=false})
                     } }
                 }
-                RoutingAction("STEREO SPLIT","L / R",false,Modifier.weight(1f),vm::split)
+                RoutingAction("STEREO SPLIT","L / R",p.stems.isNotEmpty() && p.clickRoute=="LEFT" && p.stems.all { s -> s.bus.isEmpty() && s.route==if(listOf("click","guide","guia","clk","metro").any { s.name.contains(it,true) })"LEFT" else "RIGHT" },Modifier.weight(1f),vm::split)
                 RoutingAction("BOTH ALL","ESTÉREO",p.stems.all { it.bus.isEmpty() && it.route=="BOTH" } && p.clickRoute=="BOTH",Modifier.weight(1f),vm::bothAll)
             }
             Text("BOTH ALL envia as tracks diretamente ao Master e o click para os dois lados. Preserva volumes, pans e grupos cadastrados.",color=Muted,fontSize=12.sp)

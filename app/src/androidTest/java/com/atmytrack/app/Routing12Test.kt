@@ -18,10 +18,18 @@ class Routing12Test {
     compose.onNodeWithText("Mixer",useUnmergedTree=true).performClick()
     compose.onNodeWithText("ROUTING").performScrollTo().performClick()
     compose.onNodeWithContentDescription("STEREO SPLIT").performScrollTo().performClick()
+    compose.onNodeWithContentDescription("STEREO SPLIT").assertIsSelected()
+    compose.onNodeWithContentDescription("CLICK INTERNO").assertIsNotSelected()
+    compose.onNodeWithContentDescription("BOTH ALL").assertIsNotSelected()
+    compose.runOnUiThread { vm.update { it.copy(clickRoute="RIGHT") } }
+    compose.onNodeWithContentDescription("STEREO SPLIT").assertIsNotSelected()
     assertTrue(vm.library.value.current!!.stems.all { it.route in listOf("LEFT","RIGHT") && it.bus.isEmpty() })
     compose.onNodeWithContentDescription("BOTH ALL").performScrollTo().performClick()
     assertTrue(vm.library.value.current!!.stems.all { it.route=="BOTH" && it.bus.isEmpty() })
     assertEquals("BOTH",vm.library.value.current!!.clickRoute)
+    compose.onNodeWithContentDescription("BOTH ALL").assertIsSelected()
+    compose.onNodeWithContentDescription("STEREO SPLIT").assertIsNotSelected()
+    compose.onNodeWithContentDescription("CLICK INTERNO").assertIsNotSelected()
     val tops=listOf("CLICK INTERNO","STEREO SPLIT","BOTH ALL").map { compose.onNodeWithContentDescription(it).fetchSemanticsNode().boundsInRoot.top }
     assertTrue(tops.max()-tops.min()<2f)
     compose.onNodeWithText("FECHAR").performClick()

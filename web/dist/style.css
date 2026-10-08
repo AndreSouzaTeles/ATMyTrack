@@ -27,3 +27,5 @@ input.fader:focus-visible{outline:2px solid var(--light);outline-offset:3px;bord
 .routing-actions.tools>.dsp,.routing-actions>.routing-click{flex:1;min-width:0;min-height:98px;border-radius:8px;background:var(--control);border:1px solid #38465b;padding:8px 4px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;font-size:11px;text-align:center}
 .routing-click>span{color:var(--text);font-size:11px}.routing-click select{min-height:32px;padding:4px;width:100%;font-size:11px;color:var(--light)}
 #clickPlay{min-height:48px;border-radius:10px;padding:12px 24px;font-weight:700;box-shadow:0 3px 12px #387bff30}
+
+.routing-actions.tools>.dsp.active{background:#162e50;border-color:var(--blue)}
