@@ -1,10 +1,16 @@
 # ATMyTrack
 
-**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [Baixar APK Android](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.12.0/ATMyTrack-0.12.0-debug.apk)
+**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [Baixar APK Android](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.12.1/ATMyTrack-0.12.1-debug.apk)
 
-## Android 0.12.0
+## Android 0.12.1
 
 Atualização incremental do player multitrack em Kotlin/Compose para Android 8.0+ (API 26). Preserva a biblioteca e os áudios internos das versões anteriores.
+
+## Atualização 0.12.1 — controles de Routing e metrônomo
+
+Click interno, Stereo split e BOTH ALL agora ficam lado a lado em cartões com ícones e estado/ação curta. PLAY do metrônomo usa botão azul destacado, ícone e permanece junto de FECHAR. Layout equivalente na página local web. Funcionalidade de routing e áudio preservada.
+
+Build/lint Android, 45 testes JVM, teste Compose de Routing/persistência/alinhamento e teste Chrome de Routing/Master aprovados. APK instalado por cima da versão anterior no emulador Android 15. Não houve teste em aparelho físico. Site local: http://127.0.0.1:4173/?v=0.12.1.
 
 ## Atualização 0.12.0 — Routing, Master e mixer web
 
@@ -66,7 +72,7 @@ Cards de projeto com altura adaptativa, nome completo e quantidade de tracks em 
 Resultados, ambiente, cenários e limites: [relatório 0.7.0](verification/REPORT-0.7.0.md).
 
 ## Instalação
-Baixe o [APK 0.12.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.12.0/ATMyTrack-0.12.0-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.12.0).
+Baixe o [APK 0.12.1](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.12.1/ATMyTrack-0.12.1-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.12.1).
 
 Instale `dist/ATMyTrack-debug.apk` sobre a versão anterior, sem desinstalar. A assinatura de desenvolvimento foi mantida. O APK inclui arm64-v8a, armeabi-v7a e x86_64. Não exige conta ou assinatura. A origem de nuvem pode precisar de conexão/download.
 

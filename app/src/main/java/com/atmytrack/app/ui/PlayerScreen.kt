@@ -574,8 +574,8 @@ private fun MetronomeEditor(p: Project, vm: PlayerViewModel, close: () -> Unit) 
             library.background?.let { Text(it,color=LightBlue,fontSize=12.sp) }
             Text("Smart Click aplica o BPM detectado quando ativado. Play liga o metrônomo e inicia o transporte quando parado. Pausar desliga apenas o click.",fontSize=12.sp,color=Muted)
         }
-    }, confirmButton = { Row {
-        TextButton(onClick={val enable=!p.click;vm.update { it.copy(bpm=bpm.replace(',','.').toDouble(),click=enable) };if(enable && !vm.playback.value.playing)vm.play()},enabled=valid && library.background==null) { Text(if(p.click) "PAUSAR" else "PLAY") }
+    }, confirmButton = { Row(horizontalArrangement=Arrangement.spacedBy(10.dp),verticalAlignment=Alignment.CenterVertically) {
+        Button(shape=RoundedCornerShape(10.dp),colors=ButtonDefaults.buttonColors(containerColor=Blue,contentColor=White),modifier=Modifier.heightIn(min=48.dp).semantics { contentDescription="Reprodução do metrônomo" },onClick={val enable=!p.click;vm.update { it.copy(bpm=bpm.replace(',','.').toDouble(),click=enable) };if(enable && !vm.playback.value.playing)vm.play()},enabled=valid && library.background==null) { Text(if(p.click) "Ⅱ  PAUSAR" else "▶  PLAY",fontWeight=FontWeight.Bold) }
         TextButton(onClick={if(valid)vm.update { it.copy(bpm=bpm.replace(',','.').toDouble()) };close()}) { Text("FECHAR") }
     } })
 }

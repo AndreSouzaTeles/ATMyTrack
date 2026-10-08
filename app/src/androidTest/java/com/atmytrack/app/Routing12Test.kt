@@ -17,11 +17,13 @@ class Routing12Test {
     compose.runOnUiThread { vm.stop();vm.dismissError();vm.dismissImportReport() }
     compose.onNodeWithText("Mixer",useUnmergedTree=true).performClick()
     compose.onNodeWithText("ROUTING").performScrollTo().performClick()
-    compose.onNodeWithText("Stereo split · Click/Guide à esquerda").performScrollTo().performClick()
+    compose.onNodeWithContentDescription("STEREO SPLIT").performScrollTo().performClick()
     assertTrue(vm.library.value.current!!.stems.all { it.route in listOf("LEFT","RIGHT") && it.bus.isEmpty() })
-    compose.onNodeWithText("BOTH ALL · Todas em estéreo").performScrollTo().performClick()
+    compose.onNodeWithContentDescription("BOTH ALL").performScrollTo().performClick()
     assertTrue(vm.library.value.current!!.stems.all { it.route=="BOTH" && it.bus.isEmpty() })
     assertEquals("BOTH",vm.library.value.current!!.clickRoute)
+    val tops=listOf("CLICK INTERNO","STEREO SPLIT","BOTH ALL").map { compose.onNodeWithContentDescription(it).fetchSemanticsNode().boundsInRoot.top }
+    assertTrue(tops.max()-tops.min()<2f)
     compose.onNodeWithText("FECHAR").performClick()
     compose.onNodeWithContentDescription("Pan MASTER").performSemanticsAction(SemanticsActions.SetProgress) { it(.65f) }
     assertEquals(.65f,vm.library.value.current!!.masterPan,.01f)
