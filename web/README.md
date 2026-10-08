@@ -36,3 +36,7 @@ Sirva `dist/` por HTTPS (ou localhost para desenvolvimento). Exemplo: `python -m
 ## Validação 0.10.0
 
 `node tests/stream.cjs`: caminho real Worker/AudioWorklet, DSP +2 com 80/100/120%, seek e loop. `node tests/large-project.cjs`: requer fixtures WAV em verification/fixtures-web-large; importa 30 arquivos reais e verifica reprodução/reabertura. Resultados e duração dos cenários no relatório de entrega; não equivalem a certificação em palco.
+
+## Abrir no Windows
+
+Execute `Abrir ATMyTrack Web.bat` nesta pasta. Ele usa `abrir_web.py` para iniciar o servidor em http://127.0.0.1:4173/ e abrir o navegador. Requer Python instalado; reutiliza o servidor quando já está disponível. O caminho de `dist` é relativo ao script. Logs ficam em `%LOCALAPPDATA%/ATMyTrack/WebShortcut/servidor.log`. Um atalho Windows pode apontar para o BAT e usar o ícone do app.
