@@ -1,0 +1,14 @@
+{
+  "environment": "Windows / Chrome headless, 30 real WAV files PCM16 stereo 48kHz, 950s each. Synthetic 220Hz tone. 12s playback + seek 2.5s + loop 6s, not a full-length listening test.",
+  "importMs": 34693,
+  "tracks": 30,
+  "sourceBytes": 5472001320,
+  "prebufferBytes": 46080000,
+  "prepareMs": 207.69999999925494,
+  "audible": 30,
+  "seek": 702.4013333333334,
+  "loopPosition": 702.3013333333333,
+  "underruns": 0,
+  "errors": [],
+  "heapUsed": 3656656
+}

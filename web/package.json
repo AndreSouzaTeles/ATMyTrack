@@ -1,9 +1,9 @@
 {
   "name": "atmytrack-web",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Player multitrack local para navegador",
   "scripts": {
-    "test": "node tests/music.mjs && node tests/waveform.mjs && node tests/browser.cjs"
+    "test": "node tests/music.mjs && node tests/waveform.mjs && node tests/pcm.mjs && node tests/browser.cjs"
   },
   "type": "module",
   "devDependencies": {

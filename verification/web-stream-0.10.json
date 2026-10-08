@@ -1,0 +1,41 @@
+[
+  {
+    "speed": 100,
+    "frequency": 247.25126947476545,
+    "seek": 3.1186666666666665,
+    "loopPosition": 1.3199999999999994,
+    "bounds": [
+      1,
+      2
+    ],
+    "underruns": 0,
+    "stream": true,
+    "bufferBytes": 1536000
+  },
+  {
+    "speed": 80,
+    "frequency": 247.31372481648273,
+    "seek": 3.0999999999999996,
+    "loopPosition": 1.5513333333333321,
+    "bounds": [
+      1.25,
+      2.5
+    ],
+    "underruns": 0,
+    "stream": true,
+    "bufferBytes": 1536000
+  },
+  {
+    "speed": 120,
+    "frequency": 247.21413376152753,
+    "seek": 3.0999999999999996,
+    "loopPosition": 1.1319999999999995,
+    "bounds": [
+      0.8333333333333334,
+      1.6666666666666667
+    ],
+    "underruns": 0,
+    "stream": true,
+    "bufferBytes": 1536000
+  }
+]

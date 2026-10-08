@@ -1,10 +1,19 @@
 # ATMyTrack
 
-**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [Baixar APK Android](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.9.0/ATMyTrack-0.9.0-debug.apk)
+**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [Baixar APK Android](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.10.0/ATMyTrack-0.10.0-debug.apk)
 
-## Android 0.9.0
+## Android 0.10.0
 
 Atualização incremental do player multitrack em Kotlin/Compose para Android 8.0+ (API 26). Preserva a biblioteca e os áudios internos das versões anteriores.
+
+## Atualização 0.10.0 — projetos grandes na web
+
+- Importação com círculo giratório, nome do arquivo, etapa e contador 01/19, 02/19…; painel permanece visível até terminar. Falhas são listadas por arquivo.
+- Arquivos importados usam leitura em blocos e AudioWorklet com relógio compartilhado, sem o teto agregado de 384 MB. WAV PCM é lido diretamente do armazenamento. Comprimidos são decodificados por arquivo e cacheados em disco; um único arquivo comprimido muito longo ainda depende dos limites do decoder.
+- TOM/VELOCIDADE geram o resultado em disco por blocos. Seek, loop, mixer e click continuam no relógio comum. Backups novos usam formato binário para evitar expandir todo o projeto em base64.
+- Teste real com 30 WAVs / **5.472.001.320 bytes** no Chrome Windows: importação, reabertura e 30 canais audíveis; seek e loop; zero faltas de blocos detectadas no cenário curto. Não é certificação de reprodução integral nem teste em celular. [Resultados e limites](verification/REPORT-0.10.0.md).
+- Site local: http://127.0.0.1:4173/?v=0.10.0. Recarregue uma aba antiga; projetos existentes são preservados. Site público não foi republicado.
+- APK Android recompilado como 0.10.0 (12), com a engine Android preservada; as melhorias desta entrega são da web.
 
 ## Atualização 0.9.0
 
@@ -36,7 +45,7 @@ Atualização incremental do player multitrack em Kotlin/Compose para Android 8.
 Resultados, ambiente, cenários e limites: [relatório 0.7.0](verification/REPORT-0.7.0.md).
 
 ## Instalação
-Baixe o [APK 0.9.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.9.0/ATMyTrack-0.9.0-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.9.0).
+Baixe o [APK 0.10.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.10.0/ATMyTrack-0.10.0-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.10.0).
 
 Instale `dist/ATMyTrack-debug.apk` sobre a versão anterior, sem desinstalar. A assinatura de desenvolvimento foi mantida. O APK inclui arm64-v8a, armeabi-v7a e x86_64. Não exige conta ou assinatura. A origem de nuvem pode precisar de conexão/download.
 

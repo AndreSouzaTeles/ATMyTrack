@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#080d18"><meta name="description" content="Sua mesa multitrack. Projetos, mixer e afinador no navegador, com áudios locais."><title>ATMyTrack · Web</title><link rel="icon" href="assets/logo.png"><link rel="stylesheet" href="style.css"></head>
-<body><header><button id="menu" class="icon" aria-label="Abrir menu">☰</button><img src="assets/logo.png" alt="Logo ATMyTrack"><strong>ATMyTrack</strong><span class="badge">WEB</span><div class="spacer"></div><button id="search" aria-label="Pesquisar projetos">⌕ <span>Pesquisar</span></button><button id="import" class="primary">＋ Importar</button></header>
-<div id="notice" role="status" hidden></div><main id="app"></main>
+<body><header><button id="menu" class="icon" aria-label="Abrir menu">☰</button><img src="assets/logo.png" alt="Logo ATMyTrack"><strong>ATMyTrack</strong><span class="badge">WEB 0.10.0</span><div class="spacer"></div><button id="search" aria-label="Pesquisar projetos">⌕ <span>Pesquisar</span></button><button id="import" class="primary">＋ Importar</button></header>
+<div id="notice" role="status" hidden></div><section id="importProgress" role="status" aria-live="polite" aria-atomic="true" hidden><span class="loading-ring" aria-hidden="true"></span><div><strong>Carregando <span id="importCount"></span></strong><div id="importName"></div><small id="importStage"></small></div></section><main id="app"></main>
 <input id="files" type="file" accept="audio/*,.wav,.flac,.mp3,.m4a,.ogg" multiple hidden><input id="backupFile" type="file" accept=".atmytrack,.json" hidden>
-<dialog id="modal"><div id="dialogBody"></div></dialog><script type="module" src="app.js"></script></body></html>
+<dialog id="modal"><div id="dialogBody"></div></dialog><script type="module" src="app.js?v=0.10.0"></script></body></html>
