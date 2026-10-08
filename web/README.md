@@ -1,4 +1,4 @@
-# ATMyTrack Web 0.10.0
+# ATMyTrack Web 0.10.1
 
 Player local no navegador, sem conta e sem upload de áudios. Projetos/arquivos ficam no IndexedDB da origem. Exportação/importação `.atmytrack` transfere projetos entre navegadores. Não compartilha o formato interno Android.
 

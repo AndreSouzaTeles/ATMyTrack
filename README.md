@@ -1,10 +1,14 @@
 # ATMyTrack
 
-**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [Baixar APK Android](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.10.0/ATMyTrack-0.10.0-debug.apk)
+**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [Baixar APK Android](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.10.1/ATMyTrack-0.10.1-debug.apk)
 
-## Android 0.10.0
+## Android 0.10.1
 
 Atualização incremental do player multitrack em Kotlin/Compose para Android 8.0+ (API 26). Preserva a biblioteca e os áudios internos das versões anteriores.
+
+## Atualização 0.10.1 — cards web
+
+Cards de projeto com altura adaptativa, nome completo e quantidade de tracks em linha própria. Corrige o corte de texto em títulos como “Clamo Jesus - Baruk”. Verificação visual/geométrica em 320, 390, 768 e 1440 px; build Android e 41 testes JVM aprovados. APK recompilado; engine preservada. Site local atualizado, sem nova publicação do site público.
 
 ## Atualização 0.10.0 — projetos grandes na web
 
@@ -45,7 +49,7 @@ Atualização incremental do player multitrack em Kotlin/Compose para Android 8.
 Resultados, ambiente, cenários e limites: [relatório 0.7.0](verification/REPORT-0.7.0.md).
 
 ## Instalação
-Baixe o [APK 0.10.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.10.0/ATMyTrack-0.10.0-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.10.0).
+Baixe o [APK 0.10.1](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.10.1/ATMyTrack-0.10.1-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.10.1).
 
 Instale `dist/ATMyTrack-debug.apk` sobre a versão anterior, sem desinstalar. A assinatura de desenvolvimento foi mantida. O APK inclui arm64-v8a, armeabi-v7a e x86_64. Não exige conta ou assinatura. A origem de nuvem pode precisar de conexão/download.
 
