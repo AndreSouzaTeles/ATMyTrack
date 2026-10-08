@@ -26,7 +26,7 @@ data class Project(
     val detectedBpm: Double = 0.0, val confidence: Double = 0.0, val beatOffset: Long = 0,
     val analysisKey: String = "", val selectedMarker: String = "", val smartClick: Boolean = false,
     val speed: Int = 100, val speedTracks: List<String>? = null, val speedPreset: Int = 100,
-    val keyAnalyzed:Boolean = false
+    val keyAnalyzed:Boolean = false, val masterPan:Float = 0f
 ) {
     val selectedSpeedTracks: List<String> get() = speedTracks ?: stems.map { it.id }
     val globalSpeed: Boolean get() = stems.isNotEmpty() && stems.all { it.id in selectedSpeedTracks }

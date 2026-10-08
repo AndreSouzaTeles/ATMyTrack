@@ -18,11 +18,11 @@ class ProjectStoreTest {
             ProjectStore(dir).save(listOf(old))
             val file=java.io.File(dir,"library.json")
             val doc=org.json.JSONObject(file.readText());val j=doc.getJSONArray("projects").getJSONObject(0)
-            j.remove("keyAnalyzed");j.remove("speed");j.remove("speedTracks");j.remove("speedPreset");j.getJSONArray("stems").getJSONObject(0).remove("dspSpeed")
+            j.remove("masterPan");j.remove("keyAnalyzed");j.remove("speed");j.remove("speedTracks");j.remove("speedPreset");j.getJSONArray("stems").getJSONObject(0).remove("dspSpeed")
             file.writeText(doc.toString())
             val migrated=ProjectStore(dir).load().single()
             assertEquals(old,migrated);assertEquals(100,migrated.speed);assertEquals(old.stems.map { it.id },migrated.selectedSpeedTracks)
-            val edited=migrated.copy(key="F#",keyAnalyzed=true,speed=80,speedTracks=emptyList(),speedPreset=80)
+            val edited=migrated.copy(key="F#",keyAnalyzed=true,masterPan=-.6f,speed=80,speedTracks=emptyList(),speedPreset=80)
             ProjectStore(dir).save(listOf(edited));assertEquals(edited,ProjectStore(dir).load().single())
             val projects=listOf(
                 migrated.copy(id="A",speed=81,speedPreset=80,speedTracks=migrated.stems.map { it.id },stems=migrated.stems.map { it.copy(dspSpeed=81,pitchFile="pitch/A/combined.pcm",pitchApplied=2) }),

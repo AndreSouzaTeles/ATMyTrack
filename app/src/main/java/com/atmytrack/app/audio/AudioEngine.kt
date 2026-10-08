@@ -42,6 +42,7 @@ class AudioEngine(private val context: Context) {
     private val limiter=PeakLimiter()
     private var limited=false
     private var masterGain=1f
+    private var masterPan=0f
     private val busGains=mutableMapOf<String,Float>()
     private var timelineScale = 1.0
     private var fadeIn = 0
@@ -148,7 +149,7 @@ class AudioEngine(private val context: Context) {
             busBuffers=p.buses.associate { it.id to FloatArray(1024) }
             configureGains(p)
             cursor = position;endFrame=if(p.loop)Long.MAX_VALUE else p.frames; base = position; headBase = 0; ending = false
-            smooth.clear();busGains.clear();masterGain=if(p.masterMute)0f else p.master;limiter.reset()
+            smooth.clear();busGains.clear();masterGain=if(p.masterMute)0f else p.master;masterPan=p.masterPan;limiter.reset()
             mutable.value=mutable.value.copy(preparing=false,ready=true,preparationMs=android.os.SystemClock.elapsedRealtime()-started)
             if(resume) { primeReaders(position); pump?.start(); playing=true }
             publish(force = true)
@@ -342,8 +343,8 @@ class AudioEngine(private val context: Context) {
             } else ConsoleMath.route(buffer,output,count,1f,0f,bus.destination)
             busLevels[bus.id]=level
         }
-        val levels = MixMath.finish(output, count, renderFrame, p, clamp=false,fromGain=masterGain)
-        masterGain=if(p.masterMute)0f else p.master
+        val levels = MixMath.finish(output, count, renderFrame, p, clamp=false,fromGain=masterGain,fromPan=masterPan)
+        masterGain=if(p.masterMute)0f else p.master;masterPan=p.masterPan
         if(levels.first>1f || levels.second>1f)clippedBlocks++
         repeat(count) { hardware[it*outputChannels]+=output[it*2]; hardware[it*outputChannels+1]+=output[it*2+1] }
         limited=limiter.process(hardware,count,outputChannels,p.sampleRate)

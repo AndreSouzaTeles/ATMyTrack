@@ -77,6 +77,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
     var speed by remember { mutableStateOf(false) }
     var tuner by remember { mutableStateOf(false) }
     var group by remember { mutableStateOf<String?>(null) }
+    var allRouting by remember { mutableStateOf(false) }
     var routing by remember { mutableStateOf<String?>(null) }
     var metronome by remember { mutableStateOf(false) }
     val channelList = rememberLazyListState()
@@ -239,7 +240,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
                                     DspButton("METRÔNOMO",if(p.click)"ATIVO" else "CLICK",p.click,Modifier.width(116.dp)) { metronome=true }
                                     if(page==1) {
                                         DspButton("DCA","CRIAR",false,Modifier.width(104.dp)) { group="DCA:" };DspButton("BUS","CRIAR",false,Modifier.width(104.dp)) { group="BUS:" }
-                                        DspButton("STEREO SPLIT","L / R",false,Modifier.width(132.dp),vm::split);DspButton("ATUALIZAR SAÍDA","DISPOSITIVO",false,Modifier.width(150.dp),vm::refreshOutput)
+                                        DspButton("ROUTING","SAÍDAS",false,Modifier.width(132.dp)) { allRouting=true };DspButton("ATUALIZAR SAÍDA","DISPOSITIVO",false,Modifier.width(150.dp),vm::refreshOutput)
                                     }
                                 }
                                 if(page==0 && p.markers.isNotEmpty()) Row(Modifier.horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
@@ -308,8 +309,8 @@ fun PlayerScreen(vm: PlayerViewModel) {
                                         }
                                     }
                                 }
-                                ChannelStrip("MASTER", p.master, 0f, p.masterMute, false, playback.left, playback.right, true,
-                                    { v -> vm.update { it.copy(master = v) } }, {}, { vm.update { it.copy(masterMute = !it.masterMute) } }, {})
+                                ChannelStrip("MASTER", p.master, p.masterPan, p.masterMute, false, playback.left, playback.right, true,
+                                    { v -> vm.update { it.copy(master = v) } }, { v -> vm.update { it.copy(masterPan=v) } }, { vm.update { it.copy(masterMute = !it.masterMute) } }, {})
                             }
                             Spacer(Modifier.height(8.dp))
                         }
@@ -354,6 +355,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
         if(p!=null && speed) SpeedDialog(p,vm,library.background!=null) { speed=false }
         if (p != null && pitch) PitchDialog(p, vm, library.background != null) { pitch = false }
         if (p != null && group != null) GroupDialog(p, group!!, playback.outputChannels, vm) { group = null }
+        if(p!=null && allRouting) AllRoutingDialog(p,playback.outputChannels,vm) { allRouting=false }
         if (p != null && routing != null) p.stems.find { it.id == routing }?.let { RoutingDialog(p,it,vm) { routing = null } }
         delete?.let { target ->
             AlertDialog(onDismissRequest = { delete = null }, title = { Text("Excluir projeto?") }, text = { Text("Tem certeza de que deseja excluir '${target.name}'? Os arquivos originais permanecem intactos.") },
@@ -435,8 +437,8 @@ private fun ChannelStrip(name: String, volume: Float, pan: Float, mute: Boolean,
     right: Float = peak, master: Boolean = false, onVolume: (Float) -> Unit, onPan: (Float) -> Unit, onMute: () -> Unit, onSolo: () -> Unit, draggable: Boolean = false, dragging: Boolean = false, routeLabel: String? = null, routing: () -> Unit = {}, modifier:Modifier=Modifier,outputLabel:String="OUT 1–2") {
     Column(modifier.width(if (master) 100.dp else 124.dp).fillMaxHeight().clip(RoundedCornerShape(10.dp)).background(if (master) Color(0xFF192A45) else Panel).padding(7.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(name, Modifier.fillMaxWidth().height(48.dp).background(if(dragging) LightBlue else Control).semantics { contentDescription = if(draggable) "Arrastar $name" else name }.padding(4.dp), textAlign=TextAlign.Center,maxLines = 2, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = if(dragging) Bg else White)
-        Text(if (master) "OUTPUT" else when { pan < -.05f -> "L ${(abs(pan) * 100).roundToInt()}"; pan > .05f -> "R ${(pan * 100).roundToInt()}"; else -> "PAN · C" }, color = Muted, fontSize = 10.sp)
-        if (master) Box(Modifier.height(48.dp), contentAlignment = Alignment.Center) { Text(if(routeLabel?.startsWith("DCA")==true) "RELATIVO" else outputLabel, color = Blue, fontSize = 11.sp) }
+        Text(if (master && routeLabel!=null) "OUTPUT" else when { pan < -.05f -> "L ${(abs(pan) * 100).roundToInt()}"; pan > .05f -> "R ${(pan * 100).roundToInt()}"; else -> "PAN · C" }, color = Muted, fontSize = 10.sp)
+        if (master && routeLabel!=null) Box(Modifier.height(48.dp), contentAlignment = Alignment.Center) { Text(if(routeLabel?.startsWith("DCA")==true) "RELATIVO" else outputLabel, color = Blue, fontSize = 11.sp) }
         else Slider(pan, onPan, valueRange = -1f..1f, modifier = Modifier.height(48.dp).semantics { contentDescription = "Pan $name" }, colors = SliderDefaults.colors(thumbColor = LightBlue, activeTrackColor = LightBlue))
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             if (!master) ChannelToggle("S", solo, LightBlue, "Solo $name", Modifier.weight(1f), onSolo)
@@ -455,7 +457,7 @@ private fun ChannelStrip(name: String, volume: Float, pan: Float, mute: Boolean,
             TextButton(onClick={onVolume(1f)},modifier=Modifier.fillMaxWidth().height(40.dp).semantics { contentDescription="0dB $name" },contentPadding=PaddingValues(0.dp)) { Text("0dB",fontSize=12.sp) }
             Box(Modifier.fillMaxWidth().height(40.dp),contentAlignment=Alignment.Center) {
                 if(routeLabel!=null)TextButton(onClick=routing,modifier=Modifier.fillMaxSize(),contentPadding=PaddingValues(0.dp)) { Text(routeLabel,fontSize=10.sp,maxLines=2) }
-                else if(master)Text("MASTER",color=Muted,fontSize=9.sp)
+                else if(master)Text(outputLabel,color=Muted,fontSize=9.sp)
             }
         }
 

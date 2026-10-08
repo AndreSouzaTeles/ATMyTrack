@@ -116,7 +116,7 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
                 }
                 if(library.value.selected!=p.id)return@launch
                 val latest=library.value.current ?: return@launch
-                val ready=if(updated==p)latest else updated.copy(name=latest.name,master=latest.master,masterMute=latest.masterMute,
+                val ready=if(updated==p)latest else updated.copy(name=latest.name,master=latest.master,masterPan=latest.masterPan,masterMute=latest.masterMute,
                     stems=latest.stems.map { live -> updated.stems.first { it.id==live.id }.copy(volume=live.volume,pan=live.pan,mute=live.mute,solo=live.solo,bus=live.bus,route=live.route) },dcas=latest.dcas,buses=latest.buses)
                 if(ready!=latest)persist(library.value.projects.map { if(it.id==p.id)ready else it })
                 val prepared=if(ready.stems.any { s -> s.pitchFile.isNotBlank() && File(getApplication<Application>().filesDir,s.pitchFile).length()!=kotlin.math.round(s.frames/(s.dspSpeed/100.0)).toLong()*8 }) {
@@ -234,6 +234,7 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
         val list = library.value.projects; val index = list.indexOfFirst { it.id == library.value.selected }
         list.getOrNull(index + delta)?.let(::select)
     }
+    fun bothAll() = update { p -> p.copy(stems=p.stems.map { it.copy(bus="",route="BOTH") },clickRoute="BOTH") }
     fun split() = update { p -> p.copy(stems=p.stems.map { s -> s.copy(bus="",route=if(listOf("click","guide","guia","clk","metro").any { s.name.contains(it,true) })"LEFT" else "RIGHT") },clickRoute="LEFT") }
     fun smartClick(enabled:Boolean) {
         if(enabled && (!playback.value.ready || playback.value.preparing)) { message("Aguarde a preparação do áudio antes do Smart Click.");return }

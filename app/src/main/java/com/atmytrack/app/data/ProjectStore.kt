@@ -25,7 +25,7 @@ class ProjectStore(private val root: File) {
         put("keyAnalyzed",p.keyAnalyzed);put("speed",p.speed); put("speedTracks",p.speedTracks?.let { JSONArray(it) }); put("speedPreset",p.speedPreset); put("selectedMarker",p.selectedMarker); put("smartClick",p.smartClick); put("id", p.id); put("name", p.name); put("rate", p.sampleRate); put("bpm", p.bpm)
         put("beats", p.beats); put("denominator", p.denominator); put("multiplier", p.multiplier)
         put("click", p.click); put("clickVolume", p.clickVolume); put("master", p.master)
-        put("masterMute", p.masterMute); put("loop", p.loop); put("key", p.key); put("artwork", p.artwork)
+        put("masterPan",p.masterPan);put("masterMute", p.masterMute); put("loop", p.loop); put("key", p.key); put("artwork", p.artwork)
         put("semitones",p.semitones); put("targetKey",p.targetKey); put("pitchTracks",JSONArray(p.pitchTracks))
         put("clickSound",p.clickSound); put("accent",p.accent); put("clickRoute",p.clickRoute)
         put("detectedBpm",p.detectedBpm); put("confidence",p.confidence); put("beatOffset",p.beatOffset); put("analysisKey",p.analysisKey)
@@ -48,7 +48,7 @@ class ProjectStore(private val root: File) {
             s.optBoolean("external"),s.optBoolean("compressed"),s.optString("fingerprint"),s.optString("bus"),s.optString("route","BOTH"),s.optString("pitchFile"),s.optInt("pitchApplied"),s.optInt("sourceRate"),s.optLong("sourceFrames"),s.optInt("dspSpeed",100).coerceIn(50,200)) },
         bpm = j.getDouble("bpm"), beats = j.getInt("beats"), denominator = j.optInt("denominator", 4),
         multiplier = j.getDouble("multiplier"), click = j.getBoolean("click"), clickVolume = j.getDouble("clickVolume").toFloat(),
-        master = j.getDouble("master").toFloat(), masterMute = j.getBoolean("masterMute"), loop = j.getBoolean("loop"),
+        master = j.getDouble("master").toFloat(), masterPan=j.optDouble("masterPan",0.0).toFloat().coerceIn(-1f,1f), masterMute = j.getBoolean("masterMute"), loop = j.getBoolean("loop"),
         key = j.getString("key"), artwork = j.getString("artwork"),
         markers = j.getJSONArray("markers").objects().map { m -> Marker(m.getString("id"), m.getString("name"), m.getLong("start"), m.getLong("end"), (m.optLong("color",0xFF60A5FA) and 0xFFFFFF) or 0xFF000000) },
         dcas=(j.optJSONArray("dcas") ?: JSONArray()).objects().map { Dca(it.getString("id"),it.getString("name"),it.getJSONArray("members").strings(),it.getDouble("volume").toFloat(),it.getBoolean("mute")) },

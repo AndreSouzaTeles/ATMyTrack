@@ -9,3 +9,16 @@
 @media(max-width:700px){.tools .dsp{grid-column:span 2;gap:5px;font-size:10px}.tools #pitch,.tools #speed,.mixer-tools .dsp{grid-column:span 3}.dsp b{font-size:12px}.tools .dsp svg{width:16px;height:16px}}
 
 #importProgress{display:flex;gap:16px;align-items:center;margin:16px auto;padding:18px 22px;max-width:1552px;background:#112443;border:1px solid #387bff;border-radius:14px;position:sticky;top:74px;z-index:4;box-shadow:0 10px 30px #080d1880}#importProgress[hidden]{display:none}#importName{overflow-wrap:anywhere;margin:5px 0;color:#edf3ff}#importStage{color:#a6c6ff}.loading-ring{width:30px;height:30px;flex:0 0 30px;border:3px solid #28456e;border-top-color:#86b1ff;border-right-color:#387bff;border-radius:50%;animation:loading-turn 1s linear infinite}@keyframes loading-turn{to{transform:rotate(360deg)}}@media(max-width:700px){#importProgress{margin:10px 12px;top:64px;padding:14px}.badge{font-size:10px}}@media(prefers-reduced-motion:reduce){.loading-ring{animation-duration:3s}}
+
+/* One continuous toolbar; group controls are distinct from musical tools. */
+.toolbar{display:flex;align-items:center;gap:24px;overflow-x:auto;margin:16px 0 24px;padding:2px 0 8px}
+.toolbar .tools{display:flex;flex-wrap:nowrap;flex:none;margin:0;gap:8px}
+.toolbar .tools .dsp{flex:none;min-width:116px;white-space:nowrap;font-size:12px;padding:12px}
+.toolbar .group-tools{border-left:1px solid var(--line);padding-left:24px}
+/* Console-style cap, with the native accessible slider interaction retained. */
+input.fader{appearance:none;-webkit-appearance:none;background:transparent;outline:none;width:44px;touch-action:none}
+input.fader::-webkit-slider-runnable-track{width:6px;background:linear-gradient(90deg,#030811,#293953,#030811);border:1px solid #30425c;border-radius:3px}
+input.fader::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:38px;height:24px;margin-left:-17px;border:1px solid #6a819e;border-radius:4px;background:linear-gradient(to bottom,#6b7f99 0%,#31445e 42%,#86b1ff 44%,#86b1ff 54%,#263750 56%,#172437 100%);box-shadow:0 3px 5px #0009;cursor:ns-resize}
+input.fader::-moz-range-track{width:6px;background:#0a1424;border:1px solid #30425c;border-radius:3px}
+input.fader::-moz-range-thumb{width:38px;height:24px;border:1px solid #6a819e;border-radius:4px;background:linear-gradient(to bottom,#6b7f99,#31445e 42%,#86b1ff 44%,#86b1ff 54%,#263750 56%,#172437);box-shadow:0 3px 5px #0009;cursor:ns-resize}
+input.fader:focus-visible{outline:2px solid var(--light);outline-offset:3px;border-radius:6px}

@@ -62,6 +62,30 @@ internal fun PitchDialog(p:Project,vm:PlayerViewModel,busy:Boolean,close:()->Uni
 }
 
 @Composable
+internal fun AllRoutingDialog(p:Project,outputs:Int,vm:PlayerViewModel,close:()->Unit) {
+    val routes=listOf("BOTH" to "MASTER · estéreo","LEFT" to "OUT 1/2 · esquerda","RIGHT" to "OUT 2/2 · direita")
+    AlertDialog(onDismissRequest=close,title={Text("Routing")},text={
+        Column(Modifier.verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+            Text("Escolha a saída de cada track, BUS e click interno.",color=Muted)
+            p.stems.forEach { s ->
+                Text(s.name)
+                Choice("Saída",if(s.bus.isNotEmpty())"BUS:${s.bus}" else s.route,routes+p.buses.map { "BUS:${it.id}" to "BUS · ${it.name}" }) { value ->
+                    vm.stem(s.id) { if(value.startsWith("BUS:"))it.copy(bus=value.removePrefix("BUS:"),route="BOTH") else it.copy(bus="",route=value) }
+                }
+            }
+            p.buses.forEach { b ->
+                Text("BUS · ${b.name}")
+                Choice("Saída",b.destination,ConsoleMath.outputChoices(outputs)) { value -> vm.update { it.copy(buses=it.buses.map { bus -> if(bus.id==b.id)bus.copy(destination=value) else bus }) } }
+            }
+            Choice("Click interno",p.clickRoute,routes) { v -> vm.update { it.copy(clickRoute=v) } }
+            OutlinedButton(onClick=vm::split,modifier=Modifier.fillMaxWidth()) { Text("Stereo split · Click/Guide à esquerda") }
+            OutlinedButton(onClick=vm::bothAll,modifier=Modifier.fillMaxWidth()) { Text("BOTH ALL · Todas em estéreo") }
+            Text("BOTH ALL envia as tracks diretamente ao Master e o click para os dois lados. Preserva volumes, pans e grupos cadastrados.",color=Muted,fontSize=12.sp)
+        }
+    },confirmButton={TextButton(onClick=close){Text("FECHAR")}})
+}
+
+@Composable
 internal fun RoutingDialog(p:Project,s:Stem,vm:PlayerViewModel,close:()->Unit) {
     AlertDialog(onDismissRequest=close,title={Text("Routing · ${s.name}")},text={Column {
         Choice("Enviar para",s.bus,listOf("" to "MASTER")+p.buses.map { it.id to it.name }) { v->vm.stem(s.id){it.copy(bus=v)} }

@@ -89,7 +89,7 @@ internal enum class MainDestination(val title:String,val symbol:String) {
             "LOOP","ATUALIZAR SAÍDA" -> { drawArc(LightBlue,35f,290f,false,style=stroke);line(.9f,.05f,.9f,.4f);line(.9f,.4f,.6f,.4f) }
             "+ SEÇÃO" -> { line(.2f,.1f,.2f,.95f);line(.2f,.1f,.85f,.1f);line(.85f,.1f,.85f,.5f);line(.85f,.5f,.2f,.5f) }
             "METRÔNOMO" -> { line(.5f,.1f,.1f,.9f);line(.1f,.9f,.9f,.9f);line(.9f,.9f,.5f,.1f);line(.5f,.75f,.8f,.2f) }
-            "STEREO SPLIT" -> { line(.1f,.5f,.45f,.5f);line(.45f,.5f,.8f,.15f);line(.45f,.5f,.8f,.85f) }
+            "ROUTING" -> { line(.1f,.5f,.45f,.5f);line(.45f,.5f,.8f,.15f);line(.45f,.5f,.8f,.85f) }
             else -> { for(i in 1..3) { val x=i*.25f;line(x,.1f,x,.9f);drawCircle(LightBlue,2.dp.toPx(),Offset(size.width*x,size.height*(if(i==2).35f else .65f))) } }
         }
     }
