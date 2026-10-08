@@ -17,9 +17,21 @@ class PlaybackCache(private val context:Context) {
     fun prune(projects:List<Project>) {
         val retained=projects.flatMap { p -> p.stems.map { key(it,p.sampleRate) } }.toSet()
         val root=File(context.filesDir,"playback").canonicalFile
-        root.listFiles()?.filter { it.isFile && it.name.substringBeforeLast('.') !in retained }?.forEach {
+        root.listFiles()?.filter { it.isFile && it.name.substringBefore('.') !in retained }?.forEach {
             if(it.canonicalFile.parentFile==root)it.delete()
         }
+    }
+    fun envelope(s:Stem,rate:Int):List<Float>? = runCatching {
+        val array=org.json.JSONArray(File(context.filesDir,"playback/${key(s,rate)}.wave.json").readText())
+        require(array.length()==512)
+        (0 until 512).map { array.getDouble(it).toFloat() }
+    }.getOrNull()
+    fun saveEnvelope(s:Stem,rate:Int,peaks:FloatArray) {
+        val target=File(context.filesDir,"playback/${key(s,rate)}.wave.json");target.parentFile!!.mkdirs()
+        val part=File(target.path+".${java.util.UUID.randomUUID()}.part")
+        try { part.writeText(org.json.JSONArray(peaks.toList()).toString());check(part.renameTo(target)) }
+        catch(e:Exception) { android.util.Log.w("ATMyTrack","Não foi possível guardar a waveform; o áudio continua disponível",e) }
+        finally { part.delete() }
     }
     fun open(s:Stem,rate:Int,checkCancelled:()->Unit={},progress:(Int)->Unit={}):FrameReader {
         checkCancelled()
@@ -34,6 +46,7 @@ class PlaybackCache(private val context:Context) {
         if(!file.exists() || (if(needsDecode)file.length()!=expected else file.length()<expected)) {
             check(dir.usableSpace>expected+32L*1024*1024) { "Espaço insuficiente para preparar ${s.name}: ${expected/1048576} MB necessários." }
             val part=File(dir,"$key-${java.util.UUID.randomUUID()}.part")
+            val envelope=WaveformAccumulator(s.frames)
             try {
                 if(needsDecode) {
                     Readers.open(context,s,rate,4096).use { reader ->
@@ -46,6 +59,7 @@ class PlaybackCache(private val context:Context) {
                                 checkCancelled()
                                 val count=minOf(4096L,s.frames-frame).toInt()
                                 reader.read(frame,count,samples)
+                                envelope.add(samples,count,frame)
                                 floats.position(0);floats.put(samples,0,count*2)
                                 out.write(bytes.array(),0,count*8)
                                 frame+=count
@@ -58,11 +72,12 @@ class PlaybackCache(private val context:Context) {
                     val input=context.contentResolver.openInputStream(Uri.parse(s.source)) ?: error("Origem inacessível: ${s.name}")
                     input.use { source -> part.outputStream().buffered(256*1024).use { out ->
                         val bytes=ByteArray(256*1024);var copied=0L
-                        while(true) { checkCancelled();val n=source.read(bytes);if(n<0)break;out.write(bytes,0,n);copied+=n;progress((copied*100/expected).coerceAtMost(100).toInt()) }
+                        while(true) { checkCancelled();val n=source.read(bytes);if(n<0)break;out.write(bytes,0,n);envelope.addRaw(bytes,n,copied,s.format);copied+=n;progress((copied*100/expected).coerceAtMost(100).toInt()) }
                     } }
                 }
                 check(part.length()>=expected) { "Cache incompleto: ${s.name}" }
                 if(!part.renameTo(file))check(file.length()>=expected) { "Não foi possível salvar cache: ${s.name}" }
+                saveEnvelope(s,rate,envelope.peaks)
             } finally { part.delete() }
         }
         checkCancelled()

@@ -1,0 +1,3 @@
+--------- beginning of main
+10-08 00:51:38.450  4371  4414 I Import11: 120s stereo PCM24 48kHz bytes=34560044 prepareMs=814 waveformMs=9
+10-08 00:52:07.061  4454  4468 I Import11: 120s stereo PCM24 48kHz bytes=34560044 prepareMs=829 waveformMs=10

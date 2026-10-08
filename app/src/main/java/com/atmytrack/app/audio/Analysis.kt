@@ -48,19 +48,59 @@ class Analysis(private val context:Context) {
     suspend fun waveform(p:Project,canWork:()->Boolean,emit:(List<Float>)->Unit):List<Float> {
         val file=File(context.filesDir,"analysis/${p.id}/${key(p)}-wave-v2.json")
         if(file.exists())return JSONArray(file.readText()).let { a->(0 until a.length()).map { a.getDouble(it).toFloat() } }.also(emit)
-        val peaks=FloatArray(512); val block=FloatArray(8192)
-        for(stem in p.stems) Readers.open(context,stem,p.sampleRate,4096,original=true).use { reader ->
-            var pos=0L; var last=0L
-            while(pos<stem.frames) {
-                coroutineContext.ensureActive(); while(!canWork())delay(150)
-                val n=minOf(4096L,stem.frames-pos).toInt(); reader.read(pos,n,block)
-                repeat(n) { i -> val index=((pos+i)*512/p.frames).toInt().coerceAtMost(511); peaks[index]=max(peaks[index],max(abs(block[i*2]),abs(block[i*2+1]))) }
-                pos+=n
-                if(pos-last>p.sampleRate*5L) { last=pos; yield() }
+        val peaks=FloatArray(512);val cache=PlaybackCache(context);val job=coroutineContext
+        for(stem in p.stems) {
+            coroutineContext.ensureActive()
+            val original=stem.copy(pitchFile="",pitchApplied=0,dspSpeed=100)
+            val summary=cache.envelope(original,p.sampleRate) ?: run {
+                val accumulator=WaveformAccumulator(stem.frames);val block=FloatArray(8192)
+                // Preparation has already created local PCM. Never decode the source again.
+                cache.open(original,p.sampleRate,{job.ensureActive()}).use { reader ->
+                    var pos=0L;var blocks=0
+                    while(pos<stem.frames) {
+                        coroutineContext.ensureActive()
+                        val n=minOf(4096L,stem.frames-pos).toInt();reader.read(pos,n,block);accumulator.add(block,n,pos);pos+=n
+                        if(++blocks%32==0){if(!canWork())delay(1) else yield()}
+                    }
+                }
+                cache.saveEnvelope(original,p.sampleRate,accumulator.peaks)
+                accumulator.peaks.toList()
             }
+            // Each completed stem covers its entire duration, not just an unfinished prefix.
+            summary.forEachIndexed { i,v ->
+                val first=(i.toLong()*stem.frames/p.frames).toInt().coerceIn(0,511)
+                val end=(((i+1L)*stem.frames+p.frames-1)/p.frames).toInt().coerceIn(first+1,512)
+                for(j in first until end)peaks[j]=max(peaks[j],v)
+            }
+            emit(peaks.toList());yield()
         }
         file.parentFile!!.mkdirs(); val temp=File(file.path+".part"); temp.writeText(JSONArray(peaks.toList()).toString()); check(temp.renameTo(file))
         return peaks.toList().also(emit)
+    }
+    suspend fun musicalKey(p:Project):KeyEstimate? {
+        val detector=KeyDetector();val job=coroutineContext;val hop=maxOf(1,p.sampleRate/11025)
+        val candidates=p.stems.filterNot { Regex("click|clk|metro|guide|guia|drum|bateria|perc",RegexOption.IGNORE_CASE).containsMatchIn(it.name) }
+            .sortedBy { if(Regex("piano|guitar|viol|keys|tecla|pad",RegexOption.IGNORE_CASE).containsMatchIn(it.name))0 else 1 }.take(3)
+        for(stem in candidates) {
+            PlaybackCache(context).open(stem.copy(pitchFile="",pitchApplied=0,dspSpeed=100),p.sampleRate,{job.ensureActive()}).use { reader ->
+                val block=FloatArray(8192);val samples=FloatArray(8192);val right=FloatArray(8192);val length=samples.size*hop
+                for(w in 0 until 24) {
+                    job.ensureActive();samples.fill(0f);right.fill(0f)
+                    val start=((stem.frames-length).coerceAtLeast(0)*w/23);var pos=0;var index=0;var leftSum=0f;var rightSum=0f;var grouped=0
+                    while(pos<length && start+pos<stem.frames) {
+                        val n=minOf(4096L,(length-pos).toLong(),stem.frames-start-pos).toInt();reader.read(start+pos,n,block)
+                        for(i in 0 until n) {
+                            leftSum+=block[i*2];rightSum+=block[i*2+1];grouped++
+                            if(grouped==hop && index<samples.size){samples[index]=leftSum/hop;right[index]=rightSum/hop;index++;leftSum=0f;rightSum=0f;grouped=0}
+                        }
+                        pos+=n
+                    }
+                    // Choose a complete channel, avoiding phase cancellation or nonlinear per-sample switching.
+                    detector.add(if(samples.sumOf { (it*it).toDouble() }>=right.sumOf { (it*it).toDouble() })samples else right,p.sampleRate/hop);yield()
+                }
+            }
+        }
+        return detector.result()
     }
     suspend fun tempo(p:Project):TempoResult {
         val stem=TempoDetector.reference(p.stems); val hop=p.sampleRate/100

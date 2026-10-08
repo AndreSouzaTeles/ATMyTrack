@@ -233,7 +233,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
                                         DspButton("VELOCIDADE","${p.speed}%",p.speed!=100,Modifier.weight(1f)) { speed=true }
                                     }
                                     if(page==0) {
-                                        DspButton("LOOP",if(p.loop)"ATIVO" else "DESATIVADO",p.loop,Modifier.width(104.dp)) { vm.update { it.copy(loop=!it.loop) } }
+                                        DspButton("LOOP",if(p.loop)"ON" else "OFF",p.loop,Modifier.width(104.dp)) { vm.update { it.copy(loop=!it.loop) } }
                                         DspButton("+ SEÇÃO","CRIAR",false,Modifier.width(104.dp)) { markers=true }
                                     }
                                     DspButton("METRÔNOMO",if(p.click)"ATIVO" else "CLICK",p.click,Modifier.width(116.dp)) { metronome=true }
@@ -512,10 +512,12 @@ private fun Meter(peak: Float, modifier: Modifier) {
 private fun ProjectEditor(p: Project, vm: PlayerViewModel, close: () -> Unit, artwork: () -> Unit, delete: () -> Unit) {
     var name by remember(p.id) { mutableStateOf(p.name) }
     var key by remember(p.id) { mutableStateOf(p.key) }
+    var keyEdited by remember(p.id) { mutableStateOf(false) }
+    LaunchedEffect(p.key) { if(!keyEdited)key=p.key }
     AlertDialog(onDismissRequest = close, title = { Text("Editar projeto") }, text = {
         Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             OutlinedTextField(name, { name = it }, label = { Text("Nome") }, singleLine = true)
-            OutlinedTextField(key, { key = it }, label = { Text("Tonalidade (informação)") }, singleLine = true)
+            OutlinedTextField(key, { key = it;keyEdited=true }, label = { Text("Tonalidade (informação)") }, singleLine = true)
             SmallButton(if(p.artwork.isBlank()) "ADICIONAR IMAGEM" else "ALTERAR IMAGEM", onClick = artwork)
             if(p.artwork.isNotBlank()) { ProjectCard(p,true,true,{},{});TextButton(onClick={vm.update { it.copy(artwork="") }}) { Text("REMOVER IMAGEM") } }
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -528,7 +530,7 @@ private fun ProjectEditor(p: Project, vm: PlayerViewModel, close: () -> Unit, ar
                 TextButton(onClick = { vm.moveStem(stem.id, 1) }) { Text("↓") }
             } }
         }
-    }, confirmButton = { TextButton(onClick = { vm.update { it.copy(name = name.trim(), key = key.trim()) }; close() }, enabled = name.isNotBlank()) { Text("SALVAR") } }, dismissButton = { TextButton(onClick = close) { Text("FECHAR") } })
+    }, confirmButton = { TextButton(onClick = { vm.update { it.copy(name = name.trim(), key = if(keyEdited)key.trim() else it.key,keyAnalyzed=keyEdited || it.keyAnalyzed) }; close() }, enabled = name.isNotBlank()) { Text("SALVAR") } }, dismissButton = { TextButton(onClick = close) { Text("FECHAR") } })
 }
 
 @Composable

@@ -133,6 +133,11 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
                 withContext(Dispatchers.IO) {
                     analysis.waveform(ready,{ !playback.value.playing }) { peaks -> mutable.update { if(it.selected==p.id)it.copy(waveform=peaks) else it } }
                 }
+                if(!ready.keyAnalyzed && ready.key.trim() in listOf("","—","-")) {
+                    val estimate=withContext(Dispatchers.Default) { analysis.musicalKey(ready) }
+                    val current=library.value.current
+                    if(current?.id==ready.id && !current.keyAnalyzed && current.key.trim() in listOf("","—","-"))update { it.copy(key=estimate?.name ?: it.key,keyAnalyzed=true) }
+                }
             } catch(e:CancellationException) { throw e }
             catch(e:Exception) { message("Não foi possível ler/analisar a origem: ${e.message}") }
         }
@@ -176,9 +181,10 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
                 val project = withContext(Dispatchers.IO) {
                     val importer = AudioImporter(getApplication())
                     val files = uris ?: importer.folder(tree!!)
-                    val title = if (tree != null) android.provider.DocumentsContract.getTreeDocumentId(tree).substringAfterLast('/')
-                        .substringAfter(':') else files.firstOrNull()?.let { importer.name(it).substringBeforeLast('.') } ?: "Novo projeto"
-                    importer.import(files, title,tree,allowPartial=true,onItem={ item -> mutable.update { state -> state.copy(imports=(state.imports.filterNot { it.index==item.index }+item).sortedBy { it.index }) } }) { text -> mutable.update { it.copy(busy = text) } }
+                    val metadata=ImportMetadata(getApplication())
+                    val title=metadata.folderName(files,tree)
+                    val imported=importer.import(files, title,tree,allowPartial=true,onItem={ item -> mutable.update { state -> state.copy(imports=(state.imports.filterNot { it.index==item.index }+item).sortedBy { it.index }) } }) { text -> mutable.update { it.copy(busy = text) } }
+                    imported.copy(artwork=if(tree!=null)runCatching { metadata.randomArtwork(tree,imported.id) }.getOrDefault("") else "")
                 }
                 persist(library.value.projects + project)
                 mutable.value = mutable.value.copy(busy = null)
@@ -194,15 +200,7 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             try {
                 val path = withContext(Dispatchers.IO) {
-                    val resolver = getApplication<Application>().contentResolver
-                    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-                    resolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, bounds) }
-                    val options = BitmapFactory.Options().apply { inSampleSize = maxOf(1, maxOf(bounds.outWidth, bounds.outHeight) / 800) }
-                    val bitmap = resolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, options) } ?: error("Imagem inválida.")
-                    val relative = "artwork/$id-${System.currentTimeMillis()}.jpg"
-                    val target = File(getApplication<Application>().filesDir, relative); target.parentFile!!.mkdirs()
-                    target.outputStream().use { bitmap.compress(Bitmap.CompressFormat.JPEG, 85, it) }; bitmap.recycle()
-                    relative
+                    ImportMetadata(getApplication()).saveArtwork(uri,id)
                 }
                 if (library.value.selected == id) update { it.copy(artwork = path) }
             } catch (e: Exception) { message("Não foi possível importar a imagem: ${e.message}") }
