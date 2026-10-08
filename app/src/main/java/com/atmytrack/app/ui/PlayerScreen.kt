@@ -228,23 +228,23 @@ fun PlayerScreen(vm: PlayerViewModel) {
                             if (page == 0) Timeline(p, playback.frame, wide, library.waveform, vm::seek)
                             Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Panel).padding(6.dp),verticalArrangement=Arrangement.spacedBy(4.dp)) {
                                 FlowRow(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {
-                                    if(page==0) {
-                                        SmallButton("↻ LOOP", p.loop, { vm.update { it.copy(loop=!it.loop) } })
-                                        SmallButton("+ SEÇÃO",onClick={markers=true})
-                                    }
-                                    SmallButton("METRÔNOMO",p.click,{metronome=true})
                                     Row(Modifier.width(if(wide)300.dp else (screenWidth-36.dp).coerceAtMost(340.dp)),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
                                         DspButton("TOM",if(p.semitones==0)"ORIGINAL" else "%+d semitons".format(p.semitones),p.semitones!=0,Modifier.weight(1f)) { pitch=true }
                                         DspButton("VELOCIDADE","${p.speed}%",p.speed!=100,Modifier.weight(1f)) { speed=true }
                                     }
+                                    if(page==0) {
+                                        DspButton("LOOP",if(p.loop)"ATIVO" else "DESATIVADO",p.loop,Modifier.width(104.dp)) { vm.update { it.copy(loop=!it.loop) } }
+                                        DspButton("+ SEÇÃO","CRIAR",false,Modifier.width(104.dp)) { markers=true }
+                                    }
+                                    DspButton("METRÔNOMO",if(p.click)"ATIVO" else "CLICK",p.click,Modifier.width(116.dp)) { metronome=true }
                                     if(page==1) {
-                                        SmallButton("+ DCA",onClick={group="DCA:"});SmallButton("+ BUS",onClick={group="BUS:"})
-                                        SmallButton("STEREO SPLIT",onClick=vm::split);SmallButton("ATUALIZAR SAÍDA",onClick=vm::refreshOutput)
+                                        DspButton("DCA","CRIAR",false,Modifier.width(104.dp)) { group="DCA:" };DspButton("BUS","CRIAR",false,Modifier.width(104.dp)) { group="BUS:" }
+                                        DspButton("STEREO SPLIT","L / R",false,Modifier.width(132.dp),vm::split);DspButton("ATUALIZAR SAÍDA","DISPOSITIVO",false,Modifier.width(150.dp),vm::refreshOutput)
                                     }
                                 }
                                 if(page==0 && p.markers.isNotEmpty()) Row(Modifier.horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
                                     p.markers.sortedBy { it.start }.forEach { m ->
-                                        Box(Modifier.clip(RoundedCornerShape(20.dp)).background(if(p.selectedMarker==m.id)Blue else Control)
+                                        Box(Modifier.clip(RoundedCornerShape(20.dp)).background(Color(m.color).copy(alpha=if(p.selectedMarker==m.id).65f else .22f))
                                             .combinedClickable(onClick={vm.seek(m.start)},onLongClick={vm.update { it.copy(selectedMarker=if(it.selectedMarker==m.id)"" else m.id) }})
                                             .semantics { selected=p.selectedMarker==m.id;contentDescription="Seção ${m.name}" }.padding(horizontal=16.dp,vertical=12.dp)) {
                                             Text(m.name,color=White,fontSize=12.sp)
@@ -407,14 +407,20 @@ private fun Timeline(p: Project, frame: Long, compact: Boolean, peaks: List<Floa
     val callback by rememberUpdatedState(seek)
     val total = p.timelineFrames.coerceAtLeast(1)
     Column(Modifier.clip(RoundedCornerShape(10.dp)).background(Panel).padding(if (compact) 8.dp else 12.dp)) {
-        Row(Modifier.fillMaxWidth()) { Text("TIMELINE", fontSize = 10.sp, color = Muted, letterSpacing = 2.sp); Spacer(Modifier.weight(1f)); Text("Toque ou arraste para navegar", fontSize = 10.sp, color = Muted) }
+        Row(Modifier.fillMaxWidth()) { Text("TIMELINE", fontSize = 10.sp, color = Muted, letterSpacing = 2.sp) }
         Canvas(Modifier.fillMaxWidth().height(if (compact) 32.dp else 48.dp)
             .semantics { contentDescription = "Posição da música"; progressBarRangeInfo = ProgressBarRangeInfo(frame.toFloat(), 0f..total.toFloat()); setProgress { callback(it.toLong()); true } }
             .pointerInput(total) { detectTapGestures { callback((it.x / size.width * total).toLong().coerceIn(0, total)) } }
             .pointerInput(total) { detectDragGestures { change, _ -> change.consume(); callback((change.position.x / size.width * total).toLong().coerceIn(0, total)) } }) {
             val w = size.width; val h = size.height
             for (i in 0..40) { val x = w * i / 40; drawLine(Control, Offset(x, h * .30f), Offset(x, h * if (i % 5 == 0) .85f else .6f), 1.dp.toPx()) }
-            peaks.forEachIndexed { i, v -> val px = w*i/peaks.size*p.frames/total; drawLine(Muted, Offset(px,h*(.5f-v*.45f)), Offset(px,h*(.5f+v*.45f)), (w/peaks.size).coerceAtLeast(1f)) }
+            if(peaks.isNotEmpty()) {
+                val path=Path(); val width=w*p.frames/total
+                path.moveTo(0f,h*.5f)
+                peaks.forEachIndexed { i,v -> path.lineTo(width*i/peaks.size,h*(.5f-v.coerceIn(0f,1f)*.45f)); path.lineTo(width*(i+1)/peaks.size,h*(.5f-v.coerceIn(0f,1f)*.45f)) }
+                for(i in peaks.indices.reversed()) { val y=h*(.5f+peaks[i].coerceIn(0f,1f)*.45f);path.lineTo(width*(i+1)/peaks.size,y);path.lineTo(width*i/peaks.size,y) }
+                path.close();drawPath(path,Muted)
+            }
             p.markers.forEach { m -> drawRect(Color(m.color).copy(alpha = .28f), Offset(w * m.start / total, 2f), Size((w * (m.end - m.start) / total).coerceAtLeast(2f), h * .9f)) }
             val x = w * frame / total
             drawLine(Blue.copy(alpha = .4f), Offset(0f, h * .7f), Offset(x, h * .7f), 3.dp.toPx())
@@ -596,9 +602,7 @@ private fun MarkerEditor(p: Project, frame: Long, vm: PlayerViewModel, close: ()
             OutlinedTextField(name, { name = it }, label = { Text("Nome • INTRO, VERSO, REFRÃO…") }, singleLine = true)
             OutlinedTextField(start, { start = it }, label = { Text("Início • segundos ou mm:ss") }, singleLine = true)
             OutlinedTextField(end, { end = it }, label = { Text("Fim • segundos ou mm:ss") }, singleLine = true)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) { listOf(0xFF93C5FD, 0xFF60A5FA, 0xFF3B82F6, 0xFF1D4ED8).forEach { c ->
-                Box(Modifier.size(48.dp).clip(RoundedCornerShape(8.dp)).background(Color(c)).border(if (color == c) 3.dp else 0.dp, White, RoundedCornerShape(8.dp)).clickable { color = c }.semantics { contentDescription = "Cor ${listOf(0xFF93C5FD, 0xFF60A5FA, 0xFF3B82F6, 0xFF1D4ED8).indexOf(c) + 1}"; selected = color == c })
-            } }
+            SectionColors(color) { color=it }
             if (!valid) Text("Informe um nome e um intervalo dentro da música.", color = Muted, fontSize = 12.sp)
             p.markers.sortedBy { it.start }.forEach { m -> Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("${m.name}\n${MusicTime.time(m.start.toDouble()/p.sampleRate)} → ${MusicTime.time(m.end.toDouble()/p.sampleRate)}", Modifier.weight(1f), fontSize = 12.sp)

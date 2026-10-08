@@ -44,7 +44,7 @@ class ProjectStoreTest {
         } finally { dir.deleteRecursively() }
     }
 
-    @Test fun mixedRateOriginsSurviveReopenAndOldMarkerPaletteMigrates() {
+    @Test fun mixedRateOriginsAndCustomMarkerColorsSurviveReopen() {
         val dir=Files.createTempDirectory("atmytrack-rates").toFile()
         try {
             val p=Project(name="Mixed",sampleRate=48000,stems=listOf(
@@ -54,7 +54,7 @@ class ProjectStoreTest {
             ProjectStore(dir).save(listOf(p))
             val loaded=ProjectStore(dir).load().single()
             assertEquals(p.stems,loaded.stems)
-            assertEquals(0xFF3B82F6L,loaded.markers.single().color)
+            assertEquals(0xFF39E0B8L,loaded.markers.single().color)
         } finally { dir.deleteRecursively() }
     }
     @Test fun separateInstancesSerializeReadersAndAtomicWriters() {

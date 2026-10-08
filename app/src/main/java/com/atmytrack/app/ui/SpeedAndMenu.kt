@@ -73,10 +73,24 @@ internal enum class MainDestination(val title:String,val symbol:String) {
         shape=androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
         colors=ButtonDefaults.outlinedButtonColors(containerColor=if(active)Blue.copy(alpha=.15f) else Control),
         border=BorderStroke(1.dp,if(active)Blue else Muted.copy(alpha=.3f)),contentPadding=PaddingValues(8.dp)) {
-        if(label=="VELOCIDADE")Canvas(Modifier.size(18.dp).padding(end=3.dp)) {
-            drawArc(LightBlue,150f,240f,false,style=androidx.compose.ui.graphics.drawscope.Stroke(2.dp.toPx()))
-            drawLine(LightBlue,center,Offset(size.width*.8f,size.height*.2f),2.dp.toPx())
-        }
+        ToolIcon(label)
+        Spacer(Modifier.width(6.dp))
         Column(horizontalAlignment=Alignment.CenterHorizontally) { Text(label,fontSize=11.sp,color=White);Text(value,fontSize=13.sp,color=LightBlue) }
+    }
+}
+
+@Composable private fun ToolIcon(label:String) {
+    Canvas(Modifier.size(18.dp)) {
+        val stroke=androidx.compose.ui.graphics.drawscope.Stroke(2.dp.toPx())
+        fun line(x:Float,y:Float,x2:Float,y2:Float)=drawLine(LightBlue,Offset(size.width*x,size.height*y),Offset(size.width*x2,size.height*y2),2.dp.toPx())
+        when(label) {
+            "VELOCIDADE" -> { drawArc(LightBlue,150f,240f,false,style=stroke);line(.5f,.5f,.8f,.2f) }
+            "TOM" -> { line(.35f,.1f,.25f,.9f);line(.75f,.1f,.65f,.9f);line(.1f,.4f,.9f,.3f);line(.1f,.7f,.9f,.6f) }
+            "LOOP","ATUALIZAR SAÍDA" -> { drawArc(LightBlue,35f,290f,false,style=stroke);line(.9f,.05f,.9f,.4f);line(.9f,.4f,.6f,.4f) }
+            "+ SEÇÃO" -> { line(.2f,.1f,.2f,.95f);line(.2f,.1f,.85f,.1f);line(.85f,.1f,.85f,.5f);line(.85f,.5f,.2f,.5f) }
+            "METRÔNOMO" -> { line(.5f,.1f,.1f,.9f);line(.1f,.9f,.9f,.9f);line(.9f,.9f,.5f,.1f);line(.5f,.75f,.8f,.2f) }
+            "STEREO SPLIT" -> { line(.1f,.5f,.45f,.5f);line(.45f,.5f,.8f,.15f);line(.45f,.5f,.8f,.85f) }
+            else -> { for(i in 1..3) { val x=i*.25f;line(x,.1f,x,.9f);drawCircle(LightBlue,2.dp.toPx(),Offset(size.width*x,size.height*(if(i==2).35f else .65f))) } }
+        }
     }
 }

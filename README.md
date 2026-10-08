@@ -1,10 +1,20 @@
 # ATMyTrack
 
-**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [Baixar APK Android](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.8.0/ATMyTrack-0.8.0-debug.apk)
+**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [Baixar APK Android](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.9.0/ATMyTrack-0.9.0-debug.apk)
 
-## Android 0.8.0
+## Android 0.9.0
 
 Atualização incremental do player multitrack em Kotlin/Compose para Android 8.0+ (API 26). Preserva a biblioteca e os áudios internos das versões anteriores.
+
+## Atualização 0.9.0
+
+- Seções: atalhos RGB/CMY e seletor circular de cor personalizada; cores preservadas ao reabrir projetos. A paleta livre é exclusiva das seções, conforme pedido; o restante da interface continua azul.
+- Waveform: envelope contínuo, ambos os canais e todas as tracks; silêncios reais preservados. Cache anterior de waveform é recalculado. A análise Android ocorre em segundo plano e cede ao playback; a web usa worker e revisa envelopes antigos ao abrir o projeto.
+- TOM e VELOCIDADE abrem a barra; LOOP, + SEÇÃO, METRÔNOMO e ferramentas do mixer compartilham cartões e ícones. Texto de navegação da timeline removido.
+- Site **local** atualizado em `http://127.0.0.1:4173/`; publicação pública anterior permanece na versão 0.8.0. Para iniciar localmente: `python -m http.server 4173 --bind 127.0.0.1 --directory web/dist`.
+- **STEREO SPLIT** envia tracks cujo nome contém click/guide/guia/clk/metro para L, e as demais para R; click interno vai para L. Remove a associação das tracks aos BUS para aplicar essa separação. Não extrai instrumentos de um áudio mixado.
+- **ATUALIZAR SAÍDA** pausa o player, reabre a saída Android e consulta os canais da interface disponível, preservando posição e ajustes do projeto. Retome pelo PLAY; útil após conectar uma interface.
+- Validação e limites: [relatório 0.9.0](verification/REPORT-0.9.0.md).
 
 ## Atualização 0.8.0
 
@@ -26,7 +36,7 @@ Atualização incremental do player multitrack em Kotlin/Compose para Android 8.
 Resultados, ambiente, cenários e limites: [relatório 0.7.0](verification/REPORT-0.7.0.md).
 
 ## Instalação
-Baixe o [APK 0.8.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.8.0/ATMyTrack-0.8.0-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.8.0).
+Baixe o [APK 0.9.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.9.0/ATMyTrack-0.9.0-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.9.0).
 
 Instale `dist/ATMyTrack-debug.apk` sobre a versão anterior, sem desinstalar. A assinatura de desenvolvimento foi mantida. O APK inclui arm64-v8a, armeabi-v7a e x86_64. Não exige conta ou assinatura. A origem de nuvem pode precisar de conexão/download.
 

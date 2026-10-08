@@ -45,7 +45,7 @@ class Feature06Test {
     compose.runOnUiThread { vm.update { it.copy(markers=listOf(m)) } }
     compose.onNodeWithContentDescription("Seção Trecho 06").performScrollTo().performTouchInput { longClick() }
     compose.onNodeWithContentDescription("Seção Trecho 06").assertIsSelected()
-    compose.onNodeWithText("↻ LOOP").performClick()
+    compose.onNodeWithText("LOOP").performClick()
     compose.waitUntil(10000) { vm.playback.value.frame in 48000 until 96000 }
     compose.runOnUiThread { vm.stop();vm.update { it.copy(loop=false) } }
     compose.onNodeWithContentDescription("Abrir menu principal").performClick()

@@ -46,18 +46,17 @@ object TempoDetector {
 class Analysis(private val context:Context) {
     fun key(p:Project)=java.security.MessageDigest.getInstance("SHA-256").digest(p.stems.joinToString("|") { "${it.id}:${it.fingerprint}:${it.frames}" }.toByteArray()).joinToString("") { "%02x".format(it) }
     suspend fun waveform(p:Project,canWork:()->Boolean,emit:(List<Float>)->Unit):List<Float> {
-        val stem=p.stems.firstOrNull { !it.name.contains("click",true) } ?: p.stems.first()
-        val file=File(context.filesDir,"analysis/${p.id}/${key(p)}-wave.json")
+        val file=File(context.filesDir,"analysis/${p.id}/${key(p)}-wave-v2.json")
         if(file.exists())return JSONArray(file.readText()).let { a->(0 until a.length()).map { a.getDouble(it).toFloat() } }.also(emit)
         val peaks=FloatArray(512); val block=FloatArray(8192)
-        Readers.open(context,stem,p.sampleRate,4096,original=true).use { reader ->
+        for(stem in p.stems) Readers.open(context,stem,p.sampleRate,4096,original=true).use { reader ->
             var pos=0L; var last=0L
             while(pos<stem.frames) {
                 coroutineContext.ensureActive(); while(!canWork())delay(150)
                 val n=minOf(4096L,stem.frames-pos).toInt(); reader.read(pos,n,block)
                 repeat(n) { i -> val index=((pos+i)*512/p.frames).toInt().coerceAtMost(511); peaks[index]=max(peaks[index],max(abs(block[i*2]),abs(block[i*2+1]))) }
                 pos+=n
-                if(pos-last>p.sampleRate*5L) { emit(peaks.toList()); last=pos; yield() }
+                if(pos-last>p.sampleRate*5L) { last=pos; yield() }
             }
         }
         file.parentFile!!.mkdirs(); val temp=File(file.path+".part"); temp.writeText(JSONArray(peaks.toList()).toString()); check(temp.renameTo(file))
