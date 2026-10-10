@@ -1,6 +1,10 @@
-# ATMyTrack Web 0.13.0
+# ATMyTrack Web 0.13.1
 
 Player local no navegador, sem conta e sem upload de áudios. Projetos/arquivos ficam no IndexedDB da origem. Exportação/importação `.atmytrack` transfere projetos entre navegadores. Não compartilha o formato interno Android.
+
+## Atualização 0.13.1
+
+PAD com ganho maior e limitador próprio. Timeline permite arraste com prévia visual e aplica a posição ao soltar; movimentos não iniciam seeks repetidos. Backend mantém a posição pendente mais recente. [Validação](../verification/REPORT-0.13.1.md).
 
 ## Atualização 0.13.0
 

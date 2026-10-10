@@ -8,6 +8,10 @@ class PadSynth(private val rate:Int=48000) {
         private const val TABLE=16384
         private val wave=DoubleArray(TABLE+1) { i -> val x=i.toDouble()/TABLE*2*PI;(sin(x)+.22*sin(2*x)+.08*sin(3*x))*.055 }
     }
+    private fun level(sample:Double):Float {
+        val x=(sample*3.5).coerceIn(-3.0,3.0);val square=x*x
+        return (.95*x*(27+square)/(27+9*square)).toFloat()
+    }
     private val phase=DoubleArray(9)
     private val increments=DoubleArray(9)
     private var gain=0.0
@@ -26,7 +30,7 @@ class PadSynth(private val rate:Int=48000) {
                 l+=sample*(if(v%3==2).7 else 1.0);r+=sample*(if(v%3==0).7 else 1.0)
             }
             left+=(l-left)*.16;right+=(r-right)*.16
-            out[i*2]=(left*gain).toFloat();out[i*2+1]=(right*gain).toFloat()
+            out[i*2]=level(left)*gain.toFloat();out[i*2+1]=level(right)*gain.toFloat()
         }
     }
 }

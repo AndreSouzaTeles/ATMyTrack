@@ -1,0 +1,3 @@
+I/SEEK131 ( 7312): 100 drag movements committed final 75% in 29ms; stems=3
+I/DSP13   ( 7312): 19 independent cached readers (same synthetic 4s stereo PCM24 source) speed80 pad=false: underruns=0 starvation=0
+I/DSP13   ( 7312): 19 independent cached readers (same synthetic 4s stereo PCM24 source) speed80 pad=true: underruns=0 starvation=0

@@ -1,0 +1,21 @@
+
+com.atmytrack.app.Timeline131Test:
+Error in dragPreviewsWithoutSeekHistoryAndCommitsFinalPosition(com.atmytrack.app.Timeline131Test):
+java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at com.atmytrack.app.Timeline131Test.dragPreviewsWithoutSeekHistoryAndCommitsFinalPosition(Timeline131Test.kt:25)
+
+
+Time: 15.658
+There was 1 failure:
+1) dragPreviewsWithoutSeekHistoryAndCommitsFinalPosition(com.atmytrack.app.Timeline131Test)
+java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at com.atmytrack.app.Timeline131Test.dragPreviewsWithoutSeekHistoryAndCommitsFinalPosition(Timeline131Test.kt:25)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1

@@ -21,4 +21,16 @@ class LocksPadTest {
         assertTrue(data.all { it.isFinite() && abs(it)<.5f });synth.fill(data,48000,note,minor,0f);assertTrue(data.takeLast(1000).all { abs(it)<.00001f })
     }
  }
+ @Test fun fullPadLevelIsStrongerThanPreviousAndKeepsHeadroom() {
+    var smallest=Double.MAX_VALUE;var largest=0.0
+    for(minor in listOf(false,true))for(note in 0..11){
+      val old=FloatArray(96000);val new=FloatArray(96000)
+      com.atmytrack.app.audio.LegacyPadSynth().fill(old,48000,note,minor,1f);PadSynth().fill(new,48000,note,minor,1f)
+      fun rms(a:FloatArray)=sqrt(a.drop(4096).sumOf { it.toDouble()*it }/(a.size-4096))
+      val gain=rms(new)/rms(old);smallest=minOf(smallest,gain);largest=maxOf(largest,new.maxOf { abs(it).toDouble() })
+      assertTrue("RMS boost $gain",gain>2.5);assertTrue(new.all { it.isFinite() && abs(it)<=.951f })
+    }
+    println("PAD 24 chords full slider: min RMS gain=$smallest max peak=$largest")
+ }
+
 }

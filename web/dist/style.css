@@ -34,3 +34,5 @@ input.fader:focus-visible{outline:2px solid var(--light);outline-offset:3px;bord
 
 #padVolume{display:block;width:100%;margin-top:12px;}
 .fader-lock{color:var(--muted);} .fader-lock[aria-pressed="true"]{color:#75aaff;}
+
+#wave{touch-action:none;cursor:crosshair;}

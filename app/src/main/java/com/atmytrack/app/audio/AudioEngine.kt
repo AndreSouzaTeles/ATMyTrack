@@ -96,6 +96,7 @@ class AudioEngine(private val context: Context) {
         }
     }
     fun load(source: Project, preserve: Boolean = false) {
+        latestSeek.clear()
         val p=source.engineView()
         val ticket=generation.incrementAndGet()
         mutable.value=mutable.value.copy(ready=false,preparing=true,error=null,preparation=p.stems.map { PreparationItem(it.id,it.name,"DISCOVERED") })
@@ -244,14 +245,17 @@ class AudioEngine(private val context: Context) {
         publish(force = true)
         if (message != null) mutable.value = mutable.value.copy(error = message)
     } }
-    fun stop() { commands.offer { playing = false; reset(0); publish(force = true) } }
-    fun seek(frame: Long) { commands.offer {
-        val resume = playing
-        reset((frame/timelineScale).toLong().coerceIn(0, project?.frames ?: 0))
-        if (resume) { primeReaders(cursor); pump?.start() }
-        publish(force = true)
-    } }
-    fun unload() { cancelPreparation();commands.offer {
+    fun stop() { latestSeek.clear();commands.offer { playing = false; reset(0); publish(force = true) } }
+    private val latestSeek=LatestCommand<Pair<String,Long>>({ commands.offer(it) }) { (id,frame) ->
+        if(project?.id==id) {
+            val resume=playing
+            reset((frame/timelineScale).toLong().coerceIn(0, project?.frames ?: 0))
+            if(resume) { primeReaders(cursor);pump?.start() }
+            publish(force=true)
+        }
+    }
+    fun seek(frame:Long) { project?.id?.let { latestSeek.offer(it to frame) } }
+    fun unload() { latestSeek.clear();cancelPreparation();commands.offer {
         playing = false; pump?.close();pump=null; sink = null
         readers.values.forEach { runCatching { it.close() } }; readers = emptyMap(); project = null
         mutable.value = PlaybackState()

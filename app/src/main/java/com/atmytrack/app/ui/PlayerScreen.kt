@@ -413,12 +413,21 @@ private fun ProjectCard(p: Project, selected: Boolean, compact: Boolean, remove:
 private fun Timeline(p: Project, frame: Long, compact: Boolean, peaks: List<Float>, seek: (Long) -> Unit) {
     val callback by rememberUpdatedState(seek)
     val total = p.timelineFrames.coerceAtLeast(1)
+    var preview by remember(p.id) { mutableStateOf<Long?>(null) }
+    var dragging by remember(p.id) { mutableStateOf(false) }
+    val display=preview ?: frame
+    LaunchedEffect(frame,dragging) { if(!dragging && preview!=null && abs(frame-preview!!)<p.sampleRate/2)preview=null }
+    LaunchedEffect(preview,dragging) { if(!dragging && preview!=null) { delay(1000);preview=null } }
     Column(Modifier.clip(RoundedCornerShape(10.dp)).background(Panel).padding(if (compact) 8.dp else 12.dp)) {
         Row(Modifier.fillMaxWidth()) { Text("TIMELINE", fontSize = 10.sp, color = Muted, letterSpacing = 2.sp) }
         Canvas(Modifier.fillMaxWidth().height(if (compact) 32.dp else 48.dp)
-            .semantics { contentDescription = "Posição da música"; progressBarRangeInfo = ProgressBarRangeInfo(frame.toFloat(), 0f..total.toFloat()); setProgress { callback(it.toLong()); true } }
+            .semantics { contentDescription = "Posição da música"; progressBarRangeInfo = ProgressBarRangeInfo(display.toFloat(), 0f..total.toFloat()); setProgress { callback(it.toLong()); true } }
             .pointerInput(total) { detectTapGestures { callback((it.x / size.width * total).toLong().coerceIn(0, total)) } }
-            .pointerInput(total) { detectDragGestures { change, _ -> change.consume(); callback((change.position.x / size.width * total).toLong().coerceIn(0, total)) } }) {
+            .pointerInput(total) { detectDragGestures(
+                onDragStart={ dragging=true;preview=(it.x/size.width*total).toLong().coerceIn(0,total) },
+                onDragEnd={ dragging=false;preview?.let(callback) },
+                onDragCancel={ dragging=false;preview=null }
+            ) { change, _ -> change.consume();preview=(change.position.x/size.width*total).toLong().coerceIn(0,total) } }) {
             val w = size.width; val h = size.height
             for (i in 0..40) { val x = w * i / 40; drawLine(Control, Offset(x, h * .30f), Offset(x, h * if (i % 5 == 0) .85f else .6f), 1.dp.toPx()) }
             if(peaks.isNotEmpty()) {
@@ -429,7 +438,7 @@ private fun Timeline(p: Project, frame: Long, compact: Boolean, peaks: List<Floa
                 path.close();drawPath(path,Muted)
             }
             p.markers.forEach { m -> drawRect(Color(m.color).copy(alpha = .28f), Offset(w * m.start / total, 2f), Size((w * (m.end - m.start) / total).coerceAtLeast(2f), h * .9f)) }
-            val x = w * frame / total
+            val x = w * display / total
             drawLine(Blue.copy(alpha = .4f), Offset(0f, h * .7f), Offset(x, h * .7f), 3.dp.toPx())
             drawLine(Blue, Offset(x, 0f), Offset(x, h), 2.dp.toPx())
             drawCircle(Blue, 4.dp.toPx(), Offset(x, h * .7f))

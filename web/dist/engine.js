@@ -94,8 +94,19 @@ export class Engine {
   startClick(when){const p=this.project;if(!p.click)return;this.click=new AudioWorkletNode(this.ctx,'atmytrack-click',{numberOfInputs:0,numberOfOutputs:1,outputChannelCount:[1],processorOptions:{bpm:p.bpm*globalRate(p)*p.clickDivision,meter:p.meter,accent:p.clickAccent,tone:[1,.65,1.4,.8,1.8,.5,1.15][p.clickTone||0],gain:gain(p.clickDb),when,position:this.position,loop:this.loopBounds()}});this.route(this.click,p.clickRoute);}
   meters(){const readings=this.nodes.map(n=>{n.analyser.getFloatTimeDomainData(n.meterData);let peak=0;for(const x of n.meterData)peak=Math.max(peak,Math.abs(x));return [n.t.id,peak];});if(this.outputMeter){this.outputMeter.getFloatTimeDomainData(this.outputMeterData);let peak=0;for(const x of this.outputMeterData)peak=Math.max(peak,Math.abs(x));readings.push(["master",peak]);}return readings;}
   dispose(){clearInterval(this.timer);this.streamWorker?.terminate();this.streamWorker=null;this.streamNode?.port.postMessage({stop:true});this.streamNode?.port.close();this.streamNode?.disconnect();this.streamNode=null;for(const n of this.nodes){try{n.source?.stop();}catch{}n.source?.disconnect();n.source?.port?.close();n.gain?.disconnect();n.pan?.disconnect();n.analyser?.disconnect();}this.nodes=[];this.click?.port?.postMessage("stop");this.click?.port?.close();this.click?.disconnect();this.click=null;for(const n of this.busNodes?.values()||[])n.disconnect();for(const n of this.routes||[])n.disconnect();this.routes=[];}
-  pause(){this.cancelPreparation?.();this.cancelPreparation=null;this.position=this.current();this.playing=false;this.generation++;this.dispose();}
+  pause(fromSeek=false){if(!fromSeek){this.seekPending=null;this.seekResume=false;}this.cancelPreparation?.();this.cancelPreparation=null;this.position=this.current();this.playing=false;this.generation++;this.dispose();}
   stop(){this.pause();this.position=0;}
-  async seek(seconds){const playing=this.playing;this.pause();this.position=Math.max(0,Math.min(duration(this.project),seconds));if(playing)await this.play();}
+  seek(seconds){
+    this.seekPending={seconds,project:this.project};
+    if(this.seekPromise)return this.seekPromise;
+    this.seekResume=this.playing;
+    this.seekPromise=Promise.resolve().then(async()=>{
+      while(this.seekPending){const target=this.seekPending;this.seekPending=null;if(target.project!==this.project)continue;
+        this.pause(true);this.position=Math.max(0,Math.min(duration(this.project),target.seconds));
+        if(this.seekResume){try{await this.play();}catch(e){if(this.seekResume)throw e;}}
+      }
+    }).finally(()=>{this.seekPromise=null;this.seekResume=false;});
+    return this.seekPromise;
+  }
   async rebuild(){const playing=this.playing;this.pause();if(playing)await this.play();}
 }
