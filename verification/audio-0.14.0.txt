@@ -1,0 +1,6 @@
+--------- beginning of main
+10-10 21:21:27.799  7669  7703 I DSP14   : 8 independent stems same synthetic stereo PCM24 20s 48kHz pitch+2 speed80: slots=2 cold=13451ms warm=4ms cores=4
+10-10 21:21:37.475  7669  7703 I DSP14   : 8 independent stems same synthetic stereo PCM24 20s 48kHz pitch+2 speed80: slots=4 cold=9640ms warm=3ms cores=4
+10-10 21:21:37.487  7669  7703 I DSP14   : Parallel cold ratio=1.3953319502074688
+10-10 21:21:42.384  7669  7703 I DSP13   : 19 independent cached readers (same synthetic 4s stereo PCM24 source) speed80 pad=false: underruns=0 starvation=0
+10-10 21:21:46.803  7669  7703 I DSP13   : 19 independent cached readers (same synthetic 4s stereo PCM24 source) speed80 pad=true: underruns=0 starvation=0

@@ -1,0 +1,9 @@
+
+com.atmytrack.app.Dsp14Test:.
+com.atmytrack.app.PadPlayback13Test:.
+
+Time: 33.837
+
+OK (2 tests)
+
+

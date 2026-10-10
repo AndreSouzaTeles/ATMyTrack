@@ -89,7 +89,7 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
         persist(library.value.projects.map { if (it.id == next.id) next else it })
         engine.update(next)
     }
-    fun lockFader(id:String) = update { if(id=="MASTER")it.copy(masterFaderLock=!it.masterFaderLock) else it.copy(lockedFaders=if(id in it.lockedFaders)it.lockedFaders-id else it.lockedFaders+id) }
+    fun lockFader(id:String) = update { it.toggleGainLock(id) }
     fun stem(id: String, transform: (Stem) -> Stem) = update { p -> p.copy(stems = p.stems.map { if (it.id == id) transform(it) else it }) }
     fun select(p: Project) {
         if (library.value.busy != null || p.id == library.value.selected) return

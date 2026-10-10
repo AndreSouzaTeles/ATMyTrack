@@ -20,10 +20,10 @@ object MixMath {
         val duration = rate * 0.022
         if (local >= duration) return 0f
         val emphasis=accent && beat%beats==0L
-        val hz=when(sound) { "Digital"->2200.0; "Wood"->650.0; "Cowbell"->540.0; "Soft"->750.0; "High Tick"->3200.0; "Low Tick"->400.0; else->1100.0 } * if(emphasis)1.45 else 1.0
+        val hz=when(sound) { "Digital"->2200.0; "Wood"->650.0; "Woodblock"->880.0; "Cowbell"->540.0; "Soft"->750.0; "High Tick"->3200.0; "Low Tick"->400.0; else->1100.0 } * if(emphasis)1.45 else 1.0
         val phase=2*PI*hz*local/rate
-        val wave=when(sound) { "Digital"->tanh(3*sin(phase)); "Wood"->sin(phase)+.4*sin(phase*2.76); "Cowbell"->.5*(sin(phase)+sin(phase*1.48)); else->sin(phase) }
-        val decay=if(sound=="Soft") .0025 else if(sound=="Cowbell") .009 else .005
+        val wave=when(sound) { "Digital"->tanh(3*sin(phase)); "Wood"->sin(phase)+.4*sin(phase*2.76); "Woodblock"->.65*sin(phase)+.35*sin(phase*2.13); "Cowbell"->.5*(sin(phase)+sin(phase*1.48)); else->sin(phase) }
+        val decay=if(sound=="Woodblock") .007 else if(sound=="Soft") .0025 else if(sound=="Cowbell") .009 else .005
         return (wave*exp(-local/(rate*decay))*(if(emphasis)1.0 else .7)).toFloat()
     }
     fun finish(output: FloatArray, frames: Int, start: Long, p: Project, clamp:Boolean=true,fromGain:Float=if(p.masterMute)0f else p.master,fromPan:Float=p.masterPan): Pair<Float, Float> {

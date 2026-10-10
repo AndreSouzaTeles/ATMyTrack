@@ -1,6 +1,10 @@
-# ATMyTrack Web 0.13.1
+# ATMyTrack Web 0.14.0
 
 Player local no navegador, sem conta e sem upload de áudios. Projetos/arquivos ficam no IndexedDB da origem. Exportação/importação `.atmytrack` transfere projetos entre navegadores. Não compartilha o formato interno Android.
+
+## Atualização 0.14.0
+
+Woodblock; quatro timbres PAD com picos controlados na sua própria saída; exceções por fader ao cadeado global; rotação do globo retomada após arraste; duas preparações DSP paralelas com cancelamento conjunto. [Validação](../verification/REPORT-0.14.0.md).
 
 ## Atualização 0.13.1
 

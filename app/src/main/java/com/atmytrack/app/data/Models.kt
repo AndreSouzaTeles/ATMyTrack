@@ -26,9 +26,14 @@ data class Project(
     val detectedBpm: Double = 0.0, val confidence: Double = 0.0, val beatOffset: Long = 0,
     val analysisKey: String = "", val selectedMarker: String = "", val smartClick: Boolean = false,
     val speed: Int = 100, val speedTracks: List<String>? = null, val speedPreset: Int = 100,
-    val keyAnalyzed:Boolean = false, val masterPan:Float = 0f, val lockedFaders:List<String> = emptyList(), val masterFaderLock:Boolean = false
+    val keyAnalyzed:Boolean = false, val masterPan:Float = 0f, val lockedFaders:List<String> = emptyList(), val masterFaderLock:Boolean = false, val unlockedFaders:List<String> = emptyList()
 ) {
-    fun gainLocked(id:String)=masterFaderLock || id in lockedFaders
+    fun gainLocked(id:String)=(masterFaderLock && id !in unlockedFaders) || id in lockedFaders
+    fun toggleGainLock(id:String):Project {
+        if(id=="MASTER")return copy(masterFaderLock=!masterFaderLock,unlockedFaders=emptyList())
+        return if(gainLocked(id))copy(lockedFaders=lockedFaders-id,unlockedFaders=if(masterFaderLock)(unlockedFaders+id).distinct() else unlockedFaders-id)
+        else copy(lockedFaders=(lockedFaders+id).distinct(),unlockedFaders=unlockedFaders-id)
+    }
     fun protectGains(next:Project):Project=next.copy(
         master=if(masterFaderLock)master else next.master,
         stems=next.stems.map { n -> stems.find { it.id==n.id }?.let { if(gainLocked(n.id))n.copy(volume=it.volume) else n } ?: n },

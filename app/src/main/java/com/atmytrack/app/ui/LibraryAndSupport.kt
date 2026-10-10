@@ -76,8 +76,8 @@ private const val pix="00020126660014BR.GOV.BCB.PIX0111411120718900229Faça part
     var saved by remember { mutableStateOf(false) };var query by remember { mutableStateOf("") }
     var yaw by remember { mutableFloatStateOf(0f) };var pitch by remember { mutableFloatStateOf(0f) };var rotating by remember { mutableStateOf(true) };var focused by remember { mutableStateOf("") }
     val paint=remember { Paint(Paint.ANTI_ALIAS_FLAG).apply { textAlign=Paint.Align.CENTER;typeface=android.graphics.Typeface.create("sans-serif-medium",android.graphics.Typeface.NORMAL) } }
-    fun center(i:Int) { yaw=-(i*2.399963f);pitch=asin(1f-2f*(i+.5f)/names.size);rotating=false;focused=names[i].name }
-    LaunchedEffect(query) { if(query.isNotBlank()) names.indexOfFirst { normalized(it.name).contains(normalized(query)) }.takeIf { it>=0 }?.let { center(it) } }
+    fun center(i:Int) { yaw=-(i*2.399963f);pitch=asin(1f-2f*(i+.5f)/names.size);rotating=query.isBlank();focused=names[i].name }
+    LaunchedEffect(query) { rotating=query.isBlank();if(query.isNotBlank()) names.indexOfFirst { normalized(it.name).contains(normalized(query)) }.takeIf { it>=0 }?.let { center(it) } }
     LaunchedEffect(rotating) { while(rotating) { delay(33);yaw+=.002f } }
     Dialog(onDismissRequest=close,properties=DialogProperties(usePlatformDefaultWidth=false)) {
         Surface(Modifier.fillMaxSize(),color=Bg) {
@@ -88,8 +88,8 @@ private const val pix="00020126660014BR.GOV.BCB.PIX0111411120718900229Faça part
                     OutlinedTextField(query,{query=it},modifier=Modifier.fillMaxWidth(),label={Text("⌕ Encontrar um nome no globo")},singleLine=true)
                     if(query.isNotBlank() && names.none { normalized(it.name).contains(normalized(query)) })Text("Nome não encontrado.",color=Muted)
                     Canvas(Modifier.fillMaxWidth().height(300.dp).semantics { contentDescription="Globo de nomes; arraste para girar" }
-                        .pointerInput(Unit) { detectDragGestures { change,drag -> change.consume();rotating=false;yaw+=drag.x*.009f;pitch=(pitch-drag.y*.009f).coerceIn(-1.5f,1.5f) } }
-                        .pointerInput(Unit) { detectTapGestures { tap ->
+                        .pointerInput(query) { detectDragGestures(onDragStart={rotating=false},onDragEnd={rotating=query.isBlank()},onDragCancel={rotating=query.isBlank()}) { change,drag -> change.consume();yaw+=drag.x*.009f;pitch=(pitch-drag.y*.009f).coerceIn(-1.5f,1.5f) } }
+                        .pointerInput(query) { detectTapGestures { tap ->
                             val radius=min(size.width,size.height)*.37f
                             val candidate=names.indices.map { i -> val lat=asin(1f-2f*(i+.5f)/names.size);val lon=i*2.399963f+yaw;val z=cos(lat)*cos(lon);val y=sin(lat)*cos(pitch)-z*sin(pitch);val depth=sin(lat)*sin(pitch)+z*cos(pitch);val x=cos(lat)*sin(lon);i to if(depth>0)(Offset(size.width/2f+x*radius,size.height/2f-y*radius)-tap).getDistance() else Float.MAX_VALUE }.minByOrNull { it.second }
                             if(candidate!=null && candidate.second<70.dp.toPx())center(candidate.first)
@@ -102,7 +102,7 @@ private const val pix="00020126660014BR.GOV.BCB.PIX0111411120718900229Faça part
                         }
                     }
                     if(focused.isNotBlank())Text(focused,color=LightBlue,fontWeight=FontWeight.Bold)
-                    TextButton(onClick={rotating=!rotating}) { Text(if(rotating)"PAUSAR GLOBO" else "GIRAR AUTOMATICAMENTE") }
+                    TextButton(onClick={query="";rotating=true}) { Text("GIRAR AUTOMATICAMENTE") }
                     if(names.any { it.demo })Text("Demonstração: os 20 nomes iniciais são fictícios e não representam contribuições recebidas.",color=Muted,fontSize=12.sp)
                     Text("Enviando um valor acima de R$ 10, seu nome poderá entrar no globo da ATMyTrack após conferência e inclusão manual pelo responsável.")
                     OutlinedTextField(fullName,{fullName=it;saved=false},modifier=Modifier.fillMaxWidth(),label={Text("Nome completo para publicação")},singleLine=true)

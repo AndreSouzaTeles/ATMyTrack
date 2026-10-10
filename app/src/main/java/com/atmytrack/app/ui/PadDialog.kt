@@ -16,6 +16,7 @@ import com.atmytrack.app.audio.PadEngine
         Text("Camada ambiente independente da música.",color=Muted)
         Choice("Tom",p.note.toString(),notes.mapIndexed { i,n -> i.toString() to n }) { engine.configure(note=it.toInt()) }
         Choice("Modo",if(p.minor)"minor" else "major",listOf("major" to "MAIOR","minor" to "MENOR")) { engine.configure(minor=it=="minor") }
+        Choice("Som",p.sound,com.atmytrack.app.audio.PadSynth.sounds) { engine.configure(sound=it) }
         Text("Volume do PAD")
         Slider(p.volume,{engine.configure(volume=it)},modifier=Modifier.fillMaxWidth())
         Text(if(p.playing)"SOANDO · ${notes[p.note]}${if(p.minor)"m" else ""}" else "PARADO",color=LightBlue)

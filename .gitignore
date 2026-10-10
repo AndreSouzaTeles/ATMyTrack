@@ -21,3 +21,6 @@ web/node_modules/
 web/.sites-runtime/
 web/.git/
 web/test-results/
+
+dist/site-source-*/
+dist/site-*.tar.gz

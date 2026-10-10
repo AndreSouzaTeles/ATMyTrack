@@ -21,10 +21,10 @@ object NativePitch {
 }
 
 /** One offline pass combines independent pitch and speed selections. Playback remains PCM only. */
-class PitchRenderer(private val context:Context) {
+class PitchRenderer(private val context:Context,private val parallelism:Int=Runtime.getRuntime().availableProcessors().coerceIn(1,4)) {
     suspend fun render(p:Project,semitones:Int,ids:List<String>,progress:(String)->Unit):List<Stem> = coroutineScope {
         require(semitones in -12..12 && p.speed in 50..200)
-        val slots=Semaphore(2)
+        val slots=Semaphore(parallelism.coerceIn(1,4))
         p.stems.mapIndexed { index,s -> async(Dispatchers.Default) { slots.withPermit {
             val pitch=if(s.id in ids)semitones else 0
             val speed=if(s.id in p.selectedSpeedTracks)p.speed else 100
@@ -57,7 +57,7 @@ class PitchRenderer(private val context:Context) {
                                 floats.clear();floats.put(output,skip*2,take*2)
                                 stream.write(bytes.array(),0,take*8)
                                 written+=take;pos+=count;produced=next
-                                if(pos%65536L<count)progress("Preparando $speed% • Track ${index+1}/${p.stems.size} • ${s.name} • ${written*100/frames}%")
+                                if(pos%262144L<count)progress("Preparando $speed% • Track ${index+1}/${p.stems.size} • ${s.name} • ${written*100/frames}%")
                             }
                         } }
                         check(part.length()==frames*8) { "Preparação incompleta: ${s.name}." }

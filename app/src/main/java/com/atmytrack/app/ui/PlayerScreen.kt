@@ -573,7 +573,7 @@ private fun MetronomeEditor(p: Project, vm: PlayerViewModel, close: () -> Unit) 
             }
             Text("Original: %.1f BPM · Atual: %.1f BPM".format(p.bpm,p.effectiveBpm),color=LightBlue)
             Text("Compasso", color = Muted)
-            Choice("Click sound", p.clickSound, listOf("Classic","Digital","Wood","Cowbell","Soft","High Tick","Low Tick").map { it to it }) { v -> vm.update { it.copy(clickSound = v) } }
+            Choice("Click sound", p.clickSound, listOf("Classic","Digital","Wood","Woodblock","Cowbell","Soft","High Tick","Low Tick").map { it to it }) { v -> vm.update { it.copy(clickSound = v) } }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Switch(p.accent, { v -> vm.update { it.copy(accent = v) } }); Text("Acentuar primeira batida", fontSize = 12.sp)
             }

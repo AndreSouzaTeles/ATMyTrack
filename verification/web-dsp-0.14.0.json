@@ -1,0 +1,17 @@
+{
+  "timings": [
+    {
+      "slots": 1,
+      "coldMs": 46704.40000000037,
+      "cacheMs": 2.599999999627471
+    },
+    {
+      "slots": 2,
+      "coldMs": 24368.200000001118,
+      "cacheMs": 2.400000000372529
+    }
+  ],
+  "cores": 16,
+  "fixture": "8 independent 20s synthetic stereo float PCM 48kHz, +2 semitones, 80%",
+  "ratio": 1.9166126344989876
+}

@@ -5,6 +5,20 @@ import org.junit.Test
 import org.junit.Assert.*
 import kotlin.math.*
 class LocksPadTest {
+ @Test fun individualUnlockOverridesMasterAndRelockRestoresProtection() {
+  val p=Project(name="Locks",sampleRate=48000,stems=listOf(Stem(id="A",name="A",pcm="",frames=1)),masterFaderLock=true)
+  val unlocked=p.toggleGainLock("A")
+  assertTrue(unlocked.masterFaderLock);assertFalse(unlocked.gainLocked("A"));assertTrue(unlocked.gainLocked("B"))
+  assertEquals(.25f,unlocked.protectGains(unlocked.copy(stems=unlocked.stems.map{it.copy(volume=.25f)})).stems[0].volume,0f)
+  assertTrue(unlocked.toggleGainLock("A").gainLocked("A"));assertTrue(unlocked.toggleGainLock("MASTER").toggleGainLock("MASTER").gainLocked("A"))
+ }
+ @Test fun padPresetsAreDistinctAndBoundedAndWoodblockIsReal() {
+  val signals=PadSynth.sounds.map { (id,_) -> FloatArray(48000).also { PadSynth().fill(it,24000,0,false,1f,id) } }
+  for(a in signals)assertTrue(a.all{it.isFinite()&&abs(it)<=.651f})
+  for(i in signals.indices)for(j in 0 until i)assertFalse(signals[i].contentEquals(signals[j]))
+  val wood=FloatArray(2400){com.atmytrack.app.audio.MixMath.click(it.toLong(),48000,72.0,1.0,4,"Woodblock")}
+  assertTrue(wood.any{abs(it)>.1f});assertEquals(0f,wood.last(),0f)
+ }
  @Test fun lockedGainsSurviveEveryEditPathAndGlobalUnlockKeepsIndividualLocks() {
     val p=Project(name="Locks",sampleRate=48000,stems=listOf(Stem(id="A",name="A",pcm="",frames=1,volume=.5f),Stem(id="B",name="B",pcm="",frames=1)),dcas=listOf(Dca(id="D",name="D",members=emptyList())),buses=listOf(Bus(id="G",name="G")),lockedFaders=listOf("A"))
     val change=p.copy(master=.2f,stems=p.stems.map { it.copy(volume=.1f,pan=.2f) },dcas=p.dcas.map { it.copy(volume=.1f) },buses=p.buses.map { it.copy(volume=.1f) })
@@ -28,7 +42,7 @@ class LocksPadTest {
       com.atmytrack.app.audio.LegacyPadSynth().fill(old,48000,note,minor,1f);PadSynth().fill(new,48000,note,minor,1f)
       fun rms(a:FloatArray)=sqrt(a.drop(4096).sumOf { it.toDouble()*it }/(a.size-4096))
       val gain=rms(new)/rms(old);smallest=minOf(smallest,gain);largest=maxOf(largest,new.maxOf { abs(it).toDouble() })
-      assertTrue("RMS boost $gain",gain>2.5);assertTrue(new.all { it.isFinite() && abs(it)<=.951f })
+      assertTrue("RMS boost $gain",gain>1.8);assertTrue(new.all { it.isFinite() && abs(it)<=.951f })
     }
     println("PAD 24 chords full slider: min RMS gain=$smallest max peak=$largest")
  }

@@ -1,0 +1,85 @@
+
+com.atmytrack.app.Dsp14Test:
+Error in initializationError(com.atmytrack.app.Dsp14Test):
+java.lang.RuntimeException: Failed loading specified test class 'com.atmytrack.app.Dsp14Test'
+	at androidx.test.internal.runner.DirectTestLoader.doCreateRunner(DirectTestLoader.java:50)
+	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:663)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:437)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2594)
+Caused by: java.lang.ClassNotFoundException: com.atmytrack.app.Dsp14Test
+	at java.lang.Class.classForName(Native Method)
+	at java.lang.Class.forName(Class.java:607)
+	at androidx.test.internal.runner.DirectTestLoader.doCreateRunner(DirectTestLoader.java:44)
+	... 5 more
+Caused by: java.lang.ClassNotFoundException: Didn't find class "com.atmytrack.app.Dsp14Test" on path: DexPathList[[zip file "/data/app/~~QwKLUm3Kbi3PcllWa4LX1A==/com.atmytrack.app.test-NBkYLvNgHqmRKHBodnYqhA==/base.apk", zip file "/data/app/~~NYO3GepNxRSwxjt1enqLsA==/com.atmytrack.app-jq4CZBuPo6ogO83H-gi80w==/base.apk"],nativeLibraryDirectories=[/data/app/~~QwKLUm3Kbi3PcllWa4LX1A==/com.atmytrack.app.test-NBkYLvNgHqmRKHBodnYqhA==/lib/x86_64, /data/app/~~NYO3GepNxRSwxjt1enqLsA==/com.atmytrack.app-jq4CZBuPo6ogO83H-gi80w==/lib/x86_64, /data/app/~~QwKLUm3Kbi3PcllWa4LX1A==/com.atmytrack.app.test-NBkYLvNgHqmRKHBodnYqhA==/base.apk!/lib/x86_64, /data/app/~~NYO3GepNxRSwxjt1enqLsA==/com.atmytrack.app-jq4CZBuPo6ogO83H-gi80w==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]
+	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:637)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:573)
+	... 8 more
+
+com.atmytrack.app.PadPlayback13Test:
+Error in nineteenCachedReadersWithIndependentPad(com.atmytrack.app.PadPlayback13Test):
+java.lang.NoSuchMethodError: No static method copy$default(Lcom/atmytrack/app/data/Project;Ljava/lang/String;Ljava/lang/String;ILjava/util/List;DIIDZFFZZLjava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;ILjava/lang/String;Ljava/util/List;Ljava/lang/String;ZLjava/lang/String;DDJLjava/lang/String;Ljava/lang/String;ZILjava/util/List;IZFLjava/util/List;ZIILjava/lang/Object;)Lcom/atmytrack/app/data/Project; in class Lcom/atmytrack/app/data/Project; or its super classes (declaration of 'com.atmytrack.app.data.Project' appears in /data/app/~~NYO3GepNxRSwxjt1enqLsA==/com.atmytrack.app-jq4CZBuPo6ogO83H-gi80w==/base.apk!classes4.dex)
+	at com.atmytrack.app.PadPlayback13Test$nineteenCachedReadersWithIndependentPad$1.invokeSuspend(PadPlayback13Test.kt:12)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.internal.ScopeCoroutine.afterResume(Scopes.kt:35)
+	at kotlinx.coroutines.AbstractCoroutine.resumeWith(AbstractCoroutine.kt:101)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:46)
+	at kotlinx.coroutines.internal.ScopeCoroutine.afterResume(Scopes.kt:35)
+	at kotlinx.coroutines.AbstractCoroutine.resumeWith(AbstractCoroutine.kt:101)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:46)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:94)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:70)
+	at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:48)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source:1)
+	at com.atmytrack.app.PadPlayback13Test.nineteenCachedReadersWithIndependentPad(PadPlayback13Test.kt:10)
+
+
+Time: 3.062
+There were 2 failures:
+1) initializationError(com.atmytrack.app.Dsp14Test)
+java.lang.RuntimeException: Failed loading specified test class 'com.atmytrack.app.Dsp14Test'
+	at androidx.test.internal.runner.DirectTestLoader.doCreateRunner(DirectTestLoader.java:50)
+	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:663)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:437)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2594)
+Caused by: java.lang.ClassNotFoundException: com.atmytrack.app.Dsp14Test
+	at java.lang.Class.classForName(Native Method)
+	at java.lang.Class.forName(Class.java:607)
+	at androidx.test.internal.runner.DirectTestLoader.doCreateRunner(DirectTestLoader.java:44)
+	... 5 more
+Caused by: java.lang.ClassNotFoundException: Didn't find class "com.atmytrack.app.Dsp14Test" on path: DexPathList[[zip file "/data/app/~~QwKLUm3Kbi3PcllWa4LX1A==/com.atmytrack.app.test-NBkYLvNgHqmRKHBodnYqhA==/base.apk", zip file "/data/app/~~NYO3GepNxRSwxjt1enqLsA==/com.atmytrack.app-jq4CZBuPo6ogO83H-gi80w==/base.apk"],nativeLibraryDirectories=[/data/app/~~QwKLUm3Kbi3PcllWa4LX1A==/com.atmytrack.app.test-NBkYLvNgHqmRKHBodnYqhA==/lib/x86_64, /data/app/~~NYO3GepNxRSwxjt1enqLsA==/com.atmytrack.app-jq4CZBuPo6ogO83H-gi80w==/lib/x86_64, /data/app/~~QwKLUm3Kbi3PcllWa4LX1A==/com.atmytrack.app.test-NBkYLvNgHqmRKHBodnYqhA==/base.apk!/lib/x86_64, /data/app/~~NYO3GepNxRSwxjt1enqLsA==/com.atmytrack.app-jq4CZBuPo6ogO83H-gi80w==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]
+	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:637)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:573)
+	... 8 more
+2) nineteenCachedReadersWithIndependentPad(com.atmytrack.app.PadPlayback13Test)
+java.lang.NoSuchMethodError: No static method copy$default(Lcom/atmytrack/app/data/Project;Ljava/lang/String;Ljava/lang/String;ILjava/util/List;DIIDZFFZZLjava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;ILjava/lang/String;Ljava/util/List;Ljava/lang/String;ZLjava/lang/String;DDJLjava/lang/String;Ljava/lang/String;ZILjava/util/List;IZFLjava/util/List;ZIILjava/lang/Object;)Lcom/atmytrack/app/data/Project; in class Lcom/atmytrack/app/data/Project; or its super classes (declaration of 'com.atmytrack.app.data.Project' appears in /data/app/~~NYO3GepNxRSwxjt1enqLsA==/com.atmytrack.app-jq4CZBuPo6ogO83H-gi80w==/base.apk!classes4.dex)
+	at com.atmytrack.app.PadPlayback13Test$nineteenCachedReadersWithIndependentPad$1.invokeSuspend(PadPlayback13Test.kt:12)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.internal.ScopeCoroutine.afterResume(Scopes.kt:35)
+	at kotlinx.coroutines.AbstractCoroutine.resumeWith(AbstractCoroutine.kt:101)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:46)
+	at kotlinx.coroutines.internal.ScopeCoroutine.afterResume(Scopes.kt:35)
+	at kotlinx.coroutines.AbstractCoroutine.resumeWith(AbstractCoroutine.kt:101)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:46)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:94)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:70)
+	at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:48)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source:1)
+	at com.atmytrack.app.PadPlayback13Test.nineteenCachedReadersWithIndependentPad(PadPlayback13Test.kt:10)
+
+FAILURES!!!
+Tests run: 2,  Failures: 2
+
+
