@@ -2,7 +2,9 @@ package com.atmytrack.app.audio
 
 import android.content.Context
 import com.atmytrack.app.data.*
-import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import kotlin.coroutines.coroutineContext
 import java.io.File
 import java.nio.ByteBuffer
@@ -20,9 +22,10 @@ object NativePitch {
 
 /** One offline pass combines independent pitch and speed selections. Playback remains PCM only. */
 class PitchRenderer(private val context:Context) {
-    suspend fun render(p:Project,semitones:Int,ids:List<String>,progress:(String)->Unit):List<Stem> {
+    suspend fun render(p:Project,semitones:Int,ids:List<String>,progress:(String)->Unit):List<Stem> = coroutineScope {
         require(semitones in -12..12 && p.speed in 50..200)
-        return p.stems.mapIndexed { index,s ->
+        val slots=Semaphore(2)
+        p.stems.mapIndexed { index,s -> async(Dispatchers.Default) { slots.withPermit {
             val pitch=if(s.id in ids)semitones else 0
             val speed=if(s.id in p.selectedSpeedTracks)p.speed else 100
             if(pitch==0 && speed==100) s.copy(pitchFile="",pitchApplied=0,dspSpeed=100)
@@ -39,7 +42,7 @@ class PitchRenderer(private val context:Context) {
                     try {
                         val latency=NativePitch.stretchLatency(dsp,ratio)
                         val input=FloatArray(8192); val output=FloatArray(8192)
-                        val bytes=ByteBuffer.allocate(8192*4).order(ByteOrder.LITTLE_ENDIAN)
+                        val bytes=ByteBuffer.allocate(8192*4).order(ByteOrder.LITTLE_ENDIAN);val floats=bytes.asFloatBuffer()
                         PlaybackCache(context).open(s.copy(pitchFile="",pitchApplied=0,dspSpeed=100),p.sampleRate).use { reader -> part.outputStream().buffered(256*1024).use { stream ->
                             var pos=0L; var produced=0L; var written=0L
                             while(written<frames) {
@@ -51,9 +54,8 @@ class PitchRenderer(private val context:Context) {
                                 NativePitch.stretch(dsp,input,output,count,outCount)
                                 val skip=(latency-produced).coerceIn(0,outCount.toLong()).toInt()
                                 val take=minOf(outCount-skip,(frames-written).coerceAtMost(Int.MAX_VALUE.toLong()).toInt())
-                                bytes.clear()
-                                for(i in skip until skip+take) { bytes.putFloat(output[i*2]); bytes.putFloat(output[i*2+1]) }
-                                stream.write(bytes.array(),0,bytes.position())
+                                floats.clear();floats.put(output,skip*2,take*2)
+                                stream.write(bytes.array(),0,take*8)
                                 written+=take;pos+=count;produced=next
                                 if(pos%65536L<count)progress("Preparando $speed% • Track ${index+1}/${p.stems.size} • ${s.name} • ${written*100/frames}%")
                             }
@@ -69,20 +71,21 @@ class PitchRenderer(private val context:Context) {
                 target.setLastModified(System.currentTimeMillis())
                 s.copy(pitchFile=relative,pitchApplied=pitch,dspSpeed=speed)
             }
-        }
+        } } }.awaitAll()
     }
     /** Remove obsolete transforms, then evict least-recent inactive caches. Never touch original audio. */
     fun prune(projects:List<Project>,protectedId:String="") {
         val keep=projects.flatMap { it.stems }.map { it.pitchFile }.toSet()
         val root=File(context.filesDir,"pitch").canonicalFile
+        val projectIds=projects.map { it.id }.toSet()
         root.walkTopDown().filter { it.isFile }.forEach { file ->
-            if(file.canonicalPath.startsWith(root.path+File.separator) && file.relativeTo(context.filesDir).invariantSeparatorsPath !in keep)file.delete()
+            if(file.parentFile?.name !in projectIds || file.name.endsWith(".part"))file.delete()
         }
         val files=root.walkTopDown().filter { it.isFile }.sortedBy { it.lastModified() }.toList()
         var bytes=files.sumOf { it.length() }
         for(file in files) {
             if(bytes<=2L*1024*1024*1024)break
-            if(file.parentFile.name!=protectedId) { val length=file.length();if(file.delete())bytes-=length }
+            if(file.relativeTo(context.filesDir).invariantSeparatorsPath !in keep || file.parentFile?.name!=protectedId) { val length=file.length();if(file.delete())bytes-=length }
         }
     }
 }

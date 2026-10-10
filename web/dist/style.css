@@ -29,3 +29,8 @@ input.fader:focus-visible{outline:2px solid var(--light);outline-offset:3px;bord
 #clickPlay{min-height:48px;border-radius:10px;padding:12px 24px;font-weight:700;box-shadow:0 3px 12px #387bff30}
 
 .routing-actions.tools>.dsp.active{background:#162e50;border-color:var(--blue)}
+
+.strip .fader-lock{align-self:flex-end;min-height:28px;padding:2px 8px;font-size:14px;border:0;background:transparent}.strip .fader-lock[aria-pressed=true]{background:#1b3455}input.fader:disabled{opacity:.6;cursor:default}
+
+#padVolume{display:block;width:100%;margin-top:12px;}
+.fader-lock{color:var(--muted);} .fader-lock[aria-pressed="true"]{color:#75aaff;}

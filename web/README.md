@@ -1,6 +1,10 @@
-# ATMyTrack Web 0.10.1
+# ATMyTrack Web 0.13.0
 
 Player local no navegador, sem conta e sem upload de áudios. Projetos/arquivos ficam no IndexedDB da origem. Exportação/importação `.atmytrack` transfere projetos entre navegadores. Não compartilha o formato interno Android.
+
+## Atualização 0.13.0
+
+Cadeados individuais e global no Master; PAD independente com os 12 tons maiores/menores e volume; cache de versões recentes de tom/velocidade e gravação DSP em blocos maiores. Denner Mendes no globo e comprovantes pelo WhatsApp +55 11 97031-7078. O PAD é sintetizado localmente e para ao ocultar a página. [Medições](../verification/REPORT-0.13.0.md).
 
 ## Executar
 

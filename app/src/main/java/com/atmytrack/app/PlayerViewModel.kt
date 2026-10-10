@@ -23,6 +23,7 @@ data class LibraryState(val projects: List<Project> = emptyList(), val selected:
 
 class PlayerViewModel(app: Application) : AndroidViewModel(app) {
     private val engine = (app as TrackApplication).engine
+    val pad = (app as TrackApplication).pad
     val playback = engine.state
     private val store = ProjectStore(app.filesDir)
     private val prefs = app.getSharedPreferences("settings", 0)
@@ -84,10 +85,11 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
     }
     fun update(transform: (Project) -> Project) {
         val old = library.value.current ?: return
-        val next = transform(old)
+        val next = old.protectGains(transform(old))
         persist(library.value.projects.map { if (it.id == next.id) next else it })
         engine.update(next)
     }
+    fun lockFader(id:String) = update { if(id=="MASTER")it.copy(masterFaderLock=!it.masterFaderLock) else it.copy(lockedFaders=if(id in it.lockedFaders)it.lockedFaders-id else it.lockedFaders+id) }
     fun stem(id: String, transform: (Stem) -> Stem) = update { p -> p.copy(stems = p.stems.map { if (it.id == id) transform(it) else it }) }
     fun select(p: Project) {
         if (library.value.busy != null || p.id == library.value.selected) return

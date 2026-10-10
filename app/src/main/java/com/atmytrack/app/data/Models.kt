@@ -26,8 +26,14 @@ data class Project(
     val detectedBpm: Double = 0.0, val confidence: Double = 0.0, val beatOffset: Long = 0,
     val analysisKey: String = "", val selectedMarker: String = "", val smartClick: Boolean = false,
     val speed: Int = 100, val speedTracks: List<String>? = null, val speedPreset: Int = 100,
-    val keyAnalyzed:Boolean = false, val masterPan:Float = 0f
+    val keyAnalyzed:Boolean = false, val masterPan:Float = 0f, val lockedFaders:List<String> = emptyList(), val masterFaderLock:Boolean = false
 ) {
+    fun gainLocked(id:String)=masterFaderLock || id in lockedFaders
+    fun protectGains(next:Project):Project=next.copy(
+        master=if(masterFaderLock)master else next.master,
+        stems=next.stems.map { n -> stems.find { it.id==n.id }?.let { if(gainLocked(n.id))n.copy(volume=it.volume) else n } ?: n },
+        dcas=next.dcas.map { n -> dcas.find { it.id==n.id }?.let { if(gainLocked("DCA:"+n.id))n.copy(volume=it.volume) else n } ?: n },
+        buses=next.buses.map { n -> buses.find { it.id==n.id }?.let { if(gainLocked("BUS:"+n.id))n.copy(volume=it.volume) else n } ?: n })
     val selectedSpeedTracks: List<String> get() = speedTracks ?: stems.map { it.id }
     val globalSpeed: Boolean get() = stems.isNotEmpty() && stems.all { it.id in selectedSpeedTracks }
     val timelineScale: Double get() = if(globalSpeed) speed / 100.0 else 1.0

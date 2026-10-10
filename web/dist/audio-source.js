@@ -17,9 +17,17 @@ export async function previewBuffer(source,ctx,seconds=120){const channels=await
 export async function renderSource(source,track,progress=()=>{},cancel=()=>{}){
  const speed=(track.speed||100)/100,pitch=track.pitch||0;if(speed===1&&pitch===0)return source;
  const name=`dsp-${track.id}-${speed}-${pitch}.pcm`,dir=await root();
- // Keep only the current variant per track. User originals are held separately in IndexedDB.
- for await(const [old]of dir.entries())if(old.startsWith('dsp-'+track.id+'-'))await dir.removeEntry(old).catch(()=>{});
+ const metaName=name+'.json';
+ try{const meta=JSON.parse(await (await (await dir.getFileHandle(metaName)).getFile()).text()),file=await (await dir.getFileHandle(name)).getFile();if(meta.sourceSize===source.blob.size&&meta.sourceFrames===source.format.frames&&meta.rate===source.format.rate&&file.size===meta.frames*8)return {stream:true,blob:file,format:meta,duration:meta.frames/meta.rate};}catch{}
+
  const worker=new Worker(new URL('./disk-dsp-worker.js',import.meta.url),{type:'module'});
  const format=await new Promise((resolve,reject)=>{cancel(()=>{worker.terminate();reject(Error('Preparação cancelada.'));});worker.onmessage=({data})=>{if(data.progress!==undefined)progress(`${track.name} · ${Math.round(data.progress*100)}%`);if(data.format){worker.terminate();resolve(data.format);}if(data.error){worker.terminate();reject(Error(data.error));}};worker.onerror=()=>{worker.terminate();reject(Error('Não foi possível preparar '+track.name));};worker.postMessage({source,speed,pitch,name});});
+ const meta={...format,sourceSize:source.blob.size,sourceFrames:source.format.frames};
+ const mw=await (await dir.getFileHandle(metaName,{create:true})).createWritable();await mw.write(JSON.stringify(meta));await mw.close();
+ // Retain recent variants up to 2 GiB. Protect transforms currently selected in the library.
+ const {allProjects}=await import('./storage.js');const projects=await allProjects();
+ const active=new Set(projects.flatMap(p=>p.tracks.map(t=>`dsp-${t.id}-${(t.speed||100)/100}-${t.pitch||0}.pcm`)));active.add(name);
+ const files=[];for await(const [key,h]of dir.entries())if(key.startsWith('dsp-')&&key.endsWith('.pcm')){const f=await h.getFile();files.push({key,size:f.size,time:f.lastModified});}
+ let bytes=files.reduce((n,f)=>n+f.size,0);for(const f of files.sort((a,b)=>a.time-b.time)){if(bytes<=2*1024**3)break;if(!active.has(f.key)){await dir.removeEntry(f.key).catch(()=>{});await dir.removeEntry(f.key+'.json').catch(()=>{});bytes-=f.size;}}
  return {stream:true,blob:await (await dir.getFileHandle(name)).getFile(),format,duration:format.frames/format.rate};
 }

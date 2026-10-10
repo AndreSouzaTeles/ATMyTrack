@@ -1,0 +1,5 @@
+--------- beginning of main
+I/DSP13   ( 4404): 4 tracks 10s stereo PCM24 48kHz pitch+2 speed80 bytesEach=2880044 serialMs=25100 parallelMs=5819 cachedMs=7
+I/DSP13   ( 5712): 19 independent cached readers (same synthetic 4s stereo PCM24 source) speed80 with PAD: underruns=33 starvation=22
+I/DSP13   ( 5831): 19 independent cached readers (same synthetic 4s stereo PCM24 source) speed80 pad=false: underruns=0 starvation=0
+I/DSP13   ( 5831): 19 independent cached readers (same synthetic 4s stereo PCM24 source) speed80 pad=true: underruns=0 starvation=0

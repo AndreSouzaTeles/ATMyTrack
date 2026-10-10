@@ -1,0 +1,8 @@
+
+com.atmytrack.app.PadLocks13Test:.
+com.atmytrack.app.Dsp13Benchmark:.
+com.atmytrack.app.Speed07AudioTest:.
+
+Time: 209.528
+
+OK (3 tests)

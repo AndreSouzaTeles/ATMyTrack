@@ -1,10 +1,18 @@
 # ATMyTrack
 
-**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [Baixar APK Android](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.12.2/ATMyTrack-0.12.2-debug.apk)
+**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [Baixar APK Android](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.13.0/ATMyTrack-0.13.0-debug.apk)
 
-## Android 0.12.2
+## Android 0.13.0
 
 Atualização incremental do player multitrack em Kotlin/Compose para Android 8.0+ (API 26). Preserva a biblioteca e os áudios internos das versões anteriores.
+
+## Atualização 0.13.0 — cadeados, PAD e preparação DSP
+
+- Cadeado por fader (tracks, DCA e BUS). Cadeado do Master protege todos os ganhos, inclusive reset 0dB e edição numérica, preservando os cadeados individuais ao desbloquear. PAN/MUTE/SOLO continuam disponíveis.
+- PAD independente ao lado de VELOCIDADE: 12 tons, maior/menor, Play/Stop e volume próprios. Síntese ambiente local com nove vozes, harmônicos, filtro e transições suaves. Pode soar sem projeto ou com o player parado; não utiliza samples de instrumentos reais.
+- Android prepara até duas tracks em paralelo e escreve PCM em blocos. Web aumenta blocos de DSP/gravação. Ambos reutilizam variantes recentes; cache de DSP tem orçamento de 2 GiB, preservando variantes em uso quando excedem esse orçamento. Originais não são removidos.
+- Denner Mendes incluído no globo. Envio de comprovante abre o WhatsApp **+55 11 97031-7078** com mensagem pronta; o usuário anexa e envia o comprovante.
+- Página local: http://127.0.0.1:4173/?v=0.13.0. [Resultados medidos e limites](verification/REPORT-0.13.0.md).
 
 ## Atualização 0.12.2 — seleção visual do Routing
 
@@ -76,7 +84,7 @@ Cards de projeto com altura adaptativa, nome completo e quantidade de tracks em 
 Resultados, ambiente, cenários e limites: [relatório 0.7.0](verification/REPORT-0.7.0.md).
 
 ## Instalação
-Baixe o [APK 0.12.2](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.12.2/ATMyTrack-0.12.2-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.12.2).
+Baixe o [APK 0.12.2](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.13.0/ATMyTrack-0.13.0-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.12.2).
 
 Instale `dist/ATMyTrack-debug.apk` sobre a versão anterior, sem desinstalar. A assinatura de desenvolvimento foi mantida. O APK inclui arm64-v8a, armeabi-v7a e x86_64. Não exige conta ou assinatura. A origem de nuvem pode precisar de conexão/download.
 

@@ -1,0 +1,13 @@
+{
+  "tracks": 4,
+  "seconds": 10,
+  "rate": 48000,
+  "channels": 2,
+  "encoding": "float32",
+  "pitch": 2,
+  "speed": 80,
+  "serialMs": 63597.5,
+  "optimizedMs": 26780.599999999627,
+  "cachedMs": 2.900000000372529,
+  "duration": 12.5
+}

@@ -74,6 +74,8 @@ fun PlayerScreen(vm: PlayerViewModel) {
     var delete by remember { mutableStateOf<Project?>(null) }
     var page by rememberSaveable { mutableIntStateOf(0) }
     var pitch by remember { mutableStateOf(false) }
+    var padOpen by remember { mutableStateOf(false) }
+    val padState by vm.pad.state.collectAsState()
     var speed by remember { mutableStateOf(false) }
     var tuner by remember { mutableStateOf(false) }
     var group by remember { mutableStateOf<String?>(null) }
@@ -185,6 +187,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
                             Text("Seu multitrack.\nSeu palco. Seu controle.", fontSize = 28.sp, fontWeight = FontWeight.Bold, lineHeight = 36.sp)
                             Text("Suas stems, juntas do primeiro ao último compasso.", Modifier.padding(vertical = 20.dp), color = Muted)
                             Button(onClick = { importDialog = true }, enabled = library.busy == null, modifier = Modifier.heightIn(min = 56.dp)) { Text("CRIAR PRIMEIRO PROJETO") }
+                            DspButton("PAD",if(padState.playing)"SOANDO" else "AMBIENTE",padState.playing,Modifier.width(160.dp)) { padOpen=true }
                         }
                     } else {
                             Row(Modifier.fillMaxWidth().padding(horizontal=12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -232,6 +235,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
                                     Row(Modifier.width(if(wide)300.dp else (screenWidth-36.dp).coerceAtMost(340.dp)),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
                                         DspButton("TOM",if(p.semitones==0)"ORIGINAL" else "%+d semitons".format(p.semitones),p.semitones!=0,Modifier.weight(1f)) { pitch=true }
                                         DspButton("VELOCIDADE","${p.speed}%",p.speed!=100,Modifier.weight(1f)) { speed=true }
+                                        DspButton("PAD",if(padState.playing)"SOANDO" else "AMBIENTE",padState.playing,Modifier.weight(1f)) { padOpen=true }
                                     }
                                     if(page==0) {
                                         DspButton("LOOP",if(p.loop)"ON" else "OFF",p.loop,Modifier.width(104.dp)) { vm.update { it.copy(loop=!it.loop) } }
@@ -288,7 +292,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
                                             onPan = { v -> vm.stem(s.id) { it.copy(pan = v) } },
                                             onMute = { vm.stem(s.id) { it.copy(mute = !it.mute) } },
                                             onSolo = { vm.stem(s.id) { it.copy(solo = !it.solo) } },
-                                            draggable = true, dragging = dragged == s.id,
+                                            locked=p.gainLocked(s.id),onLock={vm.lockFader(s.id)},draggable = true, dragging = dragged == s.id,
                                             routeLabel = if(page == 1) "${p.buses.find { it.id == s.bus }?.name ?: "MASTER"} · ${s.route}" else null,
                                             routing = { routing = s.id }, modifier=Modifier.zIndex(if(dragged==s.id)1f else 0f).graphicsLayer {
                                                 if(dragged==s.id) { translationX=dragX-dragGrab-(channelList.layoutInfo.visibleItemsInfo.firstOrNull { it.key==s.id }?.offset ?: 0);scaleX=1.035f;scaleY=1.015f;shadowElevation=16.dp.toPx() }
@@ -299,18 +303,18 @@ fun PlayerScreen(vm: PlayerViewModel) {
                                             ChannelStrip(d.name,d.volume,0f,d.mute,false,0f,master = true,
                                                 onVolume = { v -> vm.update { it.copy(dcas=it.dcas.map { x -> if(x.id==d.id)x.copy(volume=v) else x }) } },
                                                 onPan = {},onMute = { vm.update { it.copy(dcas=it.dcas.map { x -> if(x.id==d.id)x.copy(mute=!x.mute) else x }) } },onSolo = {},
-                                                routeLabel = "DCA · EDITAR",routing = { group = "DCA:"+d.id })
+                                                locked=p.gainLocked("DCA:"+d.id),onLock={vm.lockFader("DCA:"+d.id)},routeLabel = "DCA · EDITAR",routing = { group = "DCA:"+d.id })
                                         }
                                         items(p.buses, key = { "bus"+it.id }) { bus ->
                                             ChannelStrip(bus.name,bus.volume,0f,bus.mute,false,playback.busPeaks[bus.id] ?: 0f,master = true,
                                                 onVolume = { v -> vm.update { it.copy(buses=it.buses.map { x -> if(x.id==bus.id)x.copy(volume=v) else x }) } },
                                                 onPan = {},onMute = { vm.update { it.copy(buses=it.buses.map { x -> if(x.id==bus.id)x.copy(mute=!x.mute) else x }) } },onSolo = {},
-                                                routeLabel = "BUS · EDITAR",routing = { group = "BUS:"+bus.id },outputLabel=ConsoleMath.outputChoices(playback.outputChannels).find { it.first==bus.destination }?.second ?: bus.destination)
+                                                locked=p.gainLocked("BUS:"+bus.id),onLock={vm.lockFader("BUS:"+bus.id)},routeLabel = "BUS · EDITAR",routing = { group = "BUS:"+bus.id },outputLabel=ConsoleMath.outputChoices(playback.outputChannels).find { it.first==bus.destination }?.second ?: bus.destination)
                                         }
                                     }
                                 }
                                 ChannelStrip("MASTER", p.master, p.masterPan, p.masterMute, false, playback.left, playback.right, true,
-                                    { v -> vm.update { it.copy(master = v) } }, { v -> vm.update { it.copy(masterPan=v) } }, { vm.update { it.copy(masterMute = !it.masterMute) } }, {})
+                                    { v -> vm.update { it.copy(master = v) } }, { v -> vm.update { it.copy(masterPan=v) } }, { vm.update { it.copy(masterMute = !it.masterMute) } }, {},locked=p.masterFaderLock,onLock={vm.lockFader("MASTER")})
                             }
                             Spacer(Modifier.height(8.dp))
                         }
@@ -326,7 +330,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
             navigation=false
             when(destination) {
                 MainDestination.PROJECTS -> { page=0;uiScope.launch { mainScroll.scrollTo(0) } }
-                MainDestination.TUNER -> { vm.pause();tuner=true }
+                MainDestination.TUNER -> { vm.pause();vm.pad.stop();tuner=true }
                 MainDestination.PAYMENT -> supporters=true
                 MainDestination.HELP -> help=true
             }
@@ -352,6 +356,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
         if (p != null && edit) ProjectEditor(p, vm, { edit = false }, { art.launch(arrayOf("image/*")) }, { edit = false; delete = p })
         if (p != null && markers) MarkerEditor(p, playback.frame, vm, { markers = false })
         if (p != null && metronome) MetronomeEditor(p, vm) { metronome = false }
+        if(padOpen) PadDialog(vm.pad) { padOpen=false }
         if(p!=null && speed) SpeedDialog(p,vm,library.background!=null) { speed=false }
         if (p != null && pitch) PitchDialog(p, vm, library.background != null) { pitch = false }
         if (p != null && group != null) GroupDialog(p, group!!, playback.outputChannels, vm) { group = null }
@@ -434,8 +439,13 @@ private fun Timeline(p: Project, frame: Long, compact: Boolean, peaks: List<Floa
 
 @Composable
 private fun ChannelStrip(name: String, volume: Float, pan: Float, mute: Boolean, solo: Boolean, peak: Float,
-    right: Float = peak, master: Boolean = false, onVolume: (Float) -> Unit, onPan: (Float) -> Unit, onMute: () -> Unit, onSolo: () -> Unit, draggable: Boolean = false, dragging: Boolean = false, routeLabel: String? = null, routing: () -> Unit = {}, modifier:Modifier=Modifier,outputLabel:String="OUT 1–2") {
+    right: Float = peak, master: Boolean = false, onVolume: (Float) -> Unit, onPan: (Float) -> Unit, onMute: () -> Unit, onSolo: () -> Unit, draggable: Boolean = false, dragging: Boolean = false, routeLabel: String? = null, routing: () -> Unit = {}, modifier:Modifier=Modifier,outputLabel:String="OUT 1–2",locked:Boolean=false,onLock:()->Unit={}) {
     Column(modifier.width(if (master) 100.dp else 124.dp).fillMaxHeight().clip(RoundedCornerShape(10.dp)).background(if (master) Color(0xFF192A45) else Panel).padding(7.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        TextButton(onClick=onLock,modifier=Modifier.height(28.dp).semantics { contentDescription="Cadeado $name";selected=locked },contentPadding=PaddingValues(0.dp)) { Canvas(Modifier.size(16.dp)) {
+            val c=if(locked)LightBlue else Muted
+            drawRoundRect(c,Offset(size.width*.15f,size.height*.45f),Size(size.width*.7f,size.height*.5f),androidx.compose.ui.geometry.CornerRadius(2.dp.toPx()),style=androidx.compose.ui.graphics.drawscope.Stroke(1.5.dp.toPx()))
+            drawArc(c,if(locked)180f else 220f,if(locked)180f else 140f,false,Offset(size.width*.3f,size.height*.05f),Size(size.width*.4f,size.height*.65f),style=androidx.compose.ui.graphics.drawscope.Stroke(1.5.dp.toPx()))
+        } }
         Text(name, Modifier.fillMaxWidth().height(48.dp).background(if(dragging) LightBlue else Control).semantics { contentDescription = if(draggable) "Arrastar $name" else name }.padding(4.dp), textAlign=TextAlign.Center,maxLines = 2, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = if(dragging) Bg else White)
         Text(if (master && routeLabel!=null) "OUTPUT" else when { pan < -.05f -> "L ${(abs(pan) * 100).roundToInt()}"; pan > .05f -> "R ${(pan * 100).roundToInt()}"; else -> "PAN · C" }, color = Muted, fontSize = 10.sp)
         if (master && routeLabel!=null) Box(Modifier.height(48.dp), contentAlignment = Alignment.Center) { Text(if(routeLabel?.startsWith("DCA")==true) "RELATIVO" else outputLabel, color = Blue, fontSize = 11.sp) }
@@ -446,15 +456,15 @@ private fun ChannelStrip(name: String, volume: Float, pan: Float, mute: Boolean,
         }
         var fine by remember { mutableStateOf(false) }
         Text(if (volume <= 0f) "−∞ dB" else "%+.1f dB".format(20 * log10(volume)), color = if (master) Blue else White, fontSize = 11.sp,
-            modifier = Modifier.fillMaxWidth().heightIn(min=32.dp).clickable { fine=true }.padding(top = 8.dp).semantics { contentDescription="Ajuste fino $name" })
+            modifier = Modifier.fillMaxWidth().heightIn(min=32.dp).clickable(enabled=!locked) { fine=true }.padding(top = 8.dp).semantics { contentDescription="Ajuste fino $name" })
         if(fine) FineGainDialog(name,volume,onVolume) { fine=false }
         Row(Modifier.weight(1f).padding(vertical = 6.dp), horizontalArrangement = Arrangement.Center) {
-            Fader(volume, name, Modifier.weight(1f).fillMaxHeight(), onVolume)
+            Fader(volume, name, Modifier.weight(1f).fillMaxHeight()) { if(!locked)onVolume(it) }
             Meter(peak, Modifier.width(5.dp).fillMaxHeight())
             if (master) { Spacer(Modifier.width(3.dp)); Meter(right, Modifier.width(5.dp).fillMaxHeight()) }
         }
         Column(Modifier.fillMaxWidth().height(80.dp),horizontalAlignment=Alignment.CenterHorizontally) {
-            TextButton(onClick={onVolume(1f)},modifier=Modifier.fillMaxWidth().height(40.dp).semantics { contentDescription="0dB $name" },contentPadding=PaddingValues(0.dp)) { Text("0dB",fontSize=12.sp) }
+            TextButton(enabled=!locked,onClick={onVolume(1f)},modifier=Modifier.fillMaxWidth().height(40.dp).semantics { contentDescription="0dB $name" },contentPadding=PaddingValues(0.dp)) { Text("0dB",fontSize=12.sp) }
             Box(Modifier.fillMaxWidth().height(40.dp),contentAlignment=Alignment.Center) {
                 if(routeLabel!=null)TextButton(onClick=routing,modifier=Modifier.fillMaxSize(),contentPadding=PaddingValues(0.dp)) { Text(routeLabel,fontSize=10.sp,maxLines=2) }
                 else if(master)Text(outputLabel,color=Muted,fontSize=9.sp)
