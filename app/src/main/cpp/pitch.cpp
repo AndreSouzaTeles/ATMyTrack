@@ -5,8 +5,10 @@
 struct Pitch {
     signalsmith::stretch::SignalsmithStretch<float> stretch{0};
     std::vector<float> in[2], out[2], interleaved;
-    Pitch(int rate,int semitones) {
-        stretch.configure(2,static_cast<int>(rate*.12),static_cast<int>(rate*.01)); stretch.setTransposeSemitones(semitones);
+    Pitch(int rate,int semitones,bool legacy=false,double speed=1.0) {
+        if(legacy || speed<.7 || speed>1.5 || std::abs(semitones)>7)stretch.configure(2,static_cast<int>(rate*.12),static_cast<int>(rate*.01));
+        else stretch.configure(2,static_cast<int>(rate*.12),static_cast<int>(rate*.015));
+        stretch.setTransposeSemitones(semitones);
         for(int i=0;i<2;++i) { in[i].resize(4096); out[i].resize(4096); }
         interleaved.resize(8192);
     }
@@ -14,6 +16,15 @@ struct Pitch {
 extern "C" JNIEXPORT jlong JNICALL Java_com_atmytrack_app_audio_NativePitch_create(JNIEnv* env,jobject,jint rate,jint semitones) {
     try { return reinterpret_cast<jlong>(new Pitch(rate,semitones)); }
     catch(...) { env->ThrowNew(env->FindClass("java/lang/IllegalStateException"),"Falha ao iniciar DSP"); return 0; }
+}
+extern "C" JNIEXPORT jlong JNICALL Java_com_atmytrack_app_audio_NativePitch_createForSpeed(JNIEnv* env,jobject,jint rate,jint semitones,jdouble speed) {
+    try { return reinterpret_cast<jlong>(new Pitch(rate,semitones,false,speed)); }
+    catch(...) { env->ThrowNew(env->FindClass("java/lang/IllegalStateException"),"Falha ao iniciar DSP");return 0; }
+}
+// Previous profile retained only for the instrumented regression benchmark.
+extern "C" JNIEXPORT jlong JNICALL Java_com_atmytrack_app_RepeatedPitch15Test_legacyCreate(JNIEnv* env,jobject,jint rate,jint semitones) {
+    try { return reinterpret_cast<jlong>(new Pitch(rate,semitones,true)); }
+    catch(...) { env->ThrowNew(env->FindClass("java/lang/IllegalStateException"),"Falha no benchmark DSP");return 0; }
 }
 extern "C" JNIEXPORT jint JNICALL Java_com_atmytrack_app_audio_NativePitch_latency(JNIEnv*,jobject,jlong h) {
     auto p=reinterpret_cast<Pitch*>(h); return p->stretch.inputLatency()+p->stretch.outputLatency();

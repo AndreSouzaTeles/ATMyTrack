@@ -1,0 +1,40 @@
+{
+  "baseline10ms": [
+    4580.0999999996275,
+    8909.5
+  ],
+  "adaptive15ms": [
+    2227.2000000011176,
+    2656.39999999851,
+    2258.699999999255
+  ],
+  "warmMs": 61.19999999925494,
+  "quality": [
+    {
+      "shift": 5,
+      "hz": 294,
+      "expected": 293.6647679174076,
+      "duration": 20,
+      "playing": true,
+      "underruns": 0
+    },
+    {
+      "shift": 2,
+      "hz": 248,
+      "expected": 246.94165062806206,
+      "duration": 20,
+      "playing": true,
+      "underruns": 0
+    },
+    {
+      "shift": 3,
+      "hz": 262,
+      "expected": 261.6255653005986,
+      "duration": 20,
+      "playing": true,
+      "underruns": 0
+    }
+  ],
+  "fixture": "4 independent sources, same 20s synthetic stereo float PCM 48kHz, shifts +5 / +2 / +3, speed100; 2 workers",
+  "cores": 16
+}

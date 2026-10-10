@@ -2,7 +2,7 @@ import {SignalsmithWasm} from './vendor/SignalsmithStretch.mjs';
 // Offline preparation: no heavy DSP remains on the real-time audio thread.
 onmessage=async({data})=>{try{
   const {channels,rate,speed,pitch}=data,wasm=await SignalsmithWasm();
-  wasm._configure(channels.length,Math.round(rate*.12),Math.round(rate*.01),false);
+  wasm._configure(channels.length,Math.round(rate*.12),Math.round(rate*((speed<.7||speed>1.5||Math.abs(pitch)>7)?.01:.015)),false);
   wasm._reset();wasm._setTransposeSemitones(pitch,8000/rate);
   const capacity=2048,pointer=wasm._setBuffers(channels.length,capacity),block=512;
   const latency=Math.round(wasm._inputLatency()/speed+wasm._outputLatency());

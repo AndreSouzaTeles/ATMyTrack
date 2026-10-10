@@ -1,0 +1,37 @@
+--------- beginning of main
+10-10 21:51:44.291  8178  8192 I ATMyTrack-DSP: pitch=5 speed=100 tracks=8 cacheHits=0 elapsedMs=2495 profile=adaptive15ms
+10-10 21:51:44.335  8178  8192 I REPEAT15: shift=5 coldMs=2500 commitMs=40 frequency=294 playing=true underruns=0
+10-10 21:51:46.844  8178  8192 I ATMyTrack-DSP: pitch=2 speed=100 tracks=8 cacheHits=0 elapsedMs=2508 profile=adaptive15ms
+10-10 21:51:46.865  8178  8192 I REPEAT15: shift=2 coldMs=2510 commitMs=20 frequency=248 playing=true underruns=0
+10-10 21:51:49.621  8178  8192 I ATMyTrack-DSP: pitch=3 speed=100 tracks=8 cacheHits=0 elapsedMs=2755 profile=adaptive15ms
+10-10 21:51:49.634  8178  8192 I REPEAT15: shift=3 coldMs=2756 commitMs=12 frequency=262 playing=true underruns=0
+10-10 21:51:49.638  8178  8192 I ATMyTrack-DSP: pitch=5 speed=100 tracks=8 cacheHits=8 elapsedMs=3 profile=adaptive15ms
+10-10 21:51:49.639  8178  8192 I REPEAT15: 8 independent readers same synthetic PCM24 stereo 48kHz 20s baseline10ms=[6119, 5738] adaptive15ms=[2500, 2510, 2756] warmMs=4
+10-10 21:51:50.482  8178  8192 I ATMyTrack-DSP: pitch=0 speed=50 tracks=2 cacheHits=0 elapsedMs=755 profile=adaptive15ms
+10-10 21:51:51.379  8178  8192 I ATMyTrack-DSP: pitch=2 speed=50 tracks=2 cacheHits=1 elapsedMs=774 profile=adaptive15ms
+10-10 21:51:51.781  8178  8192 I ATMyTrack-DSP: pitch=0 speed=75 tracks=2 cacheHits=0 elapsedMs=369 profile=adaptive15ms
+10-10 21:51:52.192  8178  8192 I ATMyTrack-DSP: pitch=2 speed=75 tracks=2 cacheHits=1 elapsedMs=368 profile=adaptive15ms
+10-10 21:51:52.556  8178  8192 I ATMyTrack-DSP: pitch=0 speed=80 tracks=2 cacheHits=0 elapsedMs=327 profile=adaptive15ms
+10-10 21:51:52.928  8178  8192 I ATMyTrack-DSP: pitch=2 speed=80 tracks=2 cacheHits=1 elapsedMs=337 profile=adaptive15ms
+10-10 21:51:53.275  8178  8192 I ATMyTrack-DSP: pitch=0 speed=90 tracks=2 cacheHits=0 elapsedMs=301 profile=adaptive15ms
+10-10 21:51:53.603  8178  8192 I ATMyTrack-DSP: pitch=2 speed=90 tracks=2 cacheHits=1 elapsedMs=295 profile=adaptive15ms
+10-10 21:51:53.638  8178  8192 I ATMyTrack-DSP: pitch=0 speed=100 tracks=2 cacheHits=0 elapsedMs=0 profile=adaptive15ms
+10-10 21:51:53.923  8178  8192 I ATMyTrack-DSP: pitch=2 speed=100 tracks=2 cacheHits=0 elapsedMs=251 profile=adaptive15ms
+10-10 21:51:54.208  8178  8192 I ATMyTrack-DSP: pitch=0 speed=110 tracks=2 cacheHits=0 elapsedMs=251 profile=adaptive15ms
+10-10 21:51:54.505  8178  8192 I ATMyTrack-DSP: pitch=2 speed=110 tracks=2 cacheHits=1 elapsedMs=261 profile=adaptive15ms
+10-10 21:51:54.766  8178  8192 I ATMyTrack-DSP: pitch=0 speed=120 tracks=2 cacheHits=0 elapsedMs=227 profile=adaptive15ms
+10-10 21:51:55.037  8178  8192 I ATMyTrack-DSP: pitch=2 speed=120 tracks=2 cacheHits=1 elapsedMs=238 profile=adaptive15ms
+10-10 21:51:55.311  8178  8192 I ATMyTrack-DSP: pitch=0 speed=125 tracks=2 cacheHits=0 elapsedMs=224 profile=adaptive15ms
+10-10 21:51:55.577  8178  8192 I ATMyTrack-DSP: pitch=2 speed=125 tracks=2 cacheHits=1 elapsedMs=232 profile=adaptive15ms
+10-10 21:51:55.834  8178  8192 I ATMyTrack-DSP: pitch=0 speed=150 tracks=2 cacheHits=0 elapsedMs=218 profile=adaptive15ms
+10-10 21:51:56.061  8178  8192 I ATMyTrack-DSP: pitch=2 speed=150 tracks=2 cacheHits=1 elapsedMs=195 profile=adaptive15ms
+10-10 21:51:56.308  8178  8192 I ATMyTrack-DSP: pitch=0 speed=200 tracks=2 cacheHits=0 elapsedMs=212 profile=adaptive15ms
+10-10 21:51:56.581  8178  8192 I ATMyTrack-DSP: pitch=2 speed=200 tracks=2 cacheHits=1 elapsedMs=225 profile=adaptive15ms
+10-10 21:51:56.618  8178  8192 I ATMyTrack-DSP: pitch=2 speed=80 tracks=2 cacheHits=1 elapsedMs=1 profile=adaptive15ms
+10-10 21:51:56.620  8178  8192 I ATMyTrack-DSP: pitch=0 speed=80 tracks=2 cacheHits=2 elapsedMs=1 profile=adaptive15ms
+10-10 21:51:56.621  8178  8192 I ATMyTrack-DSP: pitch=0 speed=100 tracks=2 cacheHits=0 elapsedMs=1 profile=adaptive15ms
+10-10 21:51:57.066  8178  8192 I ATMyTrack-DSP: pitch=0 speed=80 tracks=2 cacheHits=0 elapsedMs=320 profile=adaptive15ms
+10-10 21:51:57.395  8178  8192 I ATMyTrack-DSP: pitch=0 speed=120 tracks=2 cacheHits=0 elapsedMs=287 profile=adaptive15ms
+10-10 21:51:57.694  8178  8192 I ATMyTrack-DSP: pitch=0 speed=80 tracks=1 cacheHits=0 elapsedMs=241 profile=adaptive15ms
+10-10 21:52:01.741  8178  8192 I DSP13   : 19 independent cached readers (same synthetic 4s stereo PCM24 source) speed80 pad=false: underruns=0 starvation=0
+10-10 21:52:06.109  8178  8192 I DSP13   : 19 independent cached readers (same synthetic 4s stereo PCM24 source) speed80 pad=true: underruns=0 starvation=0

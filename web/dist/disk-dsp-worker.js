@@ -3,7 +3,7 @@ import {readPCM} from './pcm.js';
 onmessage=async({data})=>{let handle;try{
  const {source,speed,pitch,name}=data,rate=source.format.rate,wasm=await SignalsmithWasm();
  const dir=await (await navigator.storage.getDirectory()).getDirectoryHandle('atmytrack-pcm',{create:true});handle=await (await dir.getFileHandle(name,{create:true})).createSyncAccessHandle();handle.truncate(0);
- wasm._configure(2,Math.round(rate*.12),Math.round(rate*.01),false);wasm._reset();wasm._setTransposeSemitones(pitch,8000/rate);
+ wasm._configure(2,Math.round(rate*.12),Math.round(rate*((speed<.7||speed>1.5||Math.abs(pitch)>7)?.01:.015)),false);wasm._reset();wasm._setTransposeSemitones(pitch,8000/rate);
  const capacity=4096,pointer=wasm._setBuffers(2,capacity),block=2048,latency=Math.round(wasm._inputLatency()/speed+wasm._outputLatency()),length=Math.round(source.format.frames/speed);
  let output=0,input=0,last=-1,readStart=-1,readData;
  const pending=new Float32Array(65536);let pendingSize=0,diskPosition=0;

@@ -1,0 +1,49 @@
+
+com.atmytrack.app.RepeatedPitch15Test:.
+com.atmytrack.app.Speed07AudioTest:
+Error in realSpeedPitchSelectionDurationBypassAndClick(com.atmytrack.app.Speed07AudioTest):
+java.lang.AssertionError: speed=50 pitch=2 expected:<246.94165062806206> but was:<248.77680571006945>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:555)
+	at com.atmytrack.app.Speed07AudioTest$realSpeedPitchSelectionDurationBypassAndClick$1.invokeSuspend(Speed07AudioTest.kt:35)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.internal.ScopeCoroutine.afterResume(Scopes.kt:35)
+	at kotlinx.coroutines.AbstractCoroutine.resumeWith(AbstractCoroutine.kt:101)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:46)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:94)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:70)
+	at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:48)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source:1)
+	at com.atmytrack.app.Speed07AudioTest.realSpeedPitchSelectionDurationBypassAndClick(Speed07AudioTest.kt:22)
+.
+com.atmytrack.app.PadPlayback13Test:.
+
+Time: 32.386
+There was 1 failure:
+1) realSpeedPitchSelectionDurationBypassAndClick(com.atmytrack.app.Speed07AudioTest)
+java.lang.AssertionError: speed=50 pitch=2 expected:<246.94165062806206> but was:<248.77680571006945>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:555)
+	at com.atmytrack.app.Speed07AudioTest$realSpeedPitchSelectionDurationBypassAndClick$1.invokeSuspend(Speed07AudioTest.kt:35)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.internal.ScopeCoroutine.afterResume(Scopes.kt:35)
+	at kotlinx.coroutines.AbstractCoroutine.resumeWith(AbstractCoroutine.kt:101)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:46)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:94)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:70)
+	at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:48)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source:1)
+	at com.atmytrack.app.Speed07AudioTest.realSpeedPitchSelectionDurationBypassAndClick(Speed07AudioTest.kt:22)
+
+FAILURES!!!
+Tests run: 4,  Failures: 1
+
+

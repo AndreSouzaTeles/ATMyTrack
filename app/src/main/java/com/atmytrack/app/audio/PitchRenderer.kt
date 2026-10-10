@@ -13,6 +13,7 @@ import java.nio.ByteOrder
 object NativePitch {
     init { System.loadLibrary("atmytrack_dsp") }
     external fun create(rate:Int,semitones:Int):Long
+    external fun createForSpeed(rate:Int,semitones:Int,speed:Double):Long
     external fun latency(handle:Long):Int
     external fun process(handle:Long,input:FloatArray,output:FloatArray,count:Int)
     external fun stretchLatency(handle:Long,speed:Double):Int
@@ -24,6 +25,8 @@ object NativePitch {
 class PitchRenderer(private val context:Context,private val parallelism:Int=Runtime.getRuntime().availableProcessors().coerceIn(1,4)) {
     suspend fun render(p:Project,semitones:Int,ids:List<String>,progress:(String)->Unit):List<Stem> = coroutineScope {
         require(semitones in -12..12 && p.speed in 50..200)
+        val start=android.os.SystemClock.elapsedRealtime()
+        val hits=java.util.concurrent.atomic.AtomicInteger()
         val slots=Semaphore(parallelism.coerceIn(1,4))
         p.stems.mapIndexed { index,s -> async(Dispatchers.Default) { slots.withPermit {
             val pitch=if(s.id in ids)semitones else 0
@@ -34,11 +37,12 @@ class PitchRenderer(private val context:Context,private val parallelism:Int=Runt
                 val frames=kotlin.math.round(s.frames/ratio).toLong()
                 val key="v3-${s.id}-${s.fingerprint}-${p.sampleRate}-$pitch-$speed"
                 val relative="pitch/${p.id}/$key.pcm"; val target=File(context.filesDir,relative)
-                if(!target.exists() || target.length()!=frames*8) {
+                if(target.exists() && target.length()==frames*8)hits.incrementAndGet()
+                else {
                     target.parentFile!!.mkdirs()
                     check(target.parentFile!!.usableSpace > frames*8 + 32L*1024*1024) { "Espaço insuficiente para preparar ${s.name}." }
                     val part=File(target.path+".part")
-                    val dsp=NativePitch.create(p.sampleRate,pitch)
+                    val dsp=NativePitch.createForSpeed(p.sampleRate,pitch,ratio)
                     try {
                         val latency=NativePitch.stretchLatency(dsp,ratio)
                         val input=FloatArray(8192); val output=FloatArray(8192)
@@ -71,7 +75,7 @@ class PitchRenderer(private val context:Context,private val parallelism:Int=Runt
                 target.setLastModified(System.currentTimeMillis())
                 s.copy(pitchFile=relative,pitchApplied=pitch,dspSpeed=speed)
             }
-        } } }.awaitAll()
+        } } }.awaitAll().also { android.util.Log.i("ATMyTrack-DSP","pitch=$semitones speed=${p.speed} tracks=${p.stems.size} cacheHits=${hits.get()} elapsedMs=${android.os.SystemClock.elapsedRealtime()-start} profile=adaptive15ms") }
     }
     /** Remove obsolete transforms, then evict least-recent inactive caches. Never touch original audio. */
     fun prune(projects:List<Project>,protectedId:String="") {

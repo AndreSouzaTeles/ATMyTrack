@@ -1,6 +1,10 @@
-# ATMyTrack Web 0.14.0
+# ATMyTrack Web 0.14.1
 
 Player local no navegador, sem conta e sem upload de áudios. Projetos/arquivos ficam no IndexedDB da origem. Exportação/importação `.atmytrack` transfere projetos entre navegadores. Não compartilha o formato interno Android.
+
+## Atualização 0.14.1
+
+Perfil DSP adaptativo para reduzir o custo de cada nova tonalidade, mantendo processamento mais preciso nos extremos. Preparação de tons inéditos e retorno ao cache testados separadamente. [Validação](../verification/REPORT-0.14.1.md).
 
 ## Atualização 0.14.0
 

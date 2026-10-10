@@ -1,0 +1,142 @@
+[
+  {
+    speed: 50,
+    pitch: 2,
+    frequency: 247.4732972561507,
+    expected: 246.94165062806206,
+    duration: 12
+  },
+  {
+    speed: 50,
+    pitch: 5,
+    frequency: 294.11282676227086,
+    expected: 293.6647679174076,
+    duration: 12
+  },
+  {
+    speed: 75,
+    pitch: 2,
+    frequency: 247.55248750566489,
+    expected: 246.94165062806206,
+    duration: 8
+  },
+  {
+    speed: 75,
+    pitch: 5,
+    frequency: 294.2244319628896,
+    expected: 293.6647679174076,
+    duration: 8
+  },
+  {
+    speed: 80,
+    pitch: 2,
+    frequency: 247.51451708162315,
+    expected: 246.94165062806206,
+    duration: 7.5
+  },
+  {
+    speed: 80,
+    pitch: 5,
+    frequency: 294.1868481850881,
+    expected: 293.6647679174076,
+    duration: 7.5
+  },
+  {
+    speed: 90,
+    pitch: 2,
+    frequency: 247.45733474245023,
+    expected: 246.94165062806206,
+    duration: 6.666666666666667
+  },
+  {
+    speed: 90,
+    pitch: 5,
+    frequency: 294.13042981157247,
+    expected: 293.6647679174076,
+    duration: 6.666666666666667
+  },
+  {
+    speed: 100,
+    pitch: 2,
+    frequency: 247.4154141200047,
+    expected: 246.94165062806206,
+    duration: 6
+  },
+  {
+    speed: 100,
+    pitch: 5,
+    frequency: 294.08835893729076,
+    expected: 293.6647679174076,
+    duration: 6
+  },
+  {
+    speed: 110,
+    pitch: 2,
+    frequency: 247.3842856273639,
+    expected: 246.94165062806206,
+    duration: 5.454541666666667
+  },
+  {
+    speed: 110,
+    pitch: 5,
+    frequency: 294.0576470478556,
+    expected: 293.6647679174076,
+    duration: 5.454541666666667
+  },
+  {
+    speed: 120,
+    pitch: 2,
+    frequency: 247.3597744763742,
+    expected: 246.94165062806206,
+    duration: 5
+  },
+  {
+    speed: 120,
+    pitch: 5,
+    frequency: 294.0336614904526,
+    expected: 293.6647679174076,
+    duration: 5
+  },
+  {
+    speed: 125,
+    pitch: 2,
+    frequency: 247.3491731379528,
+    expected: 246.94165062806206,
+    duration: 4.8
+  },
+  {
+    speed: 125,
+    pitch: 5,
+    frequency: 294.0228786166498,
+    expected: 293.6647679174076,
+    duration: 4.8
+  },
+  {
+    speed: 150,
+    pitch: 2,
+    frequency: 247.31034947267494,
+    expected: 246.94165062806206,
+    duration: 4
+  },
+  {
+    speed: 150,
+    pitch: 5,
+    frequency: 293.98468549006384,
+    expected: 293.6647679174076,
+    duration: 4
+  },
+  {
+    speed: 200,
+    pitch: 2,
+    frequency: 247.14197889192306,
+    expected: 246.94165062806206,
+    duration: 3
+  },
+  {
+    speed: 200,
+    pitch: 5,
+    frequency: 293.7793735289987,
+    expected: 293.6647679174076,
+    duration: 3
+  }
+]

@@ -1,0 +1,47 @@
+
+> atmytrack-web@0.14.1 test
+> node tests/music.mjs && node tests/waveform.mjs && node tests/pcm.mjs && node tests/browser.cjs && node tests/routing-master.cjs && node tests/locks-pad.cjs && node tests/seek.mjs && node tests/timeline-pad.cjs && node tests/update14.cjs
+
+{"cases":594,"maxCentsError":0.16617847209693792,"status":"passed"}
+Waveform: stereo, silence, second track and short transient passed
+{
+  resampleError: 0.00005018821435762155,
+  chunkBoundaryError: 0,
+  aliasRms: 0.0007883986211390814
+}
+{
+  "ui": "passed",
+  "dsp": [
+    {
+      "speed": 100,
+      "frequency": 247.41527959335784,
+      "expected": 246.94165062806206,
+      "position": 1.5213333333333332
+    },
+    {
+      "speed": 80,
+      "frequency": 247.51480489203811,
+      "expected": 246.94165062806206,
+      "position": 1.5186666666666666
+    },
+    {
+      "speed": 120,
+      "frequency": 247.36001466742957,
+      "expected": 246.94165062806206,
+      "position": 1.5213333333333332
+    }
+  ],
+  "errors": []
+}
+Routing, Master audio balance and layout passed
+Locks, Master and independent PAD audio passed
+2000 seeks coalesced into 2 operations; final target and playback preserved
+{
+  seeks: [ 0.8 ],
+  levels: { rms: 0.24967530742268135, peak: 0.5075051188468933, silent: 0 }
+}
+{
+  before: 0.03537597769782643,
+  during: 0.035376451609191506,
+  after: 0.035367921501022456
+}
