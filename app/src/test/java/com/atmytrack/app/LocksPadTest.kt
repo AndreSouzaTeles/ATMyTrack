@@ -9,7 +9,8 @@ class LocksPadTest {
   val p=Project(name="Locks",sampleRate=48000,stems=listOf(Stem(id="A",name="A",pcm="",frames=1)),masterFaderLock=true)
   val unlocked=p.toggleGainLock("A")
   assertTrue(unlocked.masterFaderLock);assertFalse(unlocked.gainLocked("A"));assertTrue(unlocked.gainLocked("B"))
-  assertEquals(.25f,unlocked.protectGains(unlocked.copy(stems=unlocked.stems.map{it.copy(volume=.25f)})).stems[0].volume,0f)
+  assertEquals(.25f,unlocked.protectGains(unlocked.copy(stems=unlocked.stems.map{it.copy(volume=.25f,pan=.7f)})).stems[0].volume,0f)
+  assertEquals(.7f,unlocked.protectGains(unlocked.copy(stems=unlocked.stems.map{it.copy(pan=.7f)})).stems[0].pan,0f)
   assertTrue(unlocked.toggleGainLock("A").gainLocked("A"));assertTrue(unlocked.toggleGainLock("MASTER").toggleGainLock("MASTER").gainLocked("A"))
  }
  @Test fun padPresetsAreDistinctAndBoundedAndWoodblockIsReal() {
@@ -21,11 +22,12 @@ class LocksPadTest {
  }
  @Test fun lockedGainsSurviveEveryEditPathAndGlobalUnlockKeepsIndividualLocks() {
     val p=Project(name="Locks",sampleRate=48000,stems=listOf(Stem(id="A",name="A",pcm="",frames=1,volume=.5f),Stem(id="B",name="B",pcm="",frames=1)),dcas=listOf(Dca(id="D",name="D",members=emptyList())),buses=listOf(Bus(id="G",name="G")),lockedFaders=listOf("A"))
-    val change=p.copy(master=.2f,stems=p.stems.map { it.copy(volume=.1f,pan=.2f) },dcas=p.dcas.map { it.copy(volume=.1f) },buses=p.buses.map { it.copy(volume=.1f) })
+    val change=p.copy(master=.2f,masterPan=.8f,masterMute=true,stems=p.stems.map { it.copy(volume=.1f,pan=.2f,mute=true,solo=true) },dcas=p.dcas.map { it.copy(volume=.1f) },buses=p.buses.map { it.copy(volume=.1f) })
     val individual=p.protectGains(change)
-    assertEquals(.5f,individual.stems[0].volume,0f);assertEquals(.1f,individual.stems[1].volume,0f);assertEquals(.2f,individual.stems[0].pan,0f)
+    assertEquals(.5f,individual.stems[0].volume,0f);assertEquals(.1f,individual.stems[1].volume,0f);assertEquals(0f,individual.stems[0].pan,0f);assertEquals(.2f,individual.stems[1].pan,0f)
+    assertTrue(individual.stems.all { it.mute && it.solo })
     val global=p.copy(masterFaderLock=true).protectGains(change)
-    assertEquals(p.master,global.master,0f);assertEquals(p.stems.map { it.volume },global.stems.map { it.volume });assertEquals(1f,global.dcas[0].volume,0f);assertEquals(1f,global.buses[0].volume,0f)
+    assertEquals(p.master,global.master,0f);assertEquals(p.masterPan,global.masterPan,0f);assertTrue(global.masterMute);assertTrue(global.stems.all { it.mute && it.solo });assertEquals(p.stems.map { it.pan },global.stems.map { it.pan });assertEquals(p.stems.map { it.volume },global.stems.map { it.volume });assertEquals(1f,global.dcas[0].volume,0f);assertEquals(1f,global.buses[0].volume,0f)
     assertTrue(global.gainLocked("A"));assertTrue(global.copy(masterFaderLock=false).gainLocked("A"));assertFalse(global.copy(masterFaderLock=false).gainLocked("B"))
  }
  @Test fun padHasMusicalTriadEnergyAndSmoothVolumeDecay() {

@@ -1,10 +1,14 @@
 # ATMyTrack
 
-**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [Baixar APK Android](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.14.1/ATMyTrack-0.14.1-debug.apk)
+**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [Baixar APK Android](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.14.2/ATMyTrack-0.14.2-debug.apk)
 
-## Android 0.14.1
+## Android 0.14.2
 
 Atualização incremental do player multitrack em Kotlin/Compose para Android 8.0+ (API 26). Preserva a biblioteca e os áudios internos das versões anteriores.
+
+## Atualização 0.14.2 — proteção do PAN
+
+Cadeados protegem volume e PAN no Android e na web. MUTE/SOLO permanecem livres; o desbloqueio individual continua liberando volume e PAN sob o bloqueio global. Sem alteração de schema ou DSP. [Validação](verification/REPORT-0.14.2.md).
 
 ## Atualização 0.14.1 — mudanças consecutivas de tom
 
@@ -106,7 +110,7 @@ Cards de projeto com altura adaptativa, nome completo e quantidade de tracks em 
 Resultados, ambiente, cenários e limites: [relatório 0.7.0](verification/REPORT-0.7.0.md).
 
 ## Instalação
-Baixe o [APK 0.12.2](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.14.1/ATMyTrack-0.14.1-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.12.2).
+Baixe o [APK 0.12.2](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.14.2/ATMyTrack-0.14.2-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.12.2).
 
 Instale `dist/ATMyTrack-debug.apk` sobre a versão anterior, sem desinstalar. A assinatura de desenvolvimento foi mantida. O APK inclui arm64-v8a, armeabi-v7a e x86_64. Não exige conta ou assinatura. A origem de nuvem pode precisar de conexão/download.
 

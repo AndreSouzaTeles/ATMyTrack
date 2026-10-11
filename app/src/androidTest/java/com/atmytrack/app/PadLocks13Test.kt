@@ -6,6 +6,24 @@ import androidx.lifecycle.ViewModelProvider
 import org.junit.*
 import org.junit.Assert.*
 class PadLocks13Test {
+ @Test fun panLocksPreserveMuteSoloAndIndividualOverride() {
+    val vm=ViewModelProvider(compose.activity)[PlayerViewModel::class.java]
+    compose.waitUntil(45000) { vm.library.value.current!=null && vm.playback.value.ready }
+    compose.runOnUiThread { vm.stop();vm.dismissError();vm.dismissImportReport();vm.update { it.copy(masterFaderLock=false,lockedFaders=emptyList(),unlockedFaders=emptyList()) } }
+    val p=vm.library.value.current!!;val s=p.stems.first()
+    compose.runOnUiThread { vm.lockFader(s.id);vm.stem(s.id) { it.copy(pan=.8f,mute=!s.mute,solo=!s.solo) } }
+    compose.onAllNodesWithContentDescription("Pan ${s.name}")[0].assertIsNotEnabled()
+    assertEquals(s.pan,vm.library.value.current!!.stems.first().pan,0f)
+    assertEquals(!s.mute,vm.library.value.current!!.stems.first().mute)
+    assertEquals(!s.solo,vm.library.value.current!!.stems.first().solo)
+    compose.runOnUiThread { vm.lockFader("MASTER");vm.update { it.copy(masterPan=.9f,masterMute=!p.masterMute) };vm.lockFader(s.id);vm.stem(s.id) { it.copy(pan=.3f) } }
+    compose.onNodeWithContentDescription("Pan MASTER").assertIsNotEnabled()
+    compose.onAllNodesWithContentDescription("Pan ${s.name}")[0].assertIsEnabled()
+    assertEquals(p.masterPan,vm.library.value.current!!.masterPan,0f)
+    assertEquals(!p.masterMute,vm.library.value.current!!.masterMute)
+    assertEquals(.3f,vm.library.value.current!!.stems.first().pan,0f)
+    compose.runOnUiThread { vm.update { p } }
+ }
  @get:Rule val compose=createAndroidComposeRule<MainActivity>()
  @Test fun individualAndMasterLocksBlockGainsAndPadSurvivesPlayerStop() {
     val vm=ViewModelProvider(compose.activity)[PlayerViewModel::class.java]

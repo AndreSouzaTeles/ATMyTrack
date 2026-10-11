@@ -36,7 +36,8 @@ data class Project(
     }
     fun protectGains(next:Project):Project=next.copy(
         master=if(masterFaderLock)master else next.master,
-        stems=next.stems.map { n -> stems.find { it.id==n.id }?.let { if(gainLocked(n.id))n.copy(volume=it.volume) else n } ?: n },
+        masterPan=if(masterFaderLock)masterPan else next.masterPan,
+        stems=next.stems.map { n -> stems.find { it.id==n.id }?.let { if(gainLocked(n.id))n.copy(volume=it.volume,pan=it.pan) else n } ?: n },
         dcas=next.dcas.map { n -> dcas.find { it.id==n.id }?.let { if(gainLocked("DCA:"+n.id))n.copy(volume=it.volume) else n } ?: n },
         buses=next.buses.map { n -> buses.find { it.id==n.id }?.let { if(gainLocked("BUS:"+n.id))n.copy(volume=it.volume) else n } ?: n })
     val selectedSpeedTracks: List<String> get() = speedTracks ?: stems.map { it.id }

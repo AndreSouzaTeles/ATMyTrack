@@ -458,7 +458,7 @@ private fun ChannelStrip(name: String, volume: Float, pan: Float, mute: Boolean,
         Text(name, Modifier.fillMaxWidth().height(48.dp).background(if(dragging) LightBlue else Control).semantics { contentDescription = if(draggable) "Arrastar $name" else name }.padding(4.dp), textAlign=TextAlign.Center,maxLines = 2, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = if(dragging) Bg else White)
         Text(if (master && routeLabel!=null) "OUTPUT" else when { pan < -.05f -> "L ${(abs(pan) * 100).roundToInt()}"; pan > .05f -> "R ${(pan * 100).roundToInt()}"; else -> "PAN · C" }, color = Muted, fontSize = 10.sp)
         if (master && routeLabel!=null) Box(Modifier.height(48.dp), contentAlignment = Alignment.Center) { Text(if(routeLabel?.startsWith("DCA")==true) "RELATIVO" else outputLabel, color = Blue, fontSize = 11.sp) }
-        else Slider(pan, onPan, valueRange = -1f..1f, modifier = Modifier.height(48.dp).semantics { contentDescription = "Pan $name" }, colors = SliderDefaults.colors(thumbColor = LightBlue, activeTrackColor = LightBlue))
+        else Slider(pan, { if(!locked)onPan(it) }, enabled = !locked, valueRange = -1f..1f, modifier = Modifier.height(48.dp).semantics { contentDescription = "Pan $name" }, colors = SliderDefaults.colors(thumbColor = LightBlue, activeTrackColor = LightBlue))
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             if (!master) ChannelToggle("S", solo, LightBlue, "Solo $name", Modifier.weight(1f), onSolo)
             ChannelToggle("M", mute, Red, "Mute $name", Modifier.weight(1f), onMute)
