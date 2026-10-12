@@ -1,6 +1,10 @@
-# ATMyTrack Web 0.14.2
+# ATMyTrack Web 0.14.3
 
 Player local no navegador, sem conta e sem upload de áudios. Projetos/arquivos ficam no IndexedDB da origem. Exportação/importação `.atmytrack` transfere projetos entre navegadores. Não compartilha o formato interno Android.
+
+## Atualização 0.14.3
+
+Chave Pix `atelestechnology@jim.com` visível e copiável; removidos QR Code, link Nubank e texto indicado sobre inclusão manual. André Teles incluído no globo.
 
 ## Atualização 0.14.2
 

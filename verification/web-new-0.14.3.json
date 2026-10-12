@@ -1,0 +1,11 @@
+{
+  "masterOverride": true,
+  "woodblock": true,
+  "padSounds": 4,
+  "globeResumes": true,
+  "independence": {
+    "before": 0.03537597769782643,
+    "during": 0.03534245945069244,
+    "after": 0.03534104579573342
+  }
+}

@@ -66,8 +66,7 @@ private fun normalized(s:String)=Normalizer.normalize(s,Normalizer.Form.NFD).rep
     }
 }
 private data class GlobeName(val name:String,val demo:Boolean)
-private const val paymentUrl="https://nubank.com.br/cobrar/53y8j/6ac5cae5-bc5f-4067-ada8-1154e541b67a"
-private const val pix="00020126660014BR.GOV.BCB.PIX0111411120718900229Faça parte do mundo ATMyTrack5204000053039865802BR5917Andre Souza Teles6009SAO PAULO62140510qERAMLYJ726304C2A9"
+private const val pix="atelestechnology@jim.com"
 @Composable internal fun SupportersScreen(close:()->Unit) {
     val context=LocalContext.current
     val prefs=remember { context.getSharedPreferences("supporters",Context.MODE_PRIVATE) }
@@ -104,17 +103,15 @@ private const val pix="00020126660014BR.GOV.BCB.PIX0111411120718900229Faça part
                     if(focused.isNotBlank())Text(focused,color=LightBlue,fontWeight=FontWeight.Bold)
                     TextButton(onClick={query="";rotating=true}) { Text("GIRAR AUTOMATICAMENTE") }
                     if(names.any { it.demo })Text("Demonstração: os 20 nomes iniciais são fictícios e não representam contribuições recebidas.",color=Muted,fontSize=12.sp)
-                    Text("Enviando um valor acima de R$ 10, seu nome poderá entrar no globo da ATMyTrack após conferência e inclusão manual pelo responsável.")
+                    Text("Contribua com o valor que desejar via Pix e deixe sua marca no mundo ATMyTrack.")
                     OutlinedTextField(fullName,{fullName=it;saved=false},modifier=Modifier.fillMaxWidth(),label={Text("Nome completo para publicação")},singleLine=true)
                     Button(onClick={prefs.edit().putString("fullName",fullName.trim()).apply();saved=true},enabled=fullName.trim().split(Regex("\\s+")).size>=2) { Text("SALVAR MEU NOME") }
                     if(saved)Text("Nome salvo neste aparelho. Ele ainda não foi enviado nem publicado.",color=LightBlue,fontSize=12.sp)
                     Text("Ao compartilhar, você solicita a publicação deste nome no globo. O app não verifica pagamentos automaticamente.",color=Muted,fontSize=12.sp)
                     OutlinedButton(onClick={context.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse("https://wa.me/5511970317078?text="+Uri.encode("Olá! Fiz um Pix para ATMyTrack e quero incluir ${fullName.trim()} no globo. Vou enviar o comprovante nesta conversa."))))},enabled=fullName.isNotBlank()) { Text("ENVIAR COMPROVANTE NO WHATSAPP") }
-                    Button(onClick={context.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse(paymentUrl)))},modifier=Modifier.fillMaxWidth()) { Text("ABRIR PAGAMENTO NUBANK") }
-                    OutlinedButton(onClick={(context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText("Pix ATMyTrack",pix))},modifier=Modifier.fillMaxWidth()) { Text("COPIAR PIX COPIA E COLA") }
+                    Text(pix,color=LightBlue)
+                    OutlinedButton(onClick={(context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText("Pix ATMyTrack",pix))},modifier=Modifier.fillMaxWidth()) { Text("COPIAR CHAVE PIX") }
                     Text("Beneficiário informado: Andre Souza Teles. Confira os dados no aplicativo do seu banco antes de confirmar.",color=Muted,fontSize=12.sp)
-                    Image(painterResource(R.drawable.support_pix),"QR Code Pix ATMyTrack",Modifier.fillMaxWidth().height(260.dp).background(Color.White))
-                    Text("Escaneie o QR Code ou use o Pix Copia e Cola.",color=Muted,fontSize=12.sp)
                 }
             }
         }
