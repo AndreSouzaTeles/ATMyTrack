@@ -69,10 +69,8 @@ private data class GlobeName(val name:String,val demo:Boolean)
 private const val pix="atelestechnology@jim.com"
 @Composable internal fun SupportersScreen(close:()->Unit) {
     val context=LocalContext.current
-    val prefs=remember { context.getSharedPreferences("supporters",Context.MODE_PRIVATE) }
     val names=remember { val json=JSONArray(context.assets.open("supporters.json").bufferedReader().use { it.readText() });(0 until json.length()).map { val o=json.getJSONObject(it);GlobeName(o.getString("name"),o.optBoolean("demo",false)) } }
-    var fullName by remember { mutableStateOf(prefs.getString("fullName","") ?: "") }
-    var saved by remember { mutableStateOf(false) };var query by remember { mutableStateOf("") }
+    var query by remember { mutableStateOf("") }
     var yaw by remember { mutableFloatStateOf(0f) };var pitch by remember { mutableFloatStateOf(0f) };var rotating by remember { mutableStateOf(true) };var focused by remember { mutableStateOf("") }
     val paint=remember { Paint(Paint.ANTI_ALIAS_FLAG).apply { textAlign=Paint.Align.CENTER;typeface=android.graphics.Typeface.create("sans-serif-medium",android.graphics.Typeface.NORMAL) } }
     fun center(i:Int) { yaw=-(i*2.399963f);pitch=asin(1f-2f*(i+.5f)/names.size);rotating=query.isBlank();focused=names[i].name }
@@ -83,7 +81,7 @@ private const val pix="atelestechnology@jim.com"
             Column(Modifier.safeDrawingPadding().padding(16.dp)) {
                 Row(verticalAlignment=Alignment.CenterVertically) { Text("SeuNomeNoApp",Modifier.weight(1f),fontSize=22.sp,fontWeight=FontWeight.Bold);TextButton(onClick=close){Text("FECHAR")} }
                 Column(Modifier.weight(1f).verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(12.dp)) {
-                    Text("Faça parte do mundo ATMyTrack",color=LightBlue)
+                    Text("Globo exemplo",color=LightBlue)
                     OutlinedTextField(query,{query=it},modifier=Modifier.fillMaxWidth(),label={Text("⌕ Encontrar um nome no globo")},singleLine=true)
                     if(query.isNotBlank() && names.none { normalized(it.name).contains(normalized(query)) })Text("Nome não encontrado.",color=Muted)
                     Canvas(Modifier.fillMaxWidth().height(300.dp).semantics { contentDescription="Globo de nomes; arraste para girar" }
@@ -102,16 +100,11 @@ private const val pix="atelestechnology@jim.com"
                     }
                     if(focused.isNotBlank())Text(focused,color=LightBlue,fontWeight=FontWeight.Bold)
                     TextButton(onClick={query="";rotating=true}) { Text("GIRAR AUTOMATICAMENTE") }
-                    if(names.any { it.demo })Text("Demonstração: os 20 nomes iniciais são fictícios e não representam contribuições recebidas.",color=Muted,fontSize=12.sp)
                     Text("Contribua com o valor que desejar via Pix e deixe sua marca no mundo ATMyTrack.")
-                    OutlinedTextField(fullName,{fullName=it;saved=false},modifier=Modifier.fillMaxWidth(),label={Text("Nome completo para publicação")},singleLine=true)
-                    Button(onClick={prefs.edit().putString("fullName",fullName.trim()).apply();saved=true},enabled=fullName.trim().split(Regex("\\s+")).size>=2) { Text("SALVAR MEU NOME") }
-                    if(saved)Text("Nome salvo neste aparelho. Ele ainda não foi enviado nem publicado.",color=LightBlue,fontSize=12.sp)
-                    Text("Ao compartilhar, você solicita a publicação deste nome no globo. O app não verifica pagamentos automaticamente.",color=Muted,fontSize=12.sp)
-                    OutlinedButton(onClick={context.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse("https://wa.me/5511970317078?text="+Uri.encode("Olá! Fiz um Pix para ATMyTrack e quero incluir ${fullName.trim()} no globo. Vou enviar o comprovante nesta conversa."))))},enabled=fullName.isNotBlank()) { Text("ENVIAR COMPROVANTE NO WHATSAPP") }
                     Text(pix,color=LightBlue)
                     OutlinedButton(onClick={(context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText("Pix ATMyTrack",pix))},modifier=Modifier.fillMaxWidth()) { Text("COPIAR CHAVE PIX") }
                     Text("Beneficiário informado: Andre Souza Teles. Confira os dados no aplicativo do seu banco antes de confirmar.",color=Muted,fontSize=12.sp)
+                    OutlinedButton(onClick={context.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse("https://wa.me/5511970317078?text="+Uri.encode("Olá! Fiz um Pix para ATMyTrack. Vou enviar o comprovante nesta conversa."))))}) { Text("ENVIAR COMPROVANTE NO WHATSAPP") }
                 }
             }
         }

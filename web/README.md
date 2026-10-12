@@ -1,6 +1,10 @@
-# ATMyTrack Web 0.14.3
+# ATMyTrack Web 0.14.4
 
 Player local no navegador, sem conta e sem upload de áudios. Projetos/arquivos ficam no IndexedDB da origem. Exportação/importação `.atmytrack` transfere projetos entre navegadores. Não compartilha o formato interno Android.
+
+## Atualização 0.14.4
+
+“Globo exemplo”, sem formulário de nome. Chave/cópia Pix antes de enviar comprovante; WhatsApp com mensagem genérica, mantendo os nomes do globo.
 
 ## Atualização 0.14.3
 
