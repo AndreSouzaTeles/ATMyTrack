@@ -78,6 +78,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
     val padState by vm.pad.state.collectAsState()
     var speed by remember { mutableStateOf(false) }
     var tuner by remember { mutableStateOf(false) }
+    var separationOpen by rememberSaveable { mutableStateOf(false) }
     var group by remember { mutableStateOf<String?>(null) }
     var allRouting by remember { mutableStateOf(false) }
     var routing by remember { mutableStateOf<String?>(null) }
@@ -331,11 +332,13 @@ fun PlayerScreen(vm: PlayerViewModel) {
             when(destination) {
                 MainDestination.PROJECTS -> { page=0;uiScope.launch { mainScroll.scrollTo(0) } }
                 MainDestination.TUNER -> { vm.pause();vm.pad.stop();tuner=true }
+                MainDestination.SEPARATION -> { vm.stop();vm.pad.stop();separationOpen=true }
                 MainDestination.PAYMENT -> supporters=true
                 MainDestination.HELP -> help=true
             }
         }
         if(tuner && !playback.playing) TunerScreen { tuner=false }
+        if(separationOpen) SeparationDialog(vm) { separationOpen=false }
         if(search) ProjectLibraryMenu(library.projects,search,{ navigation=false;search=false },{ project ->
             if(playback.playing)vm.pause()
             vm.select(project);navigation=false;search=false

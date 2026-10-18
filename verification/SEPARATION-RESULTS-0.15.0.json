@@ -1,0 +1,85 @@
+{
+  "benchmarks": [
+    {
+      "seconds": 10.919183673469387,
+      "serviceMilliseconds": 4262,
+      "includingSampleVerificationMilliseconds": 4982,
+      "maxReconstructionError": 3.71933E-05,
+      "frames": 481536,
+      "file": "audio_example.wav"
+    },
+    {
+      "seconds": 26.10238095238095,
+      "serviceMilliseconds": 5898,
+      "includingSampleVerificationMilliseconds": 6762,
+      "maxReconstructionError": 3.606081E-05,
+      "frames": 1151115,
+      "file": "qi-feng-le-zh.wav"
+    },
+    {
+      "seconds": 327.57551020408164,
+      "serviceMilliseconds": 76543,
+      "includingSampleVerificationMilliseconds": 88781,
+      "maxReconstructionError": 3.886223E-05,
+      "frames": 14446080,
+      "file": "long.wav"
+    }
+  ],
+  "environment": {
+    "host": "Windows, AMD Ryzen AI 9 465, 32 GB",
+    "emulatorMemoryMiB": 6144,
+    "device": "Google Android 15 API 35 emulator x86_64",
+    "vcpus": 4,
+    "acceleration": "WHPX",
+    "physicalDeviceTested": false
+  },
+  "unitFailures": 0,
+  "version": "0.15.0",
+  "modelBytes": 39362041,
+  "versionCode": 25,
+  "offlineEvidence": {
+    "airplaneMode": "enabled",
+    "observedDuringLongRun": true,
+    "activeDefaultNetwork": "none"
+  },
+  "runtime": "onnxruntime-android:1.23.2 CPU 2 threads",
+  "signing": {
+    "oldCertificate": "1f9c8116100c1b13aded62b0c2711e3aa045b60c77bb40f57f5f1a71f77e9c39",
+    "currentCertificate": "656039fc2edf595be9c8e7042b1f7b197ad319042bc8de73ff52c4bd59a3d01c",
+    "oldPackageUpgrade": "INSTALL_FAILED_UPDATE_INCOMPATIBLE",
+    "parallelPackageInstalledAndTested": true
+  },
+  "androidRuns": [
+    {
+      "passed": true,
+      "seconds": 126.237,
+      "package": "com.atmytrack.app",
+      "name": "fullCore"
+    },
+    {
+      "passed": true,
+      "seconds": 46.641,
+      "package": "com.atmytrack.app",
+      "name": "finalUi"
+    },
+    {
+      "passed": true,
+      "seconds": 51.241,
+      "package": "com.atmytrack.app.preview",
+      "name": "parallelPreview"
+    }
+  ],
+  "unitTests": 56,
+  "memory": {
+    "sampleIntervalSeconds": 3,
+    "sampledMaxPssKiB": 225094.0,
+    "process": "com.atmytrack.app:separation",
+    "absolutePeakMeasured": false
+  },
+  "apk": {
+    "preview": "7406f3fd97acb80092d13239d0e40fd814d067d4d9564f931610ac1cfcc69c24",
+    "debug": "2783aee4289f81f20e311518f9a8bc222007908b6dc70c6e0f62a26230c53969"
+  },
+  "modelRevision": "93ba771920ade509f8cbd6825b1a90856c797e08",
+  "date": "2026-10-18"
+}

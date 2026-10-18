@@ -1,10 +1,20 @@
 # ATMyTrack
 
-**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [Baixar APK Android](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.14.4/ATMyTrack-0.14.4-debug.apk)
+**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [APK Android experimental 0.15.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.15.0/ATMyTrack-0.15.0-debug.apk)
 
-## Android 0.14.4
+## Android 0.15.0
 
 Atualização incremental do player multitrack em Kotlin/Compose para Android 8.0+ (API 26). Preserva a biblioteca e os áudios internos das versões anteriores.
+
+## Atualização 0.15.0 — separação local experimental
+
+Menu **Separar Instrumentos**: Spleeter ONNX separa **Voz + Instrumental**, com download gratuito autorizado de 39.362.041 bytes, SHA-256, retomada e execução offline. Processamento em blocos e em processo Android separado; prévia, exportação WAV e importação no mixer atual ou em novo projeto. Não oferece quatro instrumentos. Requer Android 64 bits e memória disponível; recomendado 4 GB de RAM ou mais. Mantenha a tela aberta; reprodução ao vivo fica bloqueada durante a separação.
+
+[Arquitetura, licenças e limitações](verification/SEPARATION-DESIGN.md) · [Testes e entrega](verification/REPORT-0.15.0.md).
+
+**Assinatura:** a chave da versão 0.14.4 não estava nesta cópia do projeto. O APK gerado neste computador tem outro certificado e não atualiza diretamente aquela instalação. É necessária a chave anterior para assinar uma atualização compatível. Não desinstale o aplicativo do celular como solução, pois isso remove seus dados privados. O formato dos projetos permanece compatível; este impedimento é da assinatura Android.
+
+Para experimentar no celular preservando a instalação antiga, use o [APK paralelo ATMyTrack Teste IA](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.15.0/ATMyTrack-0.15.0-preview.apk), também em `dist/ATMyTrack-preview.apk`. Ele usa `com.atmytrack.app.preview`, com biblioteca e modelo próprios. Não acessa automaticamente os projetos privados do aplicativo original; importe os áudios pelo seletor Android. O APK normal continua sendo `dist/ATMyTrack-debug.apk`.
 
 ## Atualização 0.14.4 — globo e comprovante
 
@@ -118,9 +128,9 @@ Cards de projeto com altura adaptativa, nome completo e quantidade de tracks em 
 Resultados, ambiente, cenários e limites: [relatório 0.7.0](verification/REPORT-0.7.0.md).
 
 ## Instalação
-Baixe o [APK 0.12.2](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.14.4/ATMyTrack-0.14.4-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.12.2).
+Baixe o [APK experimental 0.15.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.15.0/ATMyTrack-0.15.0-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.15.0).
 
-Instale `dist/ATMyTrack-debug.apk` sobre a versão anterior, sem desinstalar. A assinatura de desenvolvimento foi mantida. O APK inclui arm64-v8a, armeabi-v7a e x86_64. Não exige conta ou assinatura. A origem de nuvem pode precisar de conexão/download.
+O arquivo local é `dist/ATMyTrack-debug.apk`. Veja o aviso de assinatura acima antes de atualizar uma instalação antiga. O APK inclui arm64-v8a, armeabi-v7a e x86_64; a separação exige 64 bits. Não exige conta ou assinatura. A origem de nuvem pode precisar de conexão/download; após instalar os pesos, a IA não precisa de rede.
 
 ## Importação e armazenamento
 - Seleção de pasta ou vários arquivos pelo seletor Android: memória interna, SD, USB e provedores de nuvem disponíveis. A origem precisa estar acessível durante a preparação; downloads dependem do provedor.

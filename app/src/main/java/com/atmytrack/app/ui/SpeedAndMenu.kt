@@ -22,7 +22,7 @@ import kotlin.math.roundToInt
     }
 }
 internal enum class MainDestination(val title:String,val symbol:String) {
-    PROJECTS("PROJETOS","▦"),TUNER("AFINADOR","♫"),PAYMENT("DEIXE SUA MARCA","◇"),HELP("CENTRAL DE DÚVIDAS","?")
+    PROJECTS("PROJETOS","▦"),TUNER("AFINADOR","♫"),SEPARATION("Separar Instrumentos","≋"),PAYMENT("DEIXE SUA MARCA","◇"),HELP("CENTRAL DE DÚVIDAS","?")
 }
 @Composable internal fun MainMenu(close:()->Unit,navigate:(MainDestination)->Unit) {
     Dialog(onDismissRequest=close,properties=DialogProperties(usePlatformDefaultWidth=false)) {
@@ -33,7 +33,7 @@ internal enum class MainDestination(val title:String,val symbol:String) {
                     Image(painterResource(R.drawable.brand_art),"Logo ATMyTrack",Modifier.size(80.dp))
                     Row(verticalAlignment=Alignment.CenterVertically) { Text("ATMyTrack",Modifier.weight(1f),fontSize=24.sp);TextButton(onClick=close){Text("FECHAR")} }
                     HorizontalDivider()
-                    listOf(MainDestination.PROJECTS,MainDestination.TUNER).forEach { item ->
+                    listOf(MainDestination.PROJECTS,MainDestination.TUNER,MainDestination.SEPARATION).forEach { item ->
                         OutlinedButton(onClick={navigate(item)},modifier=Modifier.fillMaxWidth().heightIn(min=60.dp)) { Text(item.symbol,Modifier.padding(end=16.dp),fontSize=22.sp);Text(item.title,Modifier.weight(1f)) }
                     }
                     }

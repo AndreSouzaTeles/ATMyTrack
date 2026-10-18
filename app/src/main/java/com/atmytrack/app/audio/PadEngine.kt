@@ -8,7 +8,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
 data class PadState(val note:Int=0,val minor:Boolean=false,val volume:Float=.25f,val playing:Boolean=false,val error:String?=null,val sound:String="Warm")
-class PadEngine(context:Context) {
+class PadEngine(private val context:Context) {
     private val prefs=context.getSharedPreferences("pad",0)
     private val mutable=MutableStateFlow(PadState(prefs.getInt("note",0),prefs.getBoolean("minor",false),prefs.getFloat("volume",.25f),sound=prefs.getString("sound","Warm") ?: "Warm"))
     val state=mutable.asStateFlow()
@@ -20,6 +20,7 @@ class PadEngine(context:Context) {
     }
     fun stop() { generation.incrementAndGet();mutable.value=state.value.copy(playing=false) }
     fun play() {
+        if(com.atmytrack.app.separation.SeparationLock.active(context)) { mutable.value=state.value.copy(error="Cancele a separação antes de tocar o PAD.");return }
         if(state.value.playing)return
         val token=generation.incrementAndGet();mutable.value=state.value.copy(playing=true,error=null)
         worker.execute {

@@ -6,16 +6,27 @@ android {
         applicationId = "com.atmytrack.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 24
-        versionName = "0.14.4"
+        versionCode = 25
+        versionName = "0.15.0"
+        manifestPlaceholders["appLabel"] = "ATMyTrack"
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64") }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures { compose = true }
+    buildTypes {
+        create("preview") {
+            initWith(getByName("debug"))
+            applicationIdSuffix = ".preview"
+            versionNameSuffix = "-preview"
+            manifestPlaceholders["appLabel"] = "ATMyTrack Teste IA"
+            matchingFallbacks += listOf("debug")
+        }
+    }
     ndkVersion = "28.2.13676358"
     externalNativeBuild { cmake { path = file("src/main/cpp/CMakeLists.txt"); version = "3.22.1" } }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     testOptions { unitTests.isIncludeAndroidResources = true }
+    testBuildType = providers.gradleProperty("atmytrackTestBuildType").getOrElse("debug")
 }
 tasks.register<Copy>("exportDebugApk") {
     dependsOn("assembleDebug")
@@ -23,13 +34,21 @@ tasks.register<Copy>("exportDebugApk") {
     into(rootProject.layout.projectDirectory.dir("dist"))
     rename { "ATMyTrack-debug.apk" }
 }
+tasks.register<Copy>("exportPreviewApk") {
+    dependsOn("assemblePreview")
+    from(layout.buildDirectory.file("outputs/apk/preview/app-preview.apk"))
+    into(rootProject.layout.projectDirectory.dir("dist"))
+    rename { "ATMyTrack-preview.apk" }
+}
 dependencies {
+    implementation("com.microsoft.onnxruntime:onnxruntime-android:1.23.2")
     implementation(platform("androidx.compose:compose-bom:2025.08.01"))
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.activity:activity-compose:1.10.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.2")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.robolectric:robolectric:4.14.1")

@@ -22,6 +22,59 @@ data class LibraryState(val projects: List<Project> = emptyList(), val selected:
 }
 
 class PlayerViewModel(app: Application) : AndroidViewModel(app) {
+    val separation=com.atmytrack.app.separation.SeparationController(app)
+    fun startSeparation(uri:Uri,title:String) {
+        val status=separation.state.value
+        if(!status.connected || !status.installed || status.busy)return
+        if(library.value.busy!=null || library.value.background!=null || playback.value.preparing) { message("Aguarde a preparação/importação atual terminar.");return }
+        waveJob?.cancel()
+        com.atmytrack.app.separation.SeparationLock.requested=true
+        stop();pad.stop()
+        separation.command(3,uri.toString(),title)
+    }
+    fun importSeparation(intoCurrent:Boolean) {
+        if(library.value.busy!=null || separation.state.value.busy || loadFailed)return
+        val id=separation.state.value.result
+        if(!id.matches(Regex("[a-f0-9-]{36}")))return
+        val dir=File(getApplication<Application>().filesDir,"separation/results/$id")
+        val current=library.value.current
+        if(intoCurrent && (current==null || current.stems.size>62 || current.semitones!=0 || current.speed!=100)) {
+            message("Use um novo projeto ou um projeto com até 62 tracks, tom original e velocidade 100% para adicionar stems alinhadas.");return
+        }
+        stop();pad.stop()
+        mutable.update { it.copy(busy="Importando stems separadas…") }
+        viewModelScope.launch {
+            try {
+                val project=withContext(Dispatchers.IO) {
+                    check(File(dir,"complete").isFile) { "Separação incompleta. Tente novamente." }
+                    val frames=File(dir,"complete").readLines().first().toLong()
+                    val rate=if(intoCurrent)current!!.sampleRate else 44100
+                    val tracks=listOf("Voz","Instrumental").map { name ->
+                        val file=File(dir,"$name.wav")
+                        check(file.length()==44+frames*8) { "Stem incompleta: $name" }
+                        Stem(name=name,pcm="separation/results/$id/$name.wav",frames=(frames.toDouble()*rate/44100).roundToLong(),format=PcmFormat(offset=44),sourceRate=44100,sourceFrames=frames)
+                    }
+                    if(intoCurrent)current!!.copy(stems=current.stems+tracks) else Project(name=File(dir,"title.txt").readText().ifBlank { "Música separada" },sampleRate=44100,stems=tracks)
+                }
+                val next=if(intoCurrent)library.value.projects.map { if(it.id==project.id)project else it } else library.value.projects+project
+                // The existing save queue owns all library writes; no schema change.
+                persist(next)
+                separation.consumed()
+                mutable.update { it.copy(busy=null,selected=project.id) }
+                prefs.edit().putString("selected",project.id).apply();activate(project)
+            } catch(e:Exception) { message("Não foi possível importar: ${e.message}") }
+            finally { mutable.update { it.copy(busy=null) } }
+        }
+    }
+    override fun onCleared() { separation.close();super.onCleared() }
+    fun discardSeparation() {
+        val id=separation.state.value.result
+        if(separation.state.value.busy || !id.matches(Regex("[a-f0-9-]{36}")))return
+        if(library.value.projects.none { p -> p.stems.any { it.pcm.startsWith("separation/results/$id/") } }) {
+            viewModelScope.launch(Dispatchers.IO) { File(getApplication<Application>().filesDir,"separation/results/$id").deleteRecursively() }
+        }
+        separation.consumed()
+    }
     private val engine = (app as TrackApplication).engine
     val pad = (app as TrackApplication).pad
     val playback = engine.state
@@ -41,6 +94,13 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
                 val projects = withContext(Dispatchers.IO) {
                     store.load().also { projects ->
                         if(!engine.state.value.playing && !engine.state.value.preparing) { PlaybackCache(app).prune(projects);PitchRenderer(app).prune(projects,engine.state.value.projectId.ifBlank { prefs.getString("selected","") ?: "" }) }
+                        if(!engine.state.value.playing && !engine.state.value.preparing) {
+                            val used=projects.flatMap { it.stems }.map { it.pcm }.toSet()
+                            val results=File(app.filesDir,"separation/results").canonicalFile
+                            results.listFiles()?.filter { it.isDirectory && File(it,"consumed").isFile && used.none { path -> path.startsWith("separation/results/${it.name}/") } }?.forEach { child ->
+                                if(child.canonicalFile.parentFile==results)child.deleteRecursively()
+                            }
+                        }
                         val retained = projects.map { it.id }.toSet() + engine.state.value.projectId
                         val audioRoot = File(app.filesDir, "audio").canonicalFile
                         audioRoot.listFiles()?.filter { it.isDirectory && it.name !in retained }?.forEach { candidate ->
@@ -70,7 +130,12 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
         }
         viewModelScope.launch(Dispatchers.IO) {
             for (projects in saves) {
-                try { store.save(projects) }
+                try {
+                    store.save(projects)
+                    projects.flatMap { it.stems }.mapNotNull { Regex("^separation/results/([a-f0-9-]{36})/").find(it.pcm)?.groupValues?.get(1) }.distinct().forEach { id ->
+                        File(app.filesDir,"separation/results/$id/consumed").writeText("saved")
+                    }
+                }
                 catch (e: Exception) { withContext(Dispatchers.Main) { message("Não foi possível salvar: ${e.message}. Libere espaço antes de fechar o app.") } }
             }
         }
@@ -218,6 +283,7 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
         persist(library.value.projects.map { if(it.id==p.id)next else it });activate(next)
     }
     fun play() {
+        if(separation.state.value.busy) { message("Aguarde a separação ou cancele antes de tocar ao vivo.");return }
         if (library.value.busy != null || library.value.current == null) return
         if(playback.value.projectId!=library.value.selected || !playback.value.ready || playback.value.preparing) { message("Preparando a saída de áudio. Tente novamente em instantes."); return }
         val app = getApplication<Application>()
