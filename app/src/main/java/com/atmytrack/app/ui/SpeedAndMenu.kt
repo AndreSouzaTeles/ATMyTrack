@@ -31,7 +31,7 @@ internal enum class MainDestination(val title:String,val symbol:String) {
                 Column(Modifier.safeDrawingPadding().padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
                     Column(Modifier.weight(1f).verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(12.dp)) {
                     Image(painterResource(R.drawable.brand_art),"Logo ATMyTrack",Modifier.size(80.dp))
-                    Row(verticalAlignment=Alignment.CenterVertically) { Text("ATMyTrack",Modifier.weight(1f),fontSize=24.sp);TextButton(onClick=close){Text("FECHAR")} }
+                    Row(verticalAlignment=Alignment.CenterVertically) { Text(androidx.compose.ui.res.stringResource(R.string.app_name),Modifier.weight(1f),fontSize=24.sp);TextButton(onClick=close){Text("FECHAR")} }
                     HorizontalDivider()
                     listOf(MainDestination.PROJECTS,MainDestination.TUNER,MainDestination.SEPARATION).forEach { item ->
                         OutlinedButton(onClick={navigate(item)},modifier=Modifier.fillMaxWidth().heightIn(min=60.dp)) { Text(item.symbol,Modifier.padding(end=16.dp),fontSize=22.sp);Text(item.title,Modifier.weight(1f)) }

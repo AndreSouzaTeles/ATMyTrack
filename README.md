@@ -1,10 +1,16 @@
 # ATMyTrack
 
-**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [APK Android 0.15.2](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.15.2/ATMyTrack-0.15.2-debug.apk)
+**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [APK ATMyTrack_v2 0.15.3](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.15.3/ATMyTrack_v2.apk)
 
-## Android 0.15.2
+## Android 0.15.3 — ATMyTrack_v2
 
-Atualização incremental do player multitrack em Kotlin/Compose para Android 8.0+ (API 26). Preserva a biblioteca e os áudios internos das versões anteriores.
+Player multitrack em Kotlin/Compose para Android 8.0+ (API 26). A entrega temporária ATMyTrack_v2 instala separadamente, sem acessar a biblioteca privada do aplicativo antigo.
+
+## Atualização 0.15.3 — ATMyTrack_v2 temporário
+
+Por solicitação do usuário, o APK agora instala como **ATMyTrack_v2**, identificador `com.atmytrack.app.v2`, ao lado do aplicativo original e da antiga prévia. Mantém o novo visual e todos os recursos. A biblioteca e o modelo de IA são próprios desta instalação; os dados do app antigo não são transferidos automaticamente.
+
+Build padrão gera `dist/ATMyTrack_v2.apk` e uma cópia idêntica no caminho habitual `dist/ATMyTrack-debug.apk`. Para preparar novamente o pacote original quando a chave antiga for recuperada: `-PatmytrackV2=false`. [Validação](verification/REPORT-0.15.3.md).
 
 ## Atualização 0.15.2 — visual minimalista
 
@@ -22,7 +28,7 @@ Menu **Separar Instrumentos**: Spleeter ONNX separa **Voz + Instrumental**, com 
 
 **Assinatura:** a chave da versão 0.14.4 não estava nesta cópia do projeto. O APK gerado neste computador tem outro certificado e não atualiza diretamente aquela instalação. É necessária a chave anterior para assinar uma atualização compatível. Não desinstale o aplicativo do celular como solução, pois isso remove seus dados privados. O formato dos projetos permanece compatível; este impedimento é da assinatura Android.
 
-O APK paralelo foi oferecido somente na entrega anterior 0.15.0 e instala outro aplicativo. A partir de 0.15.1, a entrega é apenas `dist/ATMyTrack-debug.apk`, com o identificador original. A chave antiga continua necessária para atualizar diretamente a instalação pública 0.14.4; mudar apenas o nome ou identificador não resolve uma assinatura diferente.
+O APK paralelo foi oferecido somente na entrega anterior 0.15.0 e instala outro aplicativo. Nas versões 0.15.1 e 0.15.2, a entrega foi apenas `dist/ATMyTrack-debug.apk`, com o identificador original. A chave antiga continua necessária para atualizar diretamente a instalação pública 0.14.4; mudar apenas o nome ou identificador não resolve uma assinatura diferente.
 
 ## Atualização 0.14.4 — globo e comprovante
 

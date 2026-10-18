@@ -1,18 +1,21 @@
 plugins { id("com.android.application"); id("org.jetbrains.kotlin.plugin.compose") }
+// Temporary side-by-side build requested by the user. Use -PatmytrackV2=false for the original package.
+val temporaryV2 = providers.gradleProperty("atmytrackV2").map { it.toBoolean() }.orElse(true).get()
 android {
     namespace = "com.atmytrack.app"
     compileSdk = 36
     defaultConfig {
-        applicationId = "com.atmytrack.app"
+        applicationId = if (temporaryV2) "com.atmytrack.app.v2" else "com.atmytrack.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 27
-        versionName = "0.15.2"
-        manifestPlaceholders["appLabel"] = "ATMyTrack"
+        versionCode = 28
+        versionName = "0.15.3"
+        manifestPlaceholders["appLabel"] = if (temporaryV2) "ATMyTrack_v2" else "ATMyTrack"
+        resValue("string", "app_name", if (temporaryV2) "ATMyTrack_v2" else "ATMyTrack")
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64") }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-    buildFeatures { compose = true }
+    buildFeatures { compose = true; resValues = true }
     ndkVersion = "28.2.13676358"
     externalNativeBuild { cmake { path = file("src/main/cpp/CMakeLists.txt"); version = "3.22.1" } }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
@@ -20,9 +23,11 @@ android {
 }
 tasks.register<Copy>("exportDebugApk") {
     dependsOn("assembleDebug")
-    from(layout.buildDirectory.file("outputs/apk/debug/app-debug.apk"))
+    from(layout.buildDirectory.file("outputs/apk/debug/app-debug.apk")) { rename { "ATMyTrack-debug.apk" } }
+    if (temporaryV2) {
+        from(layout.buildDirectory.file("outputs/apk/debug/app-debug.apk")) { rename { "ATMyTrack_v2.apk" } }
+    }
     into(rootProject.layout.projectDirectory.dir("dist"))
-    rename { "ATMyTrack-debug.apk" }
 }
 dependencies {
     implementation("com.microsoft.onnxruntime:onnxruntime-android:1.23.2")

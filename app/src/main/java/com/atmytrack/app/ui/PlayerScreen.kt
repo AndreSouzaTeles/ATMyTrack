@@ -136,7 +136,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
                     if(p==null || (!wide && !compact)) Row(Modifier.fillMaxWidth().padding(horizontal = if (narrow) 8.dp else 16.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                         MenuButton { navigation=true }
                         Image(painterResource(R.drawable.brand_art), "Logo ATMyTrack", Modifier.size(if (narrow) 28.dp else 36.dp))
-                        Text("ATMyTrack", fontWeight = FontWeight.Bold, fontSize = if (narrow) 16.sp else 20.sp)
+                        Text(androidx.compose.ui.res.stringResource(R.string.app_name), fontWeight = FontWeight.Bold, fontSize = if (narrow) 16.sp else 20.sp)
                         Spacer(Modifier.weight(1f))
                         TextButton(onClick = { importDialog = true }, enabled = library.busy == null) { Text(if (narrow) "IMPORTAR" else "+ IMPORTAR") }
                         SearchButton { search=true }
@@ -194,7 +194,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
                             Row(Modifier.fillMaxWidth().padding(horizontal=12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                 if(wide || compact) {
                                     MenuButton { navigation=true }
-                                    Text("ATMyTrack",fontWeight=FontWeight.Bold,fontSize=15.sp)
+                                    Text(androidx.compose.ui.res.stringResource(R.string.app_name),fontWeight=FontWeight.Bold,fontSize=15.sp)
                                 }
                                 SmallButton("|◀", onClick = { vm.seek(0) })
                                 Button(onClick = { if(playback.playing)vm.pause() else vm.play() }, enabled = library.busy == null && playback.ready && !playback.preparing && playback.projectId==p.id,
@@ -372,7 +372,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
         }
         val error = library.message ?: playback.error
         if (error != null) AlertDialog(onDismissRequest = vm::dismissError, title = { Text("ATMyTrack") }, text = { Text(error) }, confirmButton = { TextButton(onClick = vm::dismissError) { Text("ENTENDI") } })
-        if (help) AlertDialog(onDismissRequest = { help = false }, title = { Text("ATMyTrack • 0.15.2") }, text = {
+        if (help) AlertDialog(onDismissRequest = { help = false }, title = { Text("ATMyTrack • 0.15.3") }, text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("1. Importe uma pasta ou selecione as stems.\n2. Ajuste volume, pan, mute e solo.\n3. Defina BPM e compasso; o CLICK acompanha a timeline.\n4. Crie seções para saltar aos trechos da música.")
                 Text("A importação depende dos decoders disponíveis no Android. WAV, MP3, AAC/M4A, FLAC e OGG/Opus são tentados; arquivos incompatíveis geram erro.", color = Muted)
