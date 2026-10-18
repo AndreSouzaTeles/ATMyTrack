@@ -101,17 +101,17 @@ import kotlin.math.*
     val tuningCents=display?.targetCents ?: cents
     val tuned=f>0 && abs(tuningCents)<=3
     Column(modifier,verticalArrangement=Arrangement.Center,horizontalAlignment=Alignment.CenterHorizontally) {
-        Text(if(f>0)TuningMath.name(midi) else "—",fontSize=80.sp,fontWeight=FontWeight.Bold,color=if(tuned)LightBlue else White)
+        Text(if(f>0)TuningMath.name(midi) else "—",fontSize=80.sp,fontWeight=FontWeight.Bold,color=if(tuned)Blue else White)
         Text(if(f>0)"%.2f Hz".format(f) else "AGUARDANDO SINAL ESTÁVEL",fontSize=18.sp,color=Muted)
-        target?.let { Text("Alvo: ${it.number}ª CORDA · ${it.label}",color=LightBlue)
+        target?.let { Text("Alvo: ${it.number}ª CORDA · ${it.label}",color=SecondaryText)
             Text("%+.1f cents até o alvo".format(tuningCents),color=Muted,fontSize=14.sp) }
         Row(Modifier.fillMaxWidth().padding(horizontal=12.dp),horizontalArrangement=Arrangement.SpaceBetween) { listOf("−50","−25","0","+25","+50").forEach { Text(it,color=Muted) } }
         Canvas(Modifier.fillMaxWidth().height(42.dp).padding(horizontal=22.dp).semantics { contentDescription="Indicador de cents" }) {
             drawLine(Muted,Offset(0f,center.y),Offset(size.width,center.y),2.dp.toPx())
             drawRect(Blue.copy(alpha=.22f),Offset(size.width*.47f,0f),androidx.compose.ui.geometry.Size(size.width*.06f,size.height))
-            if(f>0) { val x=((cents.coerceIn(-50.0,50.0)+50)/100*size.width).toFloat();drawLine(if(tuned)LightBlue else White,Offset(x,0f),Offset(x,size.height),4.dp.toPx()) }
+            if(f>0) { val x=((cents.coerceIn(-50.0,50.0)+50)/100*size.width).toFloat();drawLine(if(tuned)Blue else White,Offset(x,0f),Offset(x,size.height),4.dp.toPx()) }
         }
-        Text(if(f>0)"%+.1f cents · nota captada".format(cents) else "TOQUE UMA CORDA",fontSize=22.sp,color=if(tuned)LightBlue else White)
-        if(f>0)Text(TuningMath.direction(tuningCents),fontSize=16.sp,fontWeight=FontWeight.Bold,color=if(tuned)LightBlue else Muted)
+        Text(if(f>0)"%+.1f cents · nota captada".format(cents) else "TOQUE UMA CORDA",fontSize=22.sp,color=if(tuned)Blue else White)
+        if(f>0)Text(TuningMath.direction(tuningCents),fontSize=16.sp,fontWeight=FontWeight.Bold,color=if(tuned)Blue else Muted)
     }
 }

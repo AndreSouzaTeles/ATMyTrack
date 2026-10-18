@@ -72,27 +72,27 @@ import java.io.File
     AlertDialog(onDismissRequest={if(!busy)close()},title={Column(verticalArrangement=Arrangement.spacedBy(8.dp)) {
         Text("Separar Instrumentos")
         if(state.busy) {
-            Text(state.text,color=LightBlue,style=MaterialTheme.typography.bodyMedium)
-            if(state.percent>=0)Text("${state.percent}% concluído nesta etapa",color=LightBlue,style=MaterialTheme.typography.titleMedium)
+            Text(state.text,color=SecondaryText,style=MaterialTheme.typography.bodyMedium)
+            if(state.percent>=0)Text("${state.percent}% concluído nesta etapa",color=SecondaryText,style=MaterialTheme.typography.titleMedium)
             if(state.percent>=0)LinearProgressIndicator(progress={state.percent/100f},modifier=Modifier.fillMaxWidth()) else LinearProgressIndicator(Modifier.fillMaxWidth())
         }
     }},text={
         Column(Modifier.verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(12.dp)) {
-            Text("Voz + Instrumental",color=LightBlue)
+            Text("Voz + Instrumental",color=SecondaryText)
             Text("IA local gratuita • Spleeter 2 stems. Após instalar o modelo, funciona offline. Sua música não é enviada para servidores.")
             Text("Recurso experimental: pode haver vazamento entre voz e instrumentos. Requer Android 64 bits e memória livre; recomendado 4 GB de RAM ou mais. Não separa bateria e baixo individualmente.",color=Muted)
-            Text(if(state.installed)"Modelo instalado e verificado" else "Download inicial: ${ModelStore.downloadBytes} bytes (37,54 MiB).",color=LightBlue)
+            Text(if(state.installed)"Modelo instalado e verificado" else "Download inicial: ${ModelStore.downloadBytes} bytes (37,54 MiB).",color=SecondaryText)
             OutlinedButton(onClick={stopPreview();confirmDownload=true},enabled=state.connected && !busy) { Text(if(state.installed)"VERIFICAR / REPARAR MODELO" else "BAIXAR MODELO GRATUITO") }
             OutlinedButton(onClick={stopPreview();choose.launch(arrayOf("audio/*"))},enabled=!busy) { Text("ESCOLHER MÚSICA") }
-            if(title.isNotBlank())Text(title,color=LightBlue)
+            if(title.isNotBlank())Text(title,color=SecondaryText)
             Text("Mantenha esta tela aberta. Ao sair do aplicativo, a operação é cancelada após o bloco atual. Reprodução ao vivo fica bloqueada durante a separação. A duração depende da música e do aparelho.",color=Muted)
             Text("Espaço estimado: 60,6 MiB por minuto de música + 64 MiB de reserva; o app verifica a duração e o espaço antes de processar.",color=Muted)
             Button(onClick={stopPreview();localMessage="";vm.startSeparation(Uri.parse(uriText),title)},enabled=state.connected && state.installed && uriText.isNotBlank() && !busy && result==null) { Text("INICIAR SEPARAÇÃO") }
-            if(!state.busy)Text(state.text,color=LightBlue)
+            if(!state.busy)Text(state.text,color=SecondaryText)
             if(state.error.isNotBlank())Text(state.error,color=Red)
             if(localMessage.isNotBlank())Text(localMessage)
             if(result!=null && !state.busy) {
-                Text("Concluído • WAV estéreo 44,1 kHz / float32, com duração e alinhamento comuns.",color=LightBlue)
+                Text("Concluído • WAV estéreo 44,1 kHz / float32, com duração e alinhamento comuns.",color=SecondaryText)
                 for(name in listOf("Voz","Instrumental")) {
                     Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
                         OutlinedButton(onClick={

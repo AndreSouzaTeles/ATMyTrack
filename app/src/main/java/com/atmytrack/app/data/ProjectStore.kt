@@ -50,7 +50,7 @@ class ProjectStore(private val root: File) {
         multiplier = j.getDouble("multiplier"), click = j.getBoolean("click"), clickVolume = j.getDouble("clickVolume").toFloat(),
         master = j.getDouble("master").toFloat(), masterPan=j.optDouble("masterPan",0.0).toFloat().coerceIn(-1f,1f), masterMute = j.getBoolean("masterMute"), loop = j.getBoolean("loop"),
         key = j.getString("key"), artwork = j.getString("artwork"),
-        markers = j.getJSONArray("markers").objects().map { m -> Marker(m.getString("id"), m.getString("name"), m.getLong("start"), m.getLong("end"), (m.optLong("color",0xFF60A5FA) and 0xFFFFFF) or 0xFF000000) },
+        markers = j.getJSONArray("markers").objects().map { m -> Marker(m.getString("id"), m.getString("name"), m.getLong("start"), m.getLong("end"), (m.optLong("color",0xFF8AA7C2) and 0xFFFFFF) or 0xFF000000) },
         dcas=(j.optJSONArray("dcas") ?: JSONArray()).objects().map { Dca(it.getString("id"),it.getString("name"),it.getJSONArray("members").strings(),it.getDouble("volume").toFloat(),it.getBoolean("mute")) },
         buses=(j.optJSONArray("buses") ?: JSONArray()).objects().map { Bus(it.getString("id"),it.getString("name"),it.getDouble("volume").toFloat(),it.getBoolean("mute"),it.getString("destination")) },
         semitones=j.optInt("semitones"),targetKey=j.optString("targetKey"),pitchTracks=(j.optJSONArray("pitchTracks") ?: JSONArray()).strings(),

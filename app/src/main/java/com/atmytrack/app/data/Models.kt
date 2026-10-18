@@ -11,7 +11,7 @@ data class Stem(
     val bus: String = "", val route: String = "BOTH", val pitchFile: String = "", val pitchApplied: Int = 0, val sourceRate: Int = 0, val sourceFrames: Long = 0, val dspSpeed: Int = 100
 )
 data class Marker(val id: String = UUID.randomUUID().toString(), val name: String,
-    val start: Long, val end: Long, val color: Long = 0xFF60A5FA)
+    val start: Long, val end: Long, val color: Long = 0xFF8AA7C2)
 data class Project(
     val id: String = UUID.randomUUID().toString(), val name: String,
     val sampleRate: Int, val stems: List<Stem>, val bpm: Double = 70.0,

@@ -19,7 +19,7 @@ import com.atmytrack.app.audio.PadEngine
         Choice("Som",p.sound,com.atmytrack.app.audio.PadSynth.sounds) { engine.configure(sound=it) }
         Text("Volume do PAD")
         Slider(p.volume,{engine.configure(volume=it)},modifier=Modifier.fillMaxWidth())
-        Text(if(p.playing)"SOANDO · ${notes[p.note]}${if(p.minor)"m" else ""}" else "PARADO",color=LightBlue)
+        Text(if(p.playing)"SOANDO · ${notes[p.note]}${if(p.minor)"m" else ""}" else "PARADO",color=SecondaryText)
         Row(horizontalArrangement=Arrangement.spacedBy(10.dp)) {
             Button(onClick=engine::play,enabled=!p.playing) { Text("▶ PLAY PAD") }
             OutlinedButton(onClick=engine::stop,enabled=p.playing) { Text("■ STOP PAD") }

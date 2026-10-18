@@ -18,7 +18,7 @@ import kotlin.math.roundToInt
 
 @Composable internal fun MenuButton(click:()->Unit) {
     IconButton(onClick=click,modifier=Modifier.semantics { contentDescription="Abrir menu principal" }) {
-        Canvas(Modifier.size(24.dp)) { for(y in listOf(.2f,.5f,.8f))drawLine(LightBlue,Offset(0f,size.height*y),Offset(size.width,size.height*y),2.dp.toPx()) }
+        Canvas(Modifier.size(24.dp)) { for(y in listOf(.2f,.5f,.8f))drawLine(SecondaryText,Offset(0f,size.height*y),Offset(size.width,size.height*y),2.dp.toPx()) }
     }
 }
 internal enum class MainDestination(val title:String,val symbol:String) {
@@ -53,12 +53,12 @@ internal enum class MainDestination(val title:String,val symbol:String) {
     fun apply() { vm.applySpeed(speed,selected,preset);close() }
     fun requestApply() { if(speed!=100 && selected.isNotEmpty() && p.stems.any { it.id !in selected })warning=true else apply() }
     AlertDialog(onDismissRequest=close,title={Text("VELOCIDADE")},text={Column(Modifier.verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(8.dp)) {
-        Text("$speed%",fontSize=40.sp,color=LightBlue)
+        Text("$speed%",fontSize=40.sp,color=SecondaryText)
         Row(verticalAlignment=Alignment.CenterVertically) { TextButton(onClick={speed=(speed-1).coerceAtLeast(50)}){Text("−")};Text("${if(speed==100)"ORIGINAL" else "$speed%"}",Modifier.weight(1f));TextButton(onClick={speed=(speed+1).coerceAtMost(200)}){Text("+")} }
         Slider(speed.toFloat(),{speed=it.roundToInt()},valueRange=50f..200f,steps=149,modifier=Modifier.semantics { contentDescription="Percentual da velocidade" })
         Text("50% — 200% • tom preservado",color=Muted)
         listOf(listOf(50,75,80),listOf(90,100,110),listOf(125,150,200)).forEach { row -> Row { row.forEach { v->TextButton(onClick={speed=v;preset=v;requestApply()},enabled=!busy,modifier=Modifier.weight(1f)){Text(if(v==100)"ORIGINAL" else "$v%") } } } }
-        Text(if(p.stems.all { it.id in selected })"VELOCIDADE GLOBAL • recomendado" else "SELEÇÃO PERSONALIZADA",color=LightBlue)
+        Text(if(p.stems.all { it.id in selected })"VELOCIDADE GLOBAL • recomendado" else "SELEÇÃO PERSONALIZADA",color=SecondaryText)
         TextButton(onClick={selected=p.stems.map { it.id }}){Text("SELECIONAR TODAS")}
         TextButton(onClick={selected=emptyList()}){Text("LIMPAR SELEÇÃO")}
         p.stems.forEach { s->Row(Modifier.fillMaxWidth().clickable { selected=if(s.id in selected)selected-s.id else selected+s.id },verticalAlignment=Alignment.CenterVertically) { Checkbox(s.id in selected,{checked->selected=if(checked)selected+s.id else selected-s.id});Text(s.name) } }
@@ -74,10 +74,10 @@ internal enum class MainDestination(val title:String,val symbol:String) {
         colors=ButtonDefaults.outlinedButtonColors(containerColor=if(active)Blue.copy(alpha=.15f) else Control),
         border=BorderStroke(1.dp,if(active)Blue else Muted.copy(alpha=.3f)),contentPadding=PaddingValues(8.dp)) {
         if(label in listOf("PAD","TOM","VELOCIDADE")) {
-            Column(horizontalAlignment=Alignment.CenterHorizontally) { ToolIcon(label);Text(label,fontSize=10.sp,color=White,maxLines=1);Text(value,fontSize=11.sp,color=LightBlue,maxLines=1) }
+            Column(horizontalAlignment=Alignment.CenterHorizontally) { ToolIcon(label);Text(label,fontSize=10.sp,color=White,maxLines=1);Text(value,fontSize=11.sp,color=SecondaryText,maxLines=1) }
         } else {
             ToolIcon(label);Spacer(Modifier.width(6.dp))
-            Column(horizontalAlignment=Alignment.CenterHorizontally) { Text(label,fontSize=11.sp,color=White);Text(value,fontSize=13.sp,color=LightBlue) }
+            Column(horizontalAlignment=Alignment.CenterHorizontally) { Text(label,fontSize=11.sp,color=White);Text(value,fontSize=13.sp,color=SecondaryText) }
         }
     }
 }
@@ -85,17 +85,17 @@ internal enum class MainDestination(val title:String,val symbol:String) {
 @Composable internal fun ToolIcon(label:String) {
     Canvas(Modifier.size(18.dp)) {
         val stroke=androidx.compose.ui.graphics.drawscope.Stroke(2.dp.toPx())
-        fun line(x:Float,y:Float,x2:Float,y2:Float)=drawLine(LightBlue,Offset(size.width*x,size.height*y),Offset(size.width*x2,size.height*y2),2.dp.toPx())
+        fun line(x:Float,y:Float,x2:Float,y2:Float)=drawLine(SecondaryText,Offset(size.width*x,size.height*y),Offset(size.width*x2,size.height*y2),2.dp.toPx())
         when(label) {
-            "VELOCIDADE" -> { drawArc(LightBlue,150f,240f,false,style=stroke);line(.5f,.5f,.8f,.2f) }
+            "VELOCIDADE" -> { drawArc(SecondaryText,150f,240f,false,style=stroke);line(.5f,.5f,.8f,.2f) }
             "PAD" -> { line(.1f,.7f,.1f,.4f);line(.3f,.85f,.3f,.2f);line(.5f,.95f,.5f,.1f);line(.7f,.85f,.7f,.2f);line(.9f,.7f,.9f,.4f) }
             "TOM" -> { line(.35f,.1f,.25f,.9f);line(.75f,.1f,.65f,.9f);line(.1f,.4f,.9f,.3f);line(.1f,.7f,.9f,.6f) }
-            "LOOP","ATUALIZAR SAÍDA" -> { drawArc(LightBlue,35f,290f,false,style=stroke);line(.9f,.05f,.9f,.4f);line(.9f,.4f,.6f,.4f) }
+            "LOOP","ATUALIZAR SAÍDA" -> { drawArc(SecondaryText,35f,290f,false,style=stroke);line(.9f,.05f,.9f,.4f);line(.9f,.4f,.6f,.4f) }
             "+ SEÇÃO" -> { line(.2f,.1f,.2f,.95f);line(.2f,.1f,.85f,.1f);line(.85f,.1f,.85f,.5f);line(.85f,.5f,.2f,.5f) }
             "METRÔNOMO","CLICK INTERNO" -> { line(.5f,.1f,.1f,.9f);line(.1f,.9f,.9f,.9f);line(.9f,.9f,.5f,.1f);line(.5f,.75f,.8f,.2f) }
             "ROUTING","STEREO SPLIT" -> { line(.1f,.5f,.45f,.5f);line(.45f,.5f,.8f,.15f);line(.45f,.5f,.8f,.85f) }
             "BOTH ALL" -> { line(.15f,.2f,.15f,.8f);line(.85f,.2f,.85f,.8f);line(.15f,.5f,.85f,.5f) }
-            else -> { for(i in 1..3) { val x=i*.25f;line(x,.1f,x,.9f);drawCircle(LightBlue,2.dp.toPx(),Offset(size.width*x,size.height*(if(i==2).35f else .65f))) } }
+            else -> { for(i in 1..3) { val x=i*.25f;line(x,.1f,x,.9f);drawCircle(SecondaryText,2.dp.toPx(),Offset(size.width*x,size.height*(if(i==2).35f else .65f))) } }
         }
     }
 }
@@ -108,7 +108,7 @@ internal enum class MainDestination(val title:String,val symbol:String) {
         Column(horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.spacedBy(4.dp)) {
             ToolIcon(label)
             Text(label,fontSize=10.sp,lineHeight=12.sp,color=White,textAlign=androidx.compose.ui.text.style.TextAlign.Center,maxLines=2)
-            Text(value,fontSize=10.sp,color=LightBlue,maxLines=1)
+            Text(value,fontSize=10.sp,color=SecondaryText,maxLines=1)
         }
     }
 }

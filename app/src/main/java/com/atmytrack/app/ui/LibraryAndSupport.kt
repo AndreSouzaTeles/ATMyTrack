@@ -37,7 +37,7 @@ import kotlin.math.*
 private fun normalized(s:String)=Normalizer.normalize(s,Normalizer.Form.NFD).replace(Regex("\\p{M}"),"").lowercase()
 @Composable internal fun SearchButton(click:()->Unit) {
     IconButton(onClick=click,modifier=Modifier.semantics { contentDescription="Pesquisar projetos" }) {
-        Canvas(Modifier.size(22.dp)) { drawCircle(Blue,size.width*.30f,Offset(size.width*.4f,size.height*.4f),style=androidx.compose.ui.graphics.drawscope.Stroke(2.dp.toPx()));drawLine(Blue,Offset(size.width*.63f,size.height*.63f),Offset(size.width*.92f,size.height*.92f),2.dp.toPx()) }
+        Canvas(Modifier.size(22.dp)) { drawCircle(SecondaryText,size.width*.30f,Offset(size.width*.4f,size.height*.4f),style=androidx.compose.ui.graphics.drawscope.Stroke(2.dp.toPx()));drawLine(SecondaryText,Offset(size.width*.63f,size.height*.63f),Offset(size.width*.92f,size.height*.92f),2.dp.toPx()) }
     }
 }
 @Composable internal fun ProjectLibraryMenu(projects:List<Project>,searchMode:Boolean,close:()->Unit,choose:(Project)->Unit,help:()->Unit,support:()->Unit) {
@@ -53,7 +53,7 @@ private fun normalized(s:String)=Normalizer.normalize(s,Normalizer.Form.NFD).rep
                     Text("${filtered.size} projetos",color=Muted,fontSize=12.sp)
                     LazyColumn(Modifier.weight(1f).semantics { contentDescription="Resultados de projetos" },verticalArrangement=Arrangement.spacedBy(8.dp)) { items(filtered,key={it.id}) { p ->
                         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Control).clickable { choose(p) }.semantics { contentDescription="Abrir projeto ${p.id}" }.padding(14.dp)) {
-                            Text(p.name,fontWeight=FontWeight.SemiBold);Text("${p.targetKey.ifBlank { p.key }} · ${p.bpm} BPM",color=LightBlue,fontSize=12.sp)
+                            Text(p.name,fontWeight=FontWeight.SemiBold);Text("${p.targetKey.ifBlank { p.key }} · ${p.bpm} BPM",color=SecondaryText,fontSize=12.sp)
                         }
                     } }
                     if(filtered.isEmpty())Text("Nenhum projeto encontrado.",color=Muted)
@@ -81,7 +81,7 @@ private const val pix="atelestechnology@jim.com"
             Column(Modifier.safeDrawingPadding().padding(16.dp)) {
                 Row(verticalAlignment=Alignment.CenterVertically) { Text("SeuNomeNoApp",Modifier.weight(1f),fontSize=22.sp,fontWeight=FontWeight.Bold);TextButton(onClick=close){Text("FECHAR")} }
                 Column(Modifier.weight(1f).verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(12.dp)) {
-                    Text("Globo exemplo",color=LightBlue)
+                    Text("Globo exemplo",color=SecondaryText)
                     OutlinedTextField(query,{query=it},modifier=Modifier.fillMaxWidth(),label={Text("⌕ Encontrar um nome no globo")},singleLine=true)
                     if(query.isNotBlank() && names.none { normalized(it.name).contains(normalized(query)) })Text("Nome não encontrado.",color=Muted)
                     Canvas(Modifier.fillMaxWidth().height(300.dp).semantics { contentDescription="Globo de nomes; arraste para girar" }
@@ -92,16 +92,16 @@ private const val pix="atelestechnology@jim.com"
                             if(candidate!=null && candidate.second<70.dp.toPx())center(candidate.first)
                         } }) {
                         val radius=min(size.width,size.height)*.37f
-                        drawCircle(Brush.radialGradient(listOf(Color(0xFF142C55),Bg)),radius*1.15f)
+                        drawCircle(Brush.radialGradient(listOf(Control,Bg)),radius*1.15f)
                         names.indices.map { i -> val lat=asin(1f-2f*(i+.5f)/names.size);val lon=i*2.399963f+yaw;val z=cos(lat)*cos(lon);floatArrayOf(i.toFloat(),cos(lat)*sin(lon),sin(lat)*cos(pitch)-z*sin(pitch),sin(lat)*sin(pitch)+z*cos(pitch)) }.sortedBy { it[3] }.forEach { v ->
-                            paint.color=android.graphics.Color.rgb(147,197,253);paint.alpha=(65+190*((v[3]+1)/2)).toInt();paint.textSize=(9f+4f*((v[3]+1)/2)).sp.toPx()
+                            paint.color=android.graphics.Color.rgb(194,197,201);paint.alpha=(65+190*((v[3]+1)/2)).toInt();paint.textSize=(9f+4f*((v[3]+1)/2)).sp.toPx()
                             drawContext.canvas.nativeCanvas.drawText(names[v[0].toInt()].name,center.x+v[1]*radius,center.y-v[2]*radius,paint)
                         }
                     }
-                    if(focused.isNotBlank())Text(focused,color=LightBlue,fontWeight=FontWeight.Bold)
+                    if(focused.isNotBlank())Text(focused,color=SecondaryText,fontWeight=FontWeight.Bold)
                     TextButton(onClick={query="";rotating=true}) { Text("GIRAR AUTOMATICAMENTE") }
                     Text("Contribua com o valor que desejar via Pix e deixe sua marca no mundo ATMyTrack.")
-                    Text(pix,color=LightBlue)
+                    Text(pix,color=SecondaryText)
                     OutlinedButton(onClick={(context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText("Pix ATMyTrack",pix))},modifier=Modifier.fillMaxWidth()) { Text("COPIAR CHAVE PIX") }
                     Text("Beneficiário informado: Andre Souza Teles. Confira os dados no aplicativo do seu banco antes de confirmar.",color=Muted,fontSize=12.sp)
                     OutlinedButton(onClick={context.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse("https://wa.me/5511970317078?text="+Uri.encode("Olá! Fiz um Pix para ATMyTrack. Vou enviar o comprovante nesta conversa."))))}) { Text("ENVIAR COMPROVANTE NO WHATSAPP") }

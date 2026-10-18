@@ -1,10 +1,14 @@
 # ATMyTrack
 
-**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [APK Android 0.15.1](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.15.1/ATMyTrack-0.15.1-debug.apk)
+**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [APK Android 0.15.2](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.15.2/ATMyTrack-0.15.2-debug.apk)
 
-## Android 0.15.1
+## Android 0.15.2
 
 Atualização incremental do player multitrack em Kotlin/Compose para Android 8.0+ (API 26). Preserva a biblioteca e os áudios internos das versões anteriores.
+
+## Atualização 0.15.2 — visual minimalista
+
+Interface Android em preto/grafite, textos e controles neutros, com azul suave nos destaques. Logo, ícone e splash mantêm o desenho e recebem cinza e azul discreto. Novas seções usam a paleta suave; projetos e cores personalizadas anteriores são preservados. [Identidade visual](branding/BRAND-0.15.2.md) · [Validação e APK](verification/REPORT-0.15.2.md).
 
 ## Atualização 0.15.1 — aplicativo único e percentual do modelo
 
