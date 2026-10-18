@@ -73,6 +73,7 @@ import java.io.File
         Text("Separar Instrumentos")
         if(state.busy) {
             Text(state.text,color=LightBlue,style=MaterialTheme.typography.bodyMedium)
+            if(state.percent>=0)Text("${state.percent}% concluído nesta etapa",color=LightBlue,style=MaterialTheme.typography.titleMedium)
             if(state.percent>=0)LinearProgressIndicator(progress={state.percent/100f},modifier=Modifier.fillMaxWidth()) else LinearProgressIndicator(Modifier.fillMaxWidth())
         }
     }},text={

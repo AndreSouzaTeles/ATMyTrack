@@ -1,10 +1,14 @@
 # ATMyTrack
 
-**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [APK Android experimental 0.15.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.15.0/ATMyTrack-0.15.0-debug.apk)
+**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [APK Android 0.15.1](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.15.1/ATMyTrack-0.15.1-debug.apk)
 
-## Android 0.15.0
+## Android 0.15.1
 
 Atualização incremental do player multitrack em Kotlin/Compose para Android 8.0+ (API 26). Preserva a biblioteca e os áudios internos das versões anteriores.
+
+## Atualização 0.15.1 — aplicativo único e percentual do modelo
+
+Entrega somente o pacote original **ATMyTrack** (`com.atmytrack.app`), sem gerar um aplicativo paralelo. Download, verificação de integridade e instalação dos arquivos mostram percentuais numéricos reais por etapa. A conclusão só é anunciada após validar os dois modelos e registrar a instalação. [Testes e pendência de assinatura](verification/REPORT-0.15.1.md).
 
 ## Atualização 0.15.0 — separação local experimental
 
@@ -14,7 +18,7 @@ Menu **Separar Instrumentos**: Spleeter ONNX separa **Voz + Instrumental**, com 
 
 **Assinatura:** a chave da versão 0.14.4 não estava nesta cópia do projeto. O APK gerado neste computador tem outro certificado e não atualiza diretamente aquela instalação. É necessária a chave anterior para assinar uma atualização compatível. Não desinstale o aplicativo do celular como solução, pois isso remove seus dados privados. O formato dos projetos permanece compatível; este impedimento é da assinatura Android.
 
-Para experimentar no celular preservando a instalação antiga, use o [APK paralelo ATMyTrack Teste IA](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.15.0/ATMyTrack-0.15.0-preview.apk), também em `dist/ATMyTrack-preview.apk`. Ele usa `com.atmytrack.app.preview`, com biblioteca e modelo próprios. Não acessa automaticamente os projetos privados do aplicativo original; importe os áudios pelo seletor Android. O APK normal continua sendo `dist/ATMyTrack-debug.apk`.
+O APK paralelo foi oferecido somente na entrega anterior 0.15.0 e instala outro aplicativo. A partir de 0.15.1, a entrega é apenas `dist/ATMyTrack-debug.apk`, com o identificador original. A chave antiga continua necessária para atualizar diretamente a instalação pública 0.14.4; mudar apenas o nome ou identificador não resolve uma assinatura diferente.
 
 ## Atualização 0.14.4 — globo e comprovante
 
@@ -128,7 +132,7 @@ Cards de projeto com altura adaptativa, nome completo e quantidade de tracks em 
 Resultados, ambiente, cenários e limites: [relatório 0.7.0](verification/REPORT-0.7.0.md).
 
 ## Instalação
-Baixe o [APK experimental 0.15.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.15.0/ATMyTrack-0.15.0-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.15.0).
+Baixe o [APK 0.15.1 do pacote original](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.15.1/ATMyTrack-0.15.1-debug.apk) ou veja a [release e checksum](https://github.com/AndreSouzaTeles/ATMyTrack/releases/tag/v0.15.1). A atualização da instalação antiga exige a chave de assinatura anterior, conforme o aviso acima.
 
 O arquivo local é `dist/ATMyTrack-debug.apk`. Veja o aviso de assinatura acima antes de atualizar uma instalação antiga. O APK inclui arm64-v8a, armeabi-v7a e x86_64; a separação exige 64 bits. Não exige conta ou assinatura. A origem de nuvem pode precisar de conexão/download; após instalar os pesos, a IA não precisa de rede.
 

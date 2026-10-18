@@ -8,6 +8,21 @@ import org.junit.Assert.*
 import kotlin.math.*
 
 class SeparationTest {
+    @Test fun integrityProgressCountsBytesAndDoesNotAcceptWrongHash() {
+        val file=File.createTempFile("model-progress",".onnx")
+        try {
+            file.writeBytes(ByteArray(1048576+17) { (it*31).toByte() })
+            val weight=ModelStore.Weight("test",file.length(),ModelStore.sha256(file))
+            val progress=mutableListOf<Int>()
+            assertTrue(ModelStore.verify(file,weight,progress={progress+=it}))
+            assertEquals(0,progress.first());assertEquals(100,progress.last())
+            assertTrue(progress.zipWithNext().all { (a,b)->b>a });assertTrue(progress.size>2)
+            java.io.RandomAccessFile(file,"rw").use { it.seek(500000);val value=it.readUnsignedByte();it.seek(500000);it.writeByte(value xor 255) }
+            progress.clear()
+            assertFalse(ModelStore.verify(file,weight,progress={progress+=it}))
+            assertEquals(100,progress.last()) // all bytes read is not successful installation
+        } finally { file.delete() }
+    }
     @Test fun fftRoundTripAndWindowOverlapHaveNoTimeShift() {
         val re=FloatArray(4096) { (sin(it*.13)+.2*cos(it*.34)).toFloat() };val expected=re.copyOf();val im=FloatArray(4096)
         SeparationDsp.fft(re,im);SeparationDsp.fft(re,im,true)

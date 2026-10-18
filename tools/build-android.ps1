@@ -11,10 +11,10 @@ if(-not (Test-Path (Join-Path $env:JAVA_HOME 'bin\java.exe'))) { throw 'Configur
 if(-not (Test-Path (Join-Path $env:ANDROID_HOME 'platforms\android-36\android.jar'))) { throw 'Configure ANDROID_HOME com SDK 36, build-tools 36.0.0, NDK 28.2.13676358 e CMake 3.22.1.' }
 Push-Location $projectRoot
 try {
-    & .\gradlew.bat testDebugUnitTest lintDebug lintPreview :app:exportDebugApk :app:exportPreviewApk assembleDebugAndroidTest --console=plain
+    & .\gradlew.bat testDebugUnitTest lintDebug :app:exportDebugApk assembleDebugAndroidTest --console=plain
     if($LASTEXITCODE) { throw "Build/testes falharam: $LASTEXITCODE" }
     if($DeviceTest) {
-        & .\gradlew.bat connectedDebugAndroidTest '-Pandroid.testInstrumentationRunnerArguments.class=com.atmytrack.app.SeparationIntegrationTest' --console=plain
+        & .\gradlew.bat connectedDebugAndroidTest '-Pandroid.testInstrumentationRunnerArguments.class=com.atmytrack.app.ModelInstallProgressUiTest,com.atmytrack.app.SeparationIntegrationTest' --console=plain
         if($LASTEXITCODE) { throw "Teste Android falhou: $LASTEXITCODE" }
     }
     Get-FileHash dist\ATMyTrack-debug.apk -Algorithm SHA256

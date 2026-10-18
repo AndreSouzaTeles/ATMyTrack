@@ -6,39 +6,23 @@ android {
         applicationId = "com.atmytrack.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 25
-        versionName = "0.15.0"
+        versionCode = 26
+        versionName = "0.15.1"
         manifestPlaceholders["appLabel"] = "ATMyTrack"
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64") }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures { compose = true }
-    buildTypes {
-        create("preview") {
-            initWith(getByName("debug"))
-            applicationIdSuffix = ".preview"
-            versionNameSuffix = "-preview"
-            manifestPlaceholders["appLabel"] = "ATMyTrack Teste IA"
-            matchingFallbacks += listOf("debug")
-        }
-    }
     ndkVersion = "28.2.13676358"
     externalNativeBuild { cmake { path = file("src/main/cpp/CMakeLists.txt"); version = "3.22.1" } }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     testOptions { unitTests.isIncludeAndroidResources = true }
-    testBuildType = providers.gradleProperty("atmytrackTestBuildType").getOrElse("debug")
 }
 tasks.register<Copy>("exportDebugApk") {
     dependsOn("assembleDebug")
     from(layout.buildDirectory.file("outputs/apk/debug/app-debug.apk"))
     into(rootProject.layout.projectDirectory.dir("dist"))
     rename { "ATMyTrack-debug.apk" }
-}
-tasks.register<Copy>("exportPreviewApk") {
-    dependsOn("assemblePreview")
-    from(layout.buildDirectory.file("outputs/apk/preview/app-preview.apk"))
-    into(rootProject.layout.projectDirectory.dir("dist"))
-    rename { "ATMyTrack-preview.apk" }
 }
 dependencies {
     implementation("com.microsoft.onnxruntime:onnxruntime-android:1.23.2")

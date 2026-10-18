@@ -41,10 +41,15 @@ class SeparationService:Service() {
                 installed=models.installed(::check)
                 when(action) {
                     2 -> {
-                        models.install(::check) { bytes,total ->
+                        var lastStage=""
+                        fun installEvent(stage:String,percent:Int) {
                             val now=SystemClock.elapsedRealtime()
-                            if(now-lastSent>200 || bytes==total) { lastSent=now;event("Baixando modelo • $bytes / $total bytes",(bytes*100/total).toInt(),true) }
-                        };installed=true
+                            if(lastStage!=stage || now-lastSent>200 || percent==100) { lastStage=stage;lastSent=now;event(stage,percent,true) }
+                        }
+                        models.installWithProgress(::check,
+                            progress={bytes,total -> installEvent("Baixando modelo",(bytes*100/total).toInt()) },
+                            phase=::installEvent)
+                        installed=true
                     }
                     3 -> {
                         require(installed) { "Baixe o modelo gratuito antes de separar." }
@@ -68,7 +73,7 @@ class SeparationService:Service() {
                     }
                 }
                 val recovered=File(root,"results").listFiles()?.filter { File(it,"complete").isFile && !File(it,"consumed").exists() }?.maxByOrNull { it.lastModified() }
-                event(if(installed)"Modelo verificado • disponível offline" else "Modelo ausente ou inválido. Use BAIXAR MODELO para instalar ou reparar.",dir=recovered?.name ?: "")
+                event(if(installed && action==2)"Modelo instalado • 100% • disponível offline" else if(installed)"Modelo verificado • disponível offline" else "Modelo ausente ou inválido. Use BAIXAR MODELO para instalar ou reparar.",percent=if(installed && action==2)100 else -1,dir=recovered?.name ?: "")
             } catch(e:CancellationException) { event("Operação cancelada. Você pode tentar novamente.") }
             catch(e:Throwable) { event(error=if(e is OutOfMemoryError)"A IA excedeu a memória disponível. Feche outros apps e tente novamente." else e.message ?: "Falha na separação.") }
             finally { lock.delete();output?.deleteRecursively() }
