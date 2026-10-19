@@ -9,12 +9,12 @@ import java.io.File
 class BrandAssetsTest {
     @Test fun exportDensitiesAndVerifyAdaptiveSafeZone() {
         val context=InstrumentationRegistry.getInstrumentation().targetContext
-        val folder=File(context.getExternalFilesDir(null),"brand-0.15.2").apply { mkdirs() }
+        val folder=File(context.getExternalFilesDir(null),"brand-0.17.0").apply { mkdirs() }
         fun save(bitmap:Bitmap,name:String) { File(folder,name).outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG,100,it) };bitmap.recycle() }
         for(size in listOf(48,72,96,144,192,512)) {
             val bitmap=Bitmap.createBitmap(size,size,Bitmap.Config.ARGB_8888);val canvas=Canvas(bitmap)
-            canvas.drawRoundRect(0f,0f,size.toFloat(),size.toFloat(),size*.22f,size*.22f,Paint(Paint.ANTI_ALIAS_FLAG).apply { color=Color.rgb(21,22,23) })
-            context.getDrawable(R.drawable.ic_launcher_foreground)!!.apply { setBounds(0,0,size,size);draw(canvas) }
+            canvas.drawRoundRect(0f,0f,size.toFloat(),size.toFloat(),size*.22f,size*.22f,Paint(Paint.ANTI_ALIAS_FLAG).apply { color=Color.rgb(16,16,16) })
+            context.getDrawable(R.drawable.logo)!!.apply { setBounds(0,0,size,size);draw(canvas) }
             save(bitmap,"icon-$size.png")
         }
         for((id,name) in listOf(R.drawable.ic_launcher_foreground to "foreground",R.drawable.logo to "symbol")) {
@@ -27,9 +27,13 @@ class BrandAssetsTest {
         for(round in listOf(true,false)) {
             val bitmap=Bitmap.createBitmap(512,512,Bitmap.Config.ARGB_8888); val canvas=Canvas(bitmap)
             val mask=Path().apply { if(round)addCircle(256f,256f,256f,Path.Direction.CW) else addRoundRect(0f,0f,512f,512f,110f,110f,Path.Direction.CW) }
-            canvas.clipPath(mask);canvas.drawColor(Color.rgb(21,22,23))
-            context.getDrawable(R.drawable.ic_launcher_foreground)!!.apply { setBounds(0,0,512,512);draw(canvas) }
+            canvas.clipPath(mask);canvas.drawColor(Color.rgb(16,16,16))
+            context.getDrawable(R.drawable.logo)!!.apply { setBounds(0,0,512,512);draw(canvas) }
             save(bitmap,if(round)"circle.png" else "rounded.png")
         }
+        val adaptive=Bitmap.createBitmap(512,512,Bitmap.Config.ARGB_8888)
+        context.getDrawable(R.mipmap.ic_launcher)!!.apply { setBounds(0,0,512,512);draw(Canvas(adaptive)) }
+        save(adaptive,"adaptive.png")
+
     }
 }

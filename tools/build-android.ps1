@@ -14,7 +14,7 @@ try {
     & .\gradlew.bat testDebugUnitTest lintDebug :app:exportDebugApk assembleDebugAndroidTest --console=plain
     if($LASTEXITCODE) { throw "Build/testes falharam: $LASTEXITCODE" }
     if($DeviceTest) {
-        & .\gradlew.bat connectedDebugAndroidTest '-Pandroid.testInstrumentationRunnerArguments.class=com.atmytrack.app.ModelInstallProgressUiTest,com.atmytrack.app.DemucsSixStemTest' --console=plain
+        & .\gradlew.bat connectedDebugAndroidTest '-Pandroid.testInstrumentationRunnerArguments.class=com.atmytrack.app.BrandAssetsTest,com.atmytrack.app.Sections09Test,com.atmytrack.app.PadLocks13Test' --console=plain
         if($LASTEXITCODE) { throw "Teste Android falhou: $LASTEXITCODE" }
     }
     Get-FileHash dist\ATMyTrack-debug.apk -Algorithm SHA256

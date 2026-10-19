@@ -20,7 +20,6 @@ class PadEngine(private val context:Context) {
     }
     fun stop() { generation.incrementAndGet();mutable.value=state.value.copy(playing=false) }
     fun play() {
-        if(com.atmytrack.app.separation.SeparationLock.active(context)) { mutable.value=state.value.copy(error="Cancele a separação antes de tocar o PAD.");return }
         if(state.value.playing)return
         val token=generation.incrementAndGet();mutable.value=state.value.copy(playing=true,error=null)
         worker.execute {

@@ -1,40 +1,20 @@
 # ATMyTrack
 
-**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [APK ATMyTrack_v2 0.16.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.16.0/ATMyTrack_v2-0.16.0.apk)
+**[APK ATMyTrack_v2 0.17.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.17.0/ATMyTrack_v2-0.17.0.apk)**
 
-## Android 0.16.0 — ATMyTrack_v2
+Player multitrack para Android 8.0+ (API 26), em Kotlin/Compose. Identidade em preto/grafite e dourado discreto, com novo ícone inspirado na referência enviada em 19/10/2026.
 
-Player multitrack em Kotlin/Compose para Android 8.0+ (API 26). A entrega temporária ATMyTrack_v2 instala separadamente, sem acessar a biblioteca privada do aplicativo antigo.
+## Android 0.17.0 — dourado e remoção da IA
 
-## Atualização 0.16.0 — seis faixas e menos branco
+Separação de instrumentos removida a pedido do usuário: sem tela, serviço, modelos ou ONNX Runtime no APK. A atualização limpa os downloads e resultados descartáveis antigos; preserva WAVs já referenciados pelos projetos. O mixer, PAD, afinador, tom/velocidade, importação e biblioteca continuam disponíveis. Não exige os 6 GB de RAM da antiga função de IA.
 
-A separação de duas faixas foi substituída por **Demucs 6 fontes**: Voz, Bateria, Baixo, Guitarra, Piano e Outros. Modelo local com novo download de 136.428.532 bytes (130,11 MiB), SHA-256 e revisão fixada. Os WAVs têm o mesmo início/duração e podem ser ouvidos, exportados e adicionados ao mixer. Sintetizadores/órgãos e instrumentos fora das categorias podem ficar em Outros; não identifica isoladamente todos os timbres de uma música. Há vazamentos e limitações de guitarra/piano. Requer Android 64 bits com pelo menos 6 GB de RAM e cerca de 2,5 GB de memória livre.
+Atualiza o pacote **ATMyTrack_v2** (`com.atmytrack.app.v2`) com a mesma assinatura das entregas anteriores deste computador. O aplicativo original continua separado.
 
-Interface com menos brilho: textos azul-acinzentados, bordas discretas, botões preenchidos escuros; ícone mantido como aprovado. Resultados antigos de voz/instrumental e projetos importados são preservados. Continua atualizando o pacote temporário ATMyTrack_v2. [Implementação e testes](verification/REPORT-0.16.0.md).
+[Identidade e paleta](branding/BRAND-0.17.0.md) · [Validação](verification/REPORT-0.17.0.md).
 
-## Atualização 0.15.3 — ATMyTrack_v2 temporário
+Build: `tools/build-android.ps1`. Acrescente `-DeviceTest` para testes Android em dispositivo/emulador configurado. APKs em `dist/ATMyTrack-debug.apk` e `dist/ATMyTrack_v2.apk`.
 
-Por solicitação do usuário, o APK agora instala como **ATMyTrack_v2**, identificador `com.atmytrack.app.v2`, ao lado do aplicativo original e da antiga prévia. Mantém o novo visual e todos os recursos. A biblioteca e o modelo de IA são próprios desta instalação; os dados do app antigo não são transferidos automaticamente.
-
-Build padrão gera `dist/ATMyTrack_v2.apk` e uma cópia idêntica no caminho habitual `dist/ATMyTrack-debug.apk`. Para preparar novamente o pacote original quando a chave antiga for recuperada: `-PatmytrackV2=false`. [Validação](verification/REPORT-0.15.3.md).
-
-## Atualização 0.15.2 — visual minimalista
-
-Interface Android em preto/grafite, textos e controles neutros, com azul suave nos destaques. Logo, ícone e splash mantêm o desenho e recebem cinza e azul discreto. Novas seções usam a paleta suave; projetos e cores personalizadas anteriores são preservados. [Identidade visual](branding/BRAND-0.15.2.md) · [Validação e APK](verification/REPORT-0.15.2.md).
-
-## Atualização 0.15.1 — aplicativo único e percentual do modelo
-
-Entrega somente o pacote original **ATMyTrack** (`com.atmytrack.app`), sem gerar um aplicativo paralelo. Download, verificação de integridade e instalação dos arquivos mostram percentuais numéricos reais por etapa. A conclusão só é anunciada após validar os dois modelos e registrar a instalação. [Testes e pendência de assinatura](verification/REPORT-0.15.1.md).
-
-## Atualização 0.15.0 — separação local experimental
-
-Menu **Separar Instrumentos**: Spleeter ONNX separa **Voz + Instrumental**, com download gratuito autorizado de 39.362.041 bytes, SHA-256, retomada e execução offline. Processamento em blocos e em processo Android separado; prévia, exportação WAV e importação no mixer atual ou em novo projeto. Não oferece quatro instrumentos. Requer Android 64 bits e memória disponível; recomendado 4 GB de RAM ou mais. Mantenha a tela aberta; reprodução ao vivo fica bloqueada durante a separação.
-
-[Arquitetura, licenças e limitações](verification/SEPARATION-DESIGN.md) · [Testes e entrega](verification/REPORT-0.15.0.md).
-
-**Assinatura:** a chave da versão 0.14.4 não estava nesta cópia do projeto. O APK gerado neste computador tem outro certificado e não atualiza diretamente aquela instalação. É necessária a chave anterior para assinar uma atualização compatível. Não desinstale o aplicativo do celular como solução, pois isso remove seus dados privados. O formato dos projetos permanece compatível; este impedimento é da assinatura Android.
-
-O APK paralelo foi oferecido somente na entrega anterior 0.15.0 e instala outro aplicativo. Nas versões 0.15.1 e 0.15.2, a entrega foi apenas `dist/ATMyTrack-debug.apk`, com o identificador original. A chave antiga continua necessária para atualizar diretamente a instalação pública 0.14.4; mudar apenas o nome ou identificador não resolve uma assinatura diferente.
+## Histórico anterior
 
 ## Atualização 0.14.4 — globo e comprovante
 

@@ -230,7 +230,6 @@ class AudioEngine(private val context: Context) {
         committed.await()
     }
     fun play() { commands.offer {
-        if(com.atmytrack.app.separation.SeparationLock.active(context)) { pause("Aguarde a separação ou cancele antes de tocar ao vivo.");return@offer }
         val p = project ?: return@offer
         check(mutable.value.ready && !mutable.value.preparing) { "Aguarde a preparação de todas as tracks." }
         check(!outputUnavailable) { "Atualize a saída e revise o routing antes de reproduzir." }

@@ -22,7 +22,7 @@ import kotlin.math.roundToInt
     }
 }
 internal enum class MainDestination(val title:String,val symbol:String) {
-    PROJECTS("PROJETOS","▦"),TUNER("AFINADOR","♫"),SEPARATION("Separar Instrumentos","≋"),PAYMENT("DEIXE SUA MARCA","◇"),HELP("CENTRAL DE DÚVIDAS","?")
+    PROJECTS("PROJETOS","▦"),TUNER("AFINADOR","♫"),PAYMENT("DEIXE SUA MARCA","◇"),HELP("CENTRAL DE DÚVIDAS","?")
 }
 @Composable internal fun MainMenu(close:()->Unit,navigate:(MainDestination)->Unit) {
     Dialog(onDismissRequest=close,properties=DialogProperties(usePlatformDefaultWidth=false)) {
@@ -33,7 +33,7 @@ internal enum class MainDestination(val title:String,val symbol:String) {
                     Image(painterResource(R.drawable.brand_art),"Logo ATMyTrack",Modifier.size(80.dp))
                     Row(verticalAlignment=Alignment.CenterVertically) { Text(androidx.compose.ui.res.stringResource(R.string.app_name),Modifier.weight(1f),fontSize=24.sp);TextButton(onClick=close){Text("FECHAR")} }
                     HorizontalDivider()
-                    listOf(MainDestination.PROJECTS,MainDestination.TUNER,MainDestination.SEPARATION).forEach { item ->
+                    listOf(MainDestination.PROJECTS,MainDestination.TUNER).forEach { item ->
                         OutlinedButton(onClick={navigate(item)},modifier=Modifier.fillMaxWidth().heightIn(min=60.dp)) { Text(item.symbol,Modifier.padding(end=16.dp),fontSize=22.sp);Text(item.title,Modifier.weight(1f)) }
                     }
                     }
@@ -71,8 +71,8 @@ internal enum class MainDestination(val title:String,val symbol:String) {
 @Composable internal fun DspButton(label:String,value:String,active:Boolean,modifier:Modifier,click:()->Unit) {
     OutlinedButton(onClick=click,modifier=modifier.heightIn(min=58.dp).semantics { contentDescription=label },
         shape=androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
-        colors=ButtonDefaults.outlinedButtonColors(containerColor=if(active)Blue.copy(alpha=.15f) else Control),
-        border=BorderStroke(1.dp,if(active)Blue else Muted.copy(alpha=.3f)),contentPadding=PaddingValues(8.dp)) {
+        colors=ButtonDefaults.outlinedButtonColors(containerColor=if(active)Gold.copy(alpha=.15f) else Control),
+        border=BorderStroke(1.dp,if(active)Gold else Muted.copy(alpha=.3f)),contentPadding=PaddingValues(8.dp)) {
         if(label in listOf("PAD","TOM","VELOCIDADE")) {
             Column(horizontalAlignment=Alignment.CenterHorizontally) { ToolIcon(label);Text(label,fontSize=10.sp,color=White,maxLines=1);Text(value,fontSize=11.sp,color=SecondaryText,maxLines=1) }
         } else {
@@ -103,8 +103,8 @@ internal enum class MainDestination(val title:String,val symbol:String) {
 @Composable internal fun RoutingAction(label:String,value:String,active:Boolean,modifier:Modifier,click:()->Unit) {
     OutlinedButton(onClick=click,modifier=modifier.height(94.dp).semantics { contentDescription=label;selected=active },
         shape=androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
-        colors=ButtonDefaults.outlinedButtonColors(containerColor=if(active)Blue.copy(alpha=.15f) else Control),
-        border=BorderStroke(1.dp,if(active)Blue else Muted.copy(alpha=.3f)),contentPadding=PaddingValues(4.dp)) {
+        colors=ButtonDefaults.outlinedButtonColors(containerColor=if(active)Gold.copy(alpha=.15f) else Control),
+        border=BorderStroke(1.dp,if(active)Gold else Muted.copy(alpha=.3f)),contentPadding=PaddingValues(4.dp)) {
         Column(horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.spacedBy(4.dp)) {
             ToolIcon(label)
             Text(label,fontSize=10.sp,lineHeight=12.sp,color=White,textAlign=androidx.compose.ui.text.style.TextAlign.Center,maxLines=2)

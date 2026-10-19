@@ -21,7 +21,7 @@ import com.atmytrack.app.audio.PadEngine
         Slider(p.volume,{engine.configure(volume=it)},modifier=Modifier.fillMaxWidth())
         Text(if(p.playing)"SOANDO · ${notes[p.note]}${if(p.minor)"m" else ""}" else "PARADO",color=SecondaryText)
         Row(horizontalArrangement=Arrangement.spacedBy(10.dp)) {
-            Button(colors=ButtonDefaults.buttonColors(containerColor=Control,contentColor=Blue),onClick=engine::play,enabled=!p.playing) { Text("▶ PLAY PAD") }
+            Button(colors=ButtonDefaults.buttonColors(containerColor=Control,contentColor=Gold),onClick=engine::play,enabled=!p.playing) { Text("▶ PLAY PAD") }
             OutlinedButton(onClick=engine::stop,enabled=p.playing) { Text("■ STOP PAD") }
         }
         p.error?.let { Text(it,color=Red) }
