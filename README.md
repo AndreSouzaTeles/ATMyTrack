@@ -1,18 +1,20 @@
 # ATMyTrack
 
-**[APK ATMyTrack_v2 0.17.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.17.0/ATMyTrack_v2-0.17.0.apk)**
+**[APK ATMyTrack_v2 0.18.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.18.0/ATMyTrack_v2-0.18.0.apk)**
 
-Player multitrack para Android 8.0+ (API 26), em Kotlin/Compose. Identidade em preto/grafite e dourado discreto, com novo ícone inspirado na referência enviada em 19/10/2026.
+Player multitrack para Android 8.0+ (API 26), em Kotlin/Compose.
 
-## Android 0.17.0 — dourado e remoção da IA
+## Android 0.18.0 — cores por instrumento e função
 
-Separação de instrumentos removida a pedido do usuário: sem tela, serviço, modelos ou ONNX Runtime no APK. A atualização limpa os downloads e resultados descartáveis antigos; preserva WAVs já referenciados pelos projetos. O mixer, PAD, afinador, tom/velocidade, importação e biblioteca continuam disponíveis. Não exige os 6 GB de RAM da antiga função de IA.
+Base grafite neutra com canais em coral, verde suave, azul, violeta, ciano e âmbar. Cabeçalhos, PAN e faders usam a cor do instrumento; os nomes das faixas orientam essa indicação visual. Tom, velocidade, PAD, loop, metrônomo e routing têm cores próprias. Transporte verde suave, SOLO azul, MUTE âmbar e medidores verde/âmbar/vermelho. Cores personalizadas das seções já salvas são preservadas.
 
-Atualiza o pacote **ATMyTrack_v2** (`com.atmytrack.app.v2`) com a mesma assinatura das entregas anteriores deste computador. O aplicativo original continua separado.
+Ícone, logo, splash e PNGs refeitos a partir da nova referência de play/barras em ciano, azul e violeta. A separação de instrumentos continua removida.
 
-[Identidade e paleta](branding/BRAND-0.17.0.md) · [Validação](verification/REPORT-0.17.0.md).
+Atualiza **ATMyTrack_v2** (`com.atmytrack.app.v2`) com a mesma assinatura das entregas anteriores deste computador. Preserva projetos e arquivos importados.
 
-Build: `tools/build-android.ps1`. Acrescente `-DeviceTest` para testes Android em dispositivo/emulador configurado. APKs em `dist/ATMyTrack-debug.apk` e `dist/ATMyTrack_v2.apk`.
+[Identidade e prompt](branding/BRAND-0.18.0.md) · [Validação e capturas](verification/REPORT-0.18.0.md).
+
+Build: `tools/build-android.ps1`. Acrescente `-DeviceTest` para testes Android em dispositivo/emulador configurado. APKs em `dist/ATMyTrack-debug.apk` e `dist/ATMyTrack_v2.apk`. A versão web local acompanha a identidade; não foi republicada no site.
 
 ## Histórico anterior
 

@@ -50,14 +50,14 @@ class Sections09Test {
     compose.waitUntil(30000) { vm.library.value.busy==null && vm.playback.value.ready }
     compose.runOnUiThread { vm.stop();vm.dismissError();vm.dismissImportReport() }
     compose.onNodeWithText("+ SEÇÃO").performScrollTo().performClick()
-    compose.onNodeWithContentDescription("Cor Dourado").performScrollTo().performClick()
-    compose.onNodeWithContentDescription("Cor Dourado").assertIsSelected()
+    compose.onNodeWithContentDescription("Cor Azul").performScrollTo().performClick()
+    compose.onNodeWithContentDescription("Cor Azul").assertIsSelected()
     compose.onNodeWithContentDescription("Escolher cor personalizada").performClick()
     compose.onNodeWithContentDescription("Componente Azul").assertExists()
     compose.onNodeWithText("USAR COR").performClick()
-    compose.onNodeWithText("Nome • INTRO, VERSO, REFRÃO…").performTextInput("Seção dourado discreto")
+    compose.onNodeWithText("Nome • INTRO, VERSO, REFRÃO…").performTextInput("Seção azul")
     compose.onNodeWithText("ADICIONAR").performClick()
-    compose.waitUntil(5000) { vm.library.value.current!!.markers.any { it.name=="Seção dourado discreto" && it.color==0xFFB79A61 } }
+    compose.waitUntil(5000) { vm.library.value.current!!.markers.any { it.name=="Seção azul" && it.color==0xFF89ACF2 } }
     compose.onNodeWithText("TOM").performScrollTo()
     compose.onNodeWithText("Toque ou arraste para navegar").assertDoesNotExist()
     assertTrue(compose.onNodeWithText("TOM").fetchSemanticsNode().boundsInRoot.left < compose.onNodeWithText("VELOCIDADE").fetchSemanticsNode().boundsInRoot.left)

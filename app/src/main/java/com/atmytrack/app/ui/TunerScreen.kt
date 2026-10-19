@@ -60,7 +60,7 @@ import kotlin.math.*
                         Text("O ATMyTrack precisa acessar o microfone para identificar a nota tocada pelo seu instrumento.",fontSize=20.sp)
                         if(denied)Text("O microfone não foi autorizado. Permita o acesso para usar o afinador.",color=Muted)
                         val settings=permanentDenial
-                        Button(colors=ButtonDefaults.buttonColors(containerColor=Control,contentColor=Gold),onClick={if(settings)context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,Uri.parse("package:${context.packageName}"))) else launcher.launch(Manifest.permission.RECORD_AUDIO)}) { Text(if(settings)"ABRIR CONFIGURAÇÕES" else "PERMITIR MICROFONE") }
+                        Button(colors=ButtonDefaults.buttonColors(containerColor=Control,contentColor=Accent),onClick={if(settings)context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,Uri.parse("package:${context.packageName}"))) else launcher.launch(Manifest.permission.RECORD_AUDIO)}) { Text(if(settings)"ABRIR CONFIGURAÇÕES" else "PERMITIR MICROFONE") }
                     }
                 } else BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
                     val wide=maxWidth>=700.dp
@@ -80,9 +80,9 @@ import kotlin.math.*
                             Text(state.input,color=Muted,fontSize=12.sp)
                             Row(verticalAlignment=Alignment.CenterVertically) {
                                 Text("MIC",Modifier.padding(end=8.dp),color=Muted)
-                                LinearProgressIndicator(progress={(state.reading.rms*8).toFloat().coerceIn(0f,1f)},modifier=Modifier.weight(1f).semantics { contentDescription="Nível do microfone" },color=Gold)
+                                LinearProgressIndicator(progress={(state.reading.rms*8).toFloat().coerceIn(0f,1f)},modifier=Modifier.weight(1f).semantics { contentDescription="Nível do microfone" },color=Mint)
                             }
-                            if(state.error!=null) { Text(state.error!!,color=Red);Button(colors=ButtonDefaults.buttonColors(containerColor=Control,contentColor=Gold),onClick={retry++}){Text("TENTAR NOVAMENTE")} }
+                            if(state.error!=null) { Text(state.error!!,color=Red);Button(colors=ButtonDefaults.buttonColors(containerColor=Control,contentColor=Accent),onClick={retry++}){Text("TENTAR NOVAMENTE")} }
                         }
                     }
                     if(wide) Row(Modifier.fillMaxSize(),horizontalArrangement=Arrangement.spacedBy(24.dp)) { Controls(Modifier.width(300.dp));TunerMeter(state.reading,tuning,stringNumber,a4,Modifier.weight(1f).fillMaxHeight()) }
@@ -101,17 +101,17 @@ import kotlin.math.*
     val tuningCents=display?.targetCents ?: cents
     val tuned=f>0 && abs(tuningCents)<=3
     Column(modifier,verticalArrangement=Arrangement.Center,horizontalAlignment=Alignment.CenterHorizontally) {
-        Text(if(f>0)TuningMath.name(midi) else "—",fontSize=80.sp,fontWeight=FontWeight.Bold,color=if(tuned)Gold else White)
+        Text(if(f>0)TuningMath.name(midi) else "—",fontSize=80.sp,fontWeight=FontWeight.Bold,color=if(tuned)Mint else White)
         Text(if(f>0)"%.2f Hz".format(f) else "AGUARDANDO SINAL ESTÁVEL",fontSize=18.sp,color=Muted)
         target?.let { Text("Alvo: ${it.number}ª CORDA · ${it.label}",color=SecondaryText)
             Text("%+.1f cents até o alvo".format(tuningCents),color=Muted,fontSize=14.sp) }
         Row(Modifier.fillMaxWidth().padding(horizontal=12.dp),horizontalArrangement=Arrangement.SpaceBetween) { listOf("−50","−25","0","+25","+50").forEach { Text(it,color=Muted) } }
         Canvas(Modifier.fillMaxWidth().height(42.dp).padding(horizontal=22.dp).semantics { contentDescription="Indicador de cents" }) {
             drawLine(Muted,Offset(0f,center.y),Offset(size.width,center.y),2.dp.toPx())
-            drawRect(Gold.copy(alpha=.22f),Offset(size.width*.47f,0f),androidx.compose.ui.geometry.Size(size.width*.06f,size.height))
-            if(f>0) { val x=((cents.coerceIn(-50.0,50.0)+50)/100*size.width).toFloat();drawLine(if(tuned)Gold else White,Offset(x,0f),Offset(x,size.height),4.dp.toPx()) }
+            drawRect(Mint.copy(alpha=.22f),Offset(size.width*.47f,0f),androidx.compose.ui.geometry.Size(size.width*.06f,size.height))
+            if(f>0) { val x=((cents.coerceIn(-50.0,50.0)+50)/100*size.width).toFloat();drawLine(if(tuned)Mint else White,Offset(x,0f),Offset(x,size.height),4.dp.toPx()) }
         }
-        Text(if(f>0)"%+.1f cents · nota captada".format(cents) else "TOQUE UMA CORDA",fontSize=22.sp,color=if(tuned)Gold else White)
-        if(f>0)Text(TuningMath.direction(tuningCents),fontSize=16.sp,fontWeight=FontWeight.Bold,color=if(tuned)Gold else Muted)
+        Text(if(f>0)"%+.1f cents · nota captada".format(cents) else "TOQUE UMA CORDA",fontSize=22.sp,color=if(tuned)Mint else White)
+        if(f>0)Text(TuningMath.direction(tuningCents),fontSize=16.sp,fontWeight=FontWeight.Bold,color=if(tuned)Mint else Muted)
     }
 }

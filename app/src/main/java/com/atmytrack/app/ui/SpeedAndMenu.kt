@@ -69,46 +69,49 @@ internal enum class MainDestination(val title:String,val symbol:String) {
 }
 
 @Composable internal fun DspButton(label:String,value:String,active:Boolean,modifier:Modifier,click:()->Unit) {
+    val tint=toolColor(label)
     OutlinedButton(onClick=click,modifier=modifier.heightIn(min=58.dp).semantics { contentDescription=label },
         shape=androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
-        colors=ButtonDefaults.outlinedButtonColors(containerColor=if(active)Gold.copy(alpha=.15f) else Control),
-        border=BorderStroke(1.dp,if(active)Gold else Muted.copy(alpha=.3f)),contentPadding=PaddingValues(8.dp)) {
+        colors=ButtonDefaults.outlinedButtonColors(containerColor=if(active)tint.copy(alpha=.18f) else Control),
+        border=BorderStroke(1.dp,if(active)tint else tint.copy(alpha=.3f)),contentPadding=PaddingValues(8.dp)) {
         if(label in listOf("PAD","TOM","VELOCIDADE")) {
-            Column(horizontalAlignment=Alignment.CenterHorizontally) { ToolIcon(label);Text(label,fontSize=10.sp,color=White,maxLines=1);Text(value,fontSize=11.sp,color=SecondaryText,maxLines=1) }
+            Column(horizontalAlignment=Alignment.CenterHorizontally) { ToolIcon(label);Text(label,fontSize=10.sp,color=White,maxLines=1);Text(value,fontSize=11.sp,color=tint,maxLines=1) }
         } else {
             ToolIcon(label);Spacer(Modifier.width(6.dp))
-            Column(horizontalAlignment=Alignment.CenterHorizontally) { Text(label,fontSize=11.sp,color=White);Text(value,fontSize=13.sp,color=SecondaryText) }
+            Column(horizontalAlignment=Alignment.CenterHorizontally) { Text(label,fontSize=11.sp,color=White);Text(value,fontSize=13.sp,color=tint) }
         }
     }
 }
 
 @Composable internal fun ToolIcon(label:String) {
+    val tint=toolColor(label)
     Canvas(Modifier.size(18.dp)) {
         val stroke=androidx.compose.ui.graphics.drawscope.Stroke(2.dp.toPx())
-        fun line(x:Float,y:Float,x2:Float,y2:Float)=drawLine(SecondaryText,Offset(size.width*x,size.height*y),Offset(size.width*x2,size.height*y2),2.dp.toPx())
+        fun line(x:Float,y:Float,x2:Float,y2:Float)=drawLine(tint,Offset(size.width*x,size.height*y),Offset(size.width*x2,size.height*y2),2.dp.toPx())
         when(label) {
-            "VELOCIDADE" -> { drawArc(SecondaryText,150f,240f,false,style=stroke);line(.5f,.5f,.8f,.2f) }
+            "VELOCIDADE" -> { drawArc(tint,150f,240f,false,style=stroke);line(.5f,.5f,.8f,.2f) }
             "PAD" -> { line(.1f,.7f,.1f,.4f);line(.3f,.85f,.3f,.2f);line(.5f,.95f,.5f,.1f);line(.7f,.85f,.7f,.2f);line(.9f,.7f,.9f,.4f) }
             "TOM" -> { line(.35f,.1f,.25f,.9f);line(.75f,.1f,.65f,.9f);line(.1f,.4f,.9f,.3f);line(.1f,.7f,.9f,.6f) }
-            "LOOP","ATUALIZAR SAÍDA" -> { drawArc(SecondaryText,35f,290f,false,style=stroke);line(.9f,.05f,.9f,.4f);line(.9f,.4f,.6f,.4f) }
+            "LOOP","ATUALIZAR SAÍDA" -> { drawArc(tint,35f,290f,false,style=stroke);line(.9f,.05f,.9f,.4f);line(.9f,.4f,.6f,.4f) }
             "+ SEÇÃO" -> { line(.2f,.1f,.2f,.95f);line(.2f,.1f,.85f,.1f);line(.85f,.1f,.85f,.5f);line(.85f,.5f,.2f,.5f) }
             "METRÔNOMO","CLICK INTERNO" -> { line(.5f,.1f,.1f,.9f);line(.1f,.9f,.9f,.9f);line(.9f,.9f,.5f,.1f);line(.5f,.75f,.8f,.2f) }
             "ROUTING","STEREO SPLIT" -> { line(.1f,.5f,.45f,.5f);line(.45f,.5f,.8f,.15f);line(.45f,.5f,.8f,.85f) }
             "BOTH ALL" -> { line(.15f,.2f,.15f,.8f);line(.85f,.2f,.85f,.8f);line(.15f,.5f,.85f,.5f) }
-            else -> { for(i in 1..3) { val x=i*.25f;line(x,.1f,x,.9f);drawCircle(SecondaryText,2.dp.toPx(),Offset(size.width*x,size.height*(if(i==2).35f else .65f))) } }
+            else -> { for(i in 1..3) { val x=i*.25f;line(x,.1f,x,.9f);drawCircle(tint,2.dp.toPx(),Offset(size.width*x,size.height*(if(i==2).35f else .65f))) } }
         }
     }
 }
 
 @Composable internal fun RoutingAction(label:String,value:String,active:Boolean,modifier:Modifier,click:()->Unit) {
+    val tint=toolColor(label)
     OutlinedButton(onClick=click,modifier=modifier.height(94.dp).semantics { contentDescription=label;selected=active },
         shape=androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
-        colors=ButtonDefaults.outlinedButtonColors(containerColor=if(active)Gold.copy(alpha=.15f) else Control),
-        border=BorderStroke(1.dp,if(active)Gold else Muted.copy(alpha=.3f)),contentPadding=PaddingValues(4.dp)) {
+        colors=ButtonDefaults.outlinedButtonColors(containerColor=if(active)tint.copy(alpha=.18f) else Control),
+        border=BorderStroke(1.dp,if(active)tint else tint.copy(alpha=.3f)),contentPadding=PaddingValues(4.dp)) {
         Column(horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.spacedBy(4.dp)) {
             ToolIcon(label)
             Text(label,fontSize=10.sp,lineHeight=12.sp,color=White,textAlign=androidx.compose.ui.text.style.TextAlign.Center,maxLines=2)
-            Text(value,fontSize=10.sp,color=SecondaryText,maxLines=1)
+            Text(value,fontSize=10.sp,color=tint,maxLines=1)
         }
     }
 }

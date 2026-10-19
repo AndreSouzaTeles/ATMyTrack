@@ -16,7 +16,7 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalLayoutApi::class)
 @Composable internal fun SectionColors(color:Long,change:(Long)->Unit) {
     var custom by remember { mutableStateOf(false) }
-    val colors=listOf("Grafite" to 0xFF53504A,"Cinza quente" to 0xFF827D73,"Areia" to 0xFFBDB3A1,"Dourado" to 0xFFB79A61,"Bronze" to 0xFF806A43,"Champanhe" to 0xFFD0BA8B)
+    val colors=listOf("Azul" to 0xFF89ACF2,"Verde" to 0xFF88B9A0,"Violeta" to 0xFFB29CDA,"Coral" to 0xFFDC938A,"Âmbar" to 0xFFD0AD74,"Ciano" to 0xFF81BDC8)
     Text("Cor da seção",color=SecondaryText)
     FlowRow(horizontalArrangement=Arrangement.spacedBy(6.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {
         colors.forEach { (name,value) -> Box(Modifier.size(48.dp).clip(CircleShape).background(Color(value)).border(if(color==value)3.dp else 1.dp,if(color==value)White else Muted,CircleShape).clickable { change(value) }.semantics { contentDescription="Cor $name";selected=color==value }) }

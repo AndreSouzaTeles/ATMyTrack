@@ -47,13 +47,12 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.math.*
 
-internal val Bg = Color(0xFF101010)
-internal val Panel = Color(0xFF191918)
-internal val Control = Color(0xFF23221F)
-internal val Gold = Color(0xFFB79A61)
-internal val SecondaryText = Color(0xFFA6A195)
-internal val Muted = Color(0xFF8F8A80)
-internal val White = Color(0xFFC9C4BA)
+internal val Bg = Color(0xFF121518)
+internal val Panel = Color(0xFF1C2025)
+internal val Control = Color(0xFF272D34)
+internal val SecondaryText = Color(0xFFB8C1CC)
+internal val Muted = Color(0xFF949FAB)
+internal val White = Color(0xFFDCE1E7)
 internal val Red = Color(0xFFD86D69)
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
@@ -116,14 +115,14 @@ fun PlayerScreen(vm: PlayerViewModel) {
     val files = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { if (it.isNotEmpty()) vm.import(uris = it) }
     val folder = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { if (it != null) vm.import(tree = it) }
     val art = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { if (it != null) vm.artwork(it) }
-    MaterialTheme(colorScheme = darkColorScheme(primary=Gold,onPrimary=Bg,primaryContainer=Control,onPrimaryContainer=White,
-        secondary=Gold,onSecondary=Bg,secondaryContainer=Control,onSecondaryContainer=White,
-        tertiary=SecondaryText,onTertiary=Bg,tertiaryContainer=Control,onTertiaryContainer=White,
+    MaterialTheme(colorScheme = darkColorScheme(primary=Accent,onPrimary=Bg,primaryContainer=Control,onPrimaryContainer=White,
+        secondary=Mint,onSecondary=Bg,secondaryContainer=Control,onSecondaryContainer=White,
+        tertiary=Violet,onTertiary=Bg,tertiaryContainer=Control,onTertiaryContainer=White,
         background=Bg,onBackground=White,surface=Panel,onSurface=White,surfaceVariant=Control,onSurfaceVariant=Muted,
         surfaceContainer=Panel,surfaceContainerLow=Panel,surfaceContainerLowest=Bg,
         surfaceContainerHigh=Control,surfaceContainerHighest=Control,surfaceDim=Bg,surfaceBright=Control,
-        surfaceTint=Color.Transparent,inversePrimary=Gold,error=Red,onError=Bg,errorContainer=Color(0xFF531F2A),onErrorContainer=White,
-        outline=Color(0xFF444039),outlineVariant=Control,inverseSurface=White,inverseOnSurface=Bg)) {
+        surfaceTint=Color.Transparent,inversePrimary=Accent,error=Red,onError=Bg,errorContainer=Color(0xFF531F2A),onErrorContainer=White,
+        outline=Color(0xFF424B55),outlineVariant=Control,inverseSurface=White,inverseOnSurface=Bg)) {
         Surface(Modifier.fillMaxSize(), color = Bg) {
             BoxWithConstraints(Modifier.safeDrawingPadding()) {
                 val screenWidth=maxWidth
@@ -137,7 +136,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
                         Image(painterResource(R.drawable.brand_art), "Logo ATMyTrack", Modifier.size(if (narrow) 28.dp else 36.dp))
                         Text(androidx.compose.ui.res.stringResource(R.string.app_name), fontWeight = FontWeight.Bold, fontSize = if (narrow) 16.sp else 20.sp)
                         Spacer(Modifier.weight(1f))
-                        TextButton(colors=ButtonDefaults.buttonColors(containerColor=Control,contentColor=Gold),onClick = { importDialog = true }, enabled = library.busy == null) { Text(if (narrow) "IMPORTAR" else "+ IMPORTAR") }
+                        TextButton(colors=ButtonDefaults.buttonColors(containerColor=Control,contentColor=Accent),onClick = { importDialog = true }, enabled = library.busy == null) { Text(if (narrow) "IMPORTAR" else "+ IMPORTAR") }
                         SearchButton { search=true }
                     }
                     if (library.busy != null) {
@@ -186,7 +185,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
                             Image(painterResource(R.drawable.brand_art), null, Modifier.size(120.dp))
                             Text("Seu multitrack.\nSeu palco. Seu controle.", fontSize = 28.sp, fontWeight = FontWeight.Bold, lineHeight = 36.sp)
                             Text("Suas stems, juntas do primeiro ao último compasso.", Modifier.padding(vertical = 20.dp), color = Muted)
-                            Button(colors=ButtonDefaults.buttonColors(containerColor=Control,contentColor=Gold),onClick = { importDialog = true }, enabled = library.busy == null, modifier = Modifier.heightIn(min = 56.dp)) { Text("CRIAR PRIMEIRO PROJETO") }
+                            Button(colors=ButtonDefaults.buttonColors(containerColor=Control,contentColor=Accent),onClick = { importDialog = true }, enabled = library.busy == null, modifier = Modifier.heightIn(min = 56.dp)) { Text("CRIAR PRIMEIRO PROJETO") }
                             DspButton("PAD",if(padState.playing)"SOANDO" else "AMBIENTE",padState.playing,Modifier.width(160.dp)) { padOpen=true }
                         }
                     } else {
@@ -197,7 +196,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
                                 }
                                 SmallButton("|◀", onClick = { vm.seek(0) })
                                 Button(onClick = { if(playback.playing)vm.pause() else vm.play() }, enabled = library.busy == null && playback.ready && !playback.preparing && playback.projectId==p.id,
-                                    modifier = Modifier.weight(1f).height(52.dp), colors = ButtonDefaults.buttonColors(containerColor=Control,contentColor=Gold), contentPadding = PaddingValues(4.dp)) {
+                                    modifier = Modifier.weight(1f).height(52.dp), colors = ButtonDefaults.buttonColors(containerColor=Mint.copy(alpha=.15f),contentColor=Mint), contentPadding = PaddingValues(4.dp)) {
                                     Text(if(playback.playing) "Ⅱ PAUSAR" else "▶ PLAY", maxLines = 1)
                                 }
                                 SmallButton("■", onClick = vm::stop)
@@ -262,7 +261,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
                             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                 Text(if (wide) "MIXER  •  ${p.stems.size} STEMS  •  ${p.sampleRate / 1000.0} kHz" else "MIXER", color = Muted, fontSize = 11.sp, letterSpacing = 2.sp)
                                 Spacer(Modifier.weight(1f))
-                                Text(if (playback.playing) "● REPRODUZINDO" else if(playback.ready && playback.projectId==p.id) "● PRONTO" else "● PREPARANDO", color = if (playback.playing) Gold else Muted, fontSize = 11.sp)
+                                Text(if (playback.playing) "● REPRODUZINDO" else if(playback.ready && playback.projectId==p.id) "● PRONTO" else "● PREPARANDO", color = if (playback.playing) Mint else Muted, fontSize = 11.sp)
                             }
                             Row(Modifier.fillMaxWidth().height(mixerHeight), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 LazyRow(Modifier.weight(1f).semantics { contentDescription="Canais" }.pointerInput(p.id) {
@@ -303,13 +302,13 @@ fun PlayerScreen(vm: PlayerViewModel) {
                                             ChannelStrip(d.name,d.volume,0f,d.mute,false,0f,master = true,
                                                 onVolume = { v -> vm.update { it.copy(dcas=it.dcas.map { x -> if(x.id==d.id)x.copy(volume=v) else x }) } },
                                                 onPan = {},onMute = { vm.update { it.copy(dcas=it.dcas.map { x -> if(x.id==d.id)x.copy(mute=!x.mute) else x }) } },onSolo = {},
-                                                locked=p.gainLocked("DCA:"+d.id),onLock={vm.lockFader("DCA:"+d.id)},routeLabel = "DCA · EDITAR",routing = { group = "DCA:"+d.id })
+                                                locked=p.gainLocked("DCA:"+d.id),onLock={vm.lockFader("DCA:"+d.id)},accent=Amber,routeLabel = "DCA · EDITAR",routing = { group = "DCA:"+d.id })
                                         }
                                         items(p.buses, key = { "bus"+it.id }) { bus ->
                                             ChannelStrip(bus.name,bus.volume,0f,bus.mute,false,playback.busPeaks[bus.id] ?: 0f,master = true,
                                                 onVolume = { v -> vm.update { it.copy(buses=it.buses.map { x -> if(x.id==bus.id)x.copy(volume=v) else x }) } },
                                                 onPan = {},onMute = { vm.update { it.copy(buses=it.buses.map { x -> if(x.id==bus.id)x.copy(mute=!x.mute) else x }) } },onSolo = {},
-                                                locked=p.gainLocked("BUS:"+bus.id),onLock={vm.lockFader("BUS:"+bus.id)},routeLabel = "BUS · EDITAR",routing = { group = "BUS:"+bus.id },outputLabel=ConsoleMath.outputChoices(playback.outputChannels).find { it.first==bus.destination }?.second ?: bus.destination)
+                                                locked=p.gainLocked("BUS:"+bus.id),onLock={vm.lockFader("BUS:"+bus.id)},accent=Violet,routeLabel = "BUS · EDITAR",routing = { group = "BUS:"+bus.id },outputLabel=ConsoleMath.outputChoices(playback.outputChannels).find { it.first==bus.destination }?.second ?: bus.destination)
                                         }
                                     }
                                 }
@@ -319,8 +318,8 @@ fun PlayerScreen(vm: PlayerViewModel) {
                             Spacer(Modifier.height(8.dp))
                         }
                         Row(Modifier.fillMaxWidth().padding(6.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
-                            TextButton(onClick = { page = 0 }, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Playback", color = if(page == 0) Gold else Muted, fontSize = 11.sp) }
-                            TextButton(onClick = { page = 1 }, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Mixer", color = if(page == 1) Gold else Muted, fontSize = 11.sp) }
+                            TextButton(onClick = { page = 0 }, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Playback", color = if(page == 0) Accent else Muted, fontSize = 11.sp) }
+                            TextButton(onClick = { page = 1 }, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Mixer", color = if(page == 1) Accent else Muted, fontSize = 11.sp) }
                         }
                     }
                 }
@@ -369,7 +368,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
         }
         val error = library.message ?: playback.error
         if (error != null) AlertDialog(onDismissRequest = vm::dismissError, title = { Text("ATMyTrack") }, text = { Text(error) }, confirmButton = { TextButton(onClick = vm::dismissError) { Text("ENTENDI") } })
-        if (help) AlertDialog(onDismissRequest = { help = false }, title = { Text("ATMyTrack • 0.17.0") }, text = {
+        if (help) AlertDialog(onDismissRequest = { help = false }, title = { Text("ATMyTrack • 0.18.0") }, text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("1. Importe uma pasta ou selecione as stems.\n2. Ajuste volume, pan, mute e solo.\n3. Defina BPM e compasso; o CLICK acompanha a timeline.\n4. Crie seções para saltar aos trechos da música.")
                 Text("A importação depende dos decoders disponíveis no Android. WAV, MP3, AAC/M4A, FLAC e OGG/Opus são tentados; arquivos incompatíveis geram erro.", color = Muted)
@@ -384,10 +383,10 @@ fun PlayerScreen(vm: PlayerViewModel) {
 
 @Composable
 internal fun SmallButton(label: String, active: Boolean = false, onClick: () -> Unit) {
-    OutlinedButton(onClick = onClick, shape = RoundedCornerShape(8.dp), border = BorderStroke(1.dp, if (active) Gold else Control),
-        colors = ButtonDefaults.outlinedButtonColors(containerColor = if (active) Gold.copy(alpha = .12f) else Panel),
+    OutlinedButton(onClick = onClick, shape = RoundedCornerShape(8.dp), border = BorderStroke(1.dp, if (active) Accent else Control),
+        colors = ButtonDefaults.outlinedButtonColors(containerColor = if (active) Accent.copy(alpha = .12f) else Panel),
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp), modifier = Modifier.heightIn(min = 48.dp)) {
-        Text(label, color = if (active) Gold else White, fontSize = 12.sp, maxLines = 1)
+        Text(label, color = if (active) Accent else White, fontSize = 12.sp, maxLines = 1)
     }
 }
 
@@ -399,7 +398,7 @@ private fun ProjectCard(p: Project, selected: Boolean, compact: Boolean, remove:
     }
     Box(Modifier.width(190.dp).height(if (compact) 76.dp else 102.dp).clip(RoundedCornerShape(12.dp))
         .background(Brush.linearGradient(listOf(Control, Panel)))
-        .border(1.dp, if (selected) Gold else Control, RoundedCornerShape(12.dp)).clickable(onClick = onClick).semantics { this.selected = selected;contentDescription="Projeto ${p.name}" }) {
+        .border(1.dp, if (selected) Accent else Control, RoundedCornerShape(12.dp)).clickable(onClick = onClick).semantics { this.selected = selected;contentDescription="Projeto ${p.name}" }) {
         TextButton(onClick = remove, modifier = Modifier.align(Alignment.TopEnd).size(48.dp).semantics { contentDescription = "Excluir ${p.name}" }, contentPadding = PaddingValues(0.dp)) { Text("−", color = SecondaryText, fontSize = 24.sp) }
         bitmap?.let { Image(it, null, Modifier.matchParentSize(), contentScale = ContentScale.Crop, alpha = .28f) }
         Column(Modifier.padding(start=12.dp,end=40.dp,top=12.dp,bottom=12.dp).fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
@@ -439,36 +438,37 @@ private fun Timeline(p: Project, frame: Long, compact: Boolean, peaks: List<Floa
             }
             p.markers.forEach { m -> drawRect(Color(m.color).copy(alpha = .28f), Offset(w * m.start / total, 2f), Size((w * (m.end - m.start) / total).coerceAtLeast(2f), h * .9f)) }
             val x = w * display / total
-            drawLine(Gold.copy(alpha = .4f), Offset(0f, h * .7f), Offset(x, h * .7f), 3.dp.toPx())
-            drawLine(Gold, Offset(x, 0f), Offset(x, h), 2.dp.toPx())
-            drawCircle(Gold, 4.dp.toPx(), Offset(x, h * .7f))
+            drawLine(Accent.copy(alpha = .4f), Offset(0f, h * .7f), Offset(x, h * .7f), 3.dp.toPx())
+            drawLine(Accent, Offset(x, 0f), Offset(x, h), 2.dp.toPx())
+            drawCircle(Accent, 4.dp.toPx(), Offset(x, h * .7f))
         }
     }
 }
 
 @Composable
 private fun ChannelStrip(name: String, volume: Float, pan: Float, mute: Boolean, solo: Boolean, peak: Float,
-    right: Float = peak, master: Boolean = false, onVolume: (Float) -> Unit, onPan: (Float) -> Unit, onMute: () -> Unit, onSolo: () -> Unit, draggable: Boolean = false, dragging: Boolean = false, routeLabel: String? = null, routing: () -> Unit = {}, modifier:Modifier=Modifier,outputLabel:String="OUT 1–2",locked:Boolean=false,onLock:()->Unit={}) {
+    right: Float = peak, master: Boolean = false, onVolume: (Float) -> Unit, onPan: (Float) -> Unit, onMute: () -> Unit, onSolo: () -> Unit, draggable: Boolean = false, dragging: Boolean = false, routeLabel: String? = null, routing: () -> Unit = {}, modifier:Modifier=Modifier,outputLabel:String="OUT 1–2",locked:Boolean=false,onLock:()->Unit={},accent:Color=channelColor(name)) {
     Column(modifier.width(if (master) 100.dp else 124.dp).fillMaxHeight().clip(RoundedCornerShape(10.dp)).background(if (master) Control else Panel).padding(7.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         TextButton(onClick=onLock,modifier=Modifier.height(28.dp).semantics { contentDescription="Cadeado $name";selected=locked },contentPadding=PaddingValues(0.dp)) { Canvas(Modifier.size(16.dp)) {
-            val c=if(locked)Gold else Muted
+            val c=if(locked)Amber else Muted
             drawRoundRect(c,Offset(size.width*.15f,size.height*.45f),Size(size.width*.7f,size.height*.5f),androidx.compose.ui.geometry.CornerRadius(2.dp.toPx()),style=androidx.compose.ui.graphics.drawscope.Stroke(1.5.dp.toPx()))
             drawArc(c,if(locked)180f else 220f,if(locked)180f else 140f,false,Offset(size.width*.3f,size.height*.05f),Size(size.width*.4f,size.height*.65f),style=androidx.compose.ui.graphics.drawscope.Stroke(1.5.dp.toPx()))
         } }
-        Text(name, Modifier.fillMaxWidth().height(48.dp).background(if(dragging) SecondaryText else Control).semantics { contentDescription = if(draggable) "Arrastar $name" else name }.padding(4.dp), textAlign=TextAlign.Center,maxLines = 2, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = if(dragging) Bg else White)
+        Box(Modifier.fillMaxWidth().height(3.dp).background(accent, RoundedCornerShape(2.dp)))
+        Text(name, Modifier.fillMaxWidth().height(48.dp).background(accent.copy(alpha=if(dragging).35f else .12f)).semantics { contentDescription = if(draggable) "Arrastar $name" else name }.padding(4.dp), textAlign=TextAlign.Center,maxLines = 2, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = accent)
         Text(if (master && routeLabel!=null) "OUTPUT" else when { pan < -.05f -> "L ${(abs(pan) * 100).roundToInt()}"; pan > .05f -> "R ${(pan * 100).roundToInt()}"; else -> "PAN · C" }, color = Muted, fontSize = 10.sp)
         if (master && routeLabel!=null) Box(Modifier.height(48.dp), contentAlignment = Alignment.Center) { Text(if(routeLabel?.startsWith("DCA")==true) "RELATIVO" else outputLabel, color = SecondaryText, fontSize = 11.sp) }
-        else Slider(pan, { if(!locked)onPan(it) }, enabled = !locked, valueRange = -1f..1f, modifier = Modifier.height(48.dp).semantics { contentDescription = "Pan $name" }, colors = SliderDefaults.colors(thumbColor = SecondaryText, activeTrackColor = Muted, inactiveTrackColor = Bg))
+        else Slider(pan, { if(!locked)onPan(it) }, enabled = !locked, valueRange = -1f..1f, modifier = Modifier.height(48.dp).semantics { contentDescription = "Pan $name" }, colors = SliderDefaults.colors(thumbColor = accent, activeTrackColor = accent.copy(alpha=.6f), inactiveTrackColor = Bg))
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            if (!master) ChannelToggle("S", solo, Gold, "Solo $name", Modifier.weight(1f), onSolo)
-            ChannelToggle("M", mute, Red, "Mute $name", Modifier.weight(1f), onMute)
+            if (!master) ChannelToggle("S", solo, Accent, "Solo $name", Modifier.weight(1f), onSolo)
+            ChannelToggle("M", mute, Amber, "Mute $name", Modifier.weight(1f), onMute)
         }
         var fine by remember { mutableStateOf(false) }
         Text(if (volume <= 0f) "−∞ dB" else "%+.1f dB".format(20 * log10(volume)), color = White, fontSize = 11.sp,
             modifier = Modifier.fillMaxWidth().heightIn(min=32.dp).clickable(enabled=!locked) { fine=true }.padding(top = 8.dp).semantics { contentDescription="Ajuste fino $name" })
         if(fine) FineGainDialog(name,volume,onVolume) { fine=false }
         Row(Modifier.weight(1f).padding(vertical = 6.dp), horizontalArrangement = Arrangement.Center) {
-            Fader(volume, name, Modifier.weight(1f).fillMaxHeight()) { if(!locked)onVolume(it) }
+            Fader(volume, name, Modifier.weight(1f).fillMaxHeight(),accent) { if(!locked)onVolume(it) }
             Meter(peak, Modifier.width(5.dp).fillMaxHeight())
             if (master) { Spacer(Modifier.width(3.dp)); Meter(right, Modifier.width(5.dp).fillMaxHeight()) }
         }
@@ -492,7 +492,7 @@ private fun ChannelToggle(label: String, active: Boolean, color: Color, descript
 }
 
 @Composable
-private fun Fader(value: Float, name: String, modifier: Modifier, change: (Float) -> Unit) {
+private fun Fader(value: Float, name: String, modifier: Modifier, accent:Color, change: (Float) -> Unit) {
     val callback by rememberUpdatedState(change)
     val position = ConsoleMath.position(value)
     val paint=remember { android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG) }
@@ -514,8 +514,8 @@ private fun Fader(value: Float, name: String, modifier: Modifier, change: (Float
             if(detailed || db in compactLabels)
                 drawContext.canvas.nativeCanvas.drawText(if(db == -80f)"−∞" else if(db>0)"+${db.toInt()}" else db.toInt().toString(),0f,tick+3.dp.toPx(),paint)
         }
-        drawRoundRect(Color(0xFF3A3731), Offset(mid-12.dp.toPx(), y-8.dp.toPx()), Size(24.dp.toPx(),16.dp.toPx()), androidx.compose.ui.geometry.CornerRadius(3.dp.toPx()))
-        drawLine(Gold,Offset(mid-10.dp.toPx(),y),Offset(mid+10.dp.toPx(),y),2.dp.toPx())
+        drawRoundRect(Color(0xFF454E59), Offset(mid-12.dp.toPx(), y-8.dp.toPx()), Size(24.dp.toPx(),16.dp.toPx()), androidx.compose.ui.geometry.CornerRadius(3.dp.toPx()))
+        drawLine(accent,Offset(mid-10.dp.toPx(),y),Offset(mid+10.dp.toPx(),y),2.dp.toPx())
     }
 }
 
@@ -525,7 +525,7 @@ private fun Meter(peak: Float, modifier: Modifier) {
         drawRect(Control)
         val normalized = if (peak <= .0001f) 0f else ((20 * log10(peak) + 60) / 60).coerceIn(0f, 1f)
         val h = size.height * normalized
-        drawRect(if (peak >= 1f) Red else if(peak>.7f)Color(0xFFE89A53) else Gold, Offset(0f, size.height - h), Size(size.width, h))
+        drawRect(if (peak >= 1f) Red else if(peak>.7f)Amber else Mint, Offset(0f, size.height - h), Size(size.width, h))
     }
 }
 
@@ -594,7 +594,7 @@ private fun MetronomeEditor(p: Project, vm: PlayerViewModel, close: () -> Unit) 
             Text("Smart Click aplica o BPM detectado quando ativado. Play liga o metrônomo e inicia o transporte quando parado. Pausar desliga apenas o click.",fontSize=12.sp,color=Muted)
         }
     }, confirmButton = { Row(horizontalArrangement=Arrangement.spacedBy(10.dp),verticalAlignment=Alignment.CenterVertically) {
-        Button(shape=RoundedCornerShape(10.dp),colors=ButtonDefaults.buttonColors(containerColor=Control,contentColor=Gold),modifier=Modifier.heightIn(min=48.dp).semantics { contentDescription="Reprodução do metrônomo" },onClick={val enable=!p.click;vm.update { it.copy(bpm=bpm.replace(',','.').toDouble(),click=enable) };if(enable && !vm.playback.value.playing)vm.play()},enabled=valid && library.background==null) { Text(if(p.click) "Ⅱ  PAUSAR" else "▶  PLAY",fontWeight=FontWeight.Bold) }
+        Button(shape=RoundedCornerShape(10.dp),colors=ButtonDefaults.buttonColors(containerColor=Control,contentColor=Accent),modifier=Modifier.heightIn(min=48.dp).semantics { contentDescription="Reprodução do metrônomo" },onClick={val enable=!p.click;vm.update { it.copy(bpm=bpm.replace(',','.').toDouble(),click=enable) };if(enable && !vm.playback.value.playing)vm.play()},enabled=valid && library.background==null) { Text(if(p.click) "Ⅱ  PAUSAR" else "▶  PLAY",fontWeight=FontWeight.Bold) }
         TextButton(onClick={if(valid)vm.update { it.copy(bpm=bpm.replace(',','.').toDouble()) };close()}) { Text("FECHAR") }
     } })
 }
@@ -613,7 +613,7 @@ private fun MarkerEditor(p: Project, frame: Long, vm: PlayerViewModel, close: ()
     var name by remember { mutableStateOf("") }
     var start by remember { mutableStateOf("%.2f".format(java.util.Locale.US, frame.toDouble() / p.sampleRate)) }
     var end by remember { mutableStateOf("%.2f".format(java.util.Locale.US, minOf(p.seconds, frame.toDouble() / p.sampleRate + 16))) }
-    var color by remember { mutableLongStateOf(0xFFB79A61) }
+    var color by remember { mutableLongStateOf(0xFF89ACF2) }
     val first = parseTime(start)?.times(p.sampleRate)?.toLong()
     val last = parseTime(end)?.times(p.sampleRate)?.toLong()
     val valid = name.isNotBlank() && first != null && last != null && MusicTime.validMarker(first, last, p.frames)
