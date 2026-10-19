@@ -94,7 +94,7 @@ private const val pix="atelestechnology@jim.com"
                         val radius=min(size.width,size.height)*.37f
                         drawCircle(Brush.radialGradient(listOf(Control,Bg)),radius*1.15f)
                         names.indices.map { i -> val lat=asin(1f-2f*(i+.5f)/names.size);val lon=i*2.399963f+yaw;val z=cos(lat)*cos(lon);floatArrayOf(i.toFloat(),cos(lat)*sin(lon),sin(lat)*cos(pitch)-z*sin(pitch),sin(lat)*sin(pitch)+z*cos(pitch)) }.sortedBy { it[3] }.forEach { v ->
-                            paint.color=android.graphics.Color.rgb(194,197,201);paint.alpha=(65+190*((v[3]+1)/2)).toInt();paint.textSize=(9f+4f*((v[3]+1)/2)).sp.toPx()
+                            paint.color=android.graphics.Color.rgb(155,169,182);paint.alpha=(65+190*((v[3]+1)/2)).toInt();paint.textSize=(9f+4f*((v[3]+1)/2)).sp.toPx()
                             drawContext.canvas.nativeCanvas.drawText(names[v[0].toInt()].name,center.x+v[1]*radius,center.y-v[2]*radius,paint)
                         }
                     }

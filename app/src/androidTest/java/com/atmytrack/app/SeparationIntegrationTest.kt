@@ -66,23 +66,27 @@ class SeparationIntegrationTest {
                 val dir=File(context.filesDir,"separation/results/${state.result}")
                 val sourceHeader=SeekInput.file(input).use { WavHeader.read(it)!! }
                 val frames=sourceHeader.frames
-                val headers=listOf("Voz","Instrumental").map { SeekInput.file(File(dir,"$it.wav")).use { source -> WavHeader.read(source)!! } }
+                val headers=SeparationOutputs.current.map { SeekInput.file(File(dir,"$it.wav")).use { source -> WavHeader.read(source)!! } }
                 headers.forEach { assertEquals(frames,it.frames);assertEquals(44100,it.rate) }
                 var maxError=0f;var peakV=0f;var peakA=0f;var energyDiff=0.0
-                PcmReader(input,frames,4096,sourceHeader.format).use { source ->
-                    PcmReader(File(dir,"Voz.wav"),frames,4096,headers[0].format).use { voice ->
-                        PcmReader(File(dir,"Instrumental.wav"),frames,4096,headers[1].format).use { music ->
-                            val x=FloatArray(8192);val v=FloatArray(8192);val a=FloatArray(8192);var at=0L
-                            while(at<frames) {
-                                val n=min(4096L,frames-at).toInt();source.read(at,n,x);voice.read(at,n,v);music.read(at,n,a)
-                                for(i in 0 until n*2) { assertTrue(v[i].isFinite() && a[i].isFinite());maxError=max(maxError,abs(x[i]-v[i]-a[i]));peakV=max(peakV,abs(v[i]));peakA=max(peakA,abs(a[i]));energyDiff+=(v[i]-a[i]).toDouble().pow(2) }
-                                at+=n
+                val separated=SeparationOutputs.current.mapIndexed { i,name -> PcmReader(File(dir,"$name.wav"),frames,4096,headers[i].format) }
+                try {
+                    PcmReader(input,frames,4096,sourceHeader.format).use { source ->
+                        val x=FloatArray(8192);val rows=Array(6) { FloatArray(8192) };var at=0L
+                        while(at<frames) {
+                            val n=min(4096L,frames-at).toInt();source.read(at,n,x)
+                            separated.forEachIndexed { i,r -> r.read(at,n,rows[i]) }
+                            for(i in 0 until n*2) {
+                                rows.forEach { assertTrue(it[i].isFinite()) }
+                                val sum=rows.sumOf { it[i].toDouble() }.toFloat()
+                                maxError=max(maxError,abs(x[i]-sum));peakV=max(peakV,abs(rows[3][i]));peakA=max(peakA,abs(sum-rows[3][i]));energyDiff+=(rows[3][i]-(sum-rows[3][i])).toDouble().pow(2)
                             }
+                            at+=n
                         }
                     }
-                }
-                assertTrue("Soma das stems deve reconstruir a origem: $maxError",maxError<.001f)
-                assertTrue(peakV>.001f && peakA>.001f && energyDiff>.01)
+                } finally { separated.forEach { it.close() } }
+                // Demucs estimates waveforms; unlike complementary masks, their sum is not forced to equal the mix.
+                assertTrue(maxError.isFinite());assertTrue(peakV>.001f && peakA>.001f && energyDiff>.01)
                 android.util.Log.i("SEPARATION150","$name frames=$frames duration=${frames/44100.0} elapsedMs=${SystemClock.elapsedRealtime()-started} maxSumError=$maxError peakV=$peakV peakA=$peakA ${File(dir,"metrics.txt").readText()}")
                 if(index==0) {
                     compose.onNodeWithText("OUVIR Voz").performScrollTo().performClick()
@@ -90,13 +94,13 @@ class SeparationIntegrationTest {
                     compose.onNodeWithText("PARAR Voz").performScrollTo().performClick()
                 }
                 val previous=vm.library.value.current
-                val expectedCount=if(index==1)4 else 2
+                val expectedCount=if(index==1)12 else 6
                 compose.runOnUiThread { vm.importSeparation(index==1) }
                 waitFor(60000) { vm.library.value.busy==null && vm.library.value.current?.stems?.size==expectedCount && vm.playback.value.ready && vm.playback.value.preparation.size==expectedCount && vm.playback.value.projectId==vm.library.value.selected }
                 val project=vm.library.value.current!!
                 assertEquals(project.stems[expectedCount-2].frames,project.stems[expectedCount-1].frames)
                 if(index==1) {
-                    assertEquals(previous!!.id,project.id);assertEquals(previous.stems,project.stems.take(2))
+                    assertEquals(previous!!.id,project.id);assertEquals(previous.stems,project.stems.take(6))
                     assertEquals(previous.dcas,project.dcas);assertEquals(previous.buses,project.buses)
                     assertEquals(previous.master,project.master,0f);assertEquals(previous.masterPan,project.masterPan,0f)
                 }

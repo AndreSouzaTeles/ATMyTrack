@@ -10,11 +10,9 @@ import java.security.MessageDigest
 class ModelStore(private val root: File,private val availableBytes:()->Long={root.usableSpace}) {
     data class Weight(val name:String,val bytes:Long,val sha256:String)
     companion object {
-        const val VERSION="spleeter-2stems-fp16-93ba771"
-        const val REVISION="93ba771920ade509f8cbd6825b1a90856c797e08"
-        val weights=listOf(
-            Weight("vocals.fp16.onnx",19681017,"24cef84aedcd1fe87c0b743ef3370ad34dc1fabf6c9014d6128a75a538c7b668"),
-            Weight("accompaniment.fp16.onnx",19681024,"d14cea55793cc531a5875f5f4da08207d1c5ab9292e8e0099a104eecb014fcc0"))
+        const val VERSION="htdemucs-6s-fp16-49df9b6"
+        const val REVISION="49df9b6989cf2150840ea65b0bef77a2e471b678"
+        val weights=listOf(Weight("htdemucs_6s_fp16weights.onnx",136428532,"7ce55792e2231c93fbf92de95f5fd5b3a5e6c89f7db690dfd693e8f1dce56869"))
         val downloadBytes=weights.sumOf { it.bytes }
         fun sha256(file:File,check:()->Unit={}):String = hash(file,check) { _,_-> }
         private fun hash(file:File,check:()->Unit,progress:(Long,Long)->Unit):String {
@@ -38,7 +36,7 @@ class ModelStore(private val root: File,private val availableBytes:()->Long={roo
     fun install(check:()->Unit,progress:(Long,Long)->Unit)=installWithProgress(check,progress) { _,_-> }
     fun installWithProgress(check:()->Unit,progress:(Long,Long)->Unit,phase:(String,Int)->Unit) {
         kotlin.check(root.isDirectory || root.mkdirs()) { "Não foi possível criar a pasta do modelo." }
-        kotlin.check(availableBytes()>downloadBytes+64L*1048576) { "Libere pelo menos 102 MiB para instalar o modelo." }
+        kotlin.check(availableBytes()>downloadBytes+64L*1048576) { "Libere pelo menos 195 MiB para instalar o modelo." }
         var completed=0L
         var ready=0
         for((index,w) in weights.withIndex()) {
@@ -57,7 +55,7 @@ class ModelStore(private val root: File,private val availableBytes:()->Long={roo
                 part.delete()
             }
             val offset=part.length()
-            val connection=URL("https://huggingface.co/csukuangfj/sherpa-onnx-spleeter-2stems-fp16/resolve/$REVISION/${w.name}").openConnection() as HttpURLConnection
+            val connection=URL("https://huggingface.co/StemSplitio/htdemucs-6s-onnx/resolve/$REVISION/${w.name}").openConnection() as HttpURLConnection
             connection.connectTimeout=20000;connection.readTimeout=20000
             connection.setRequestProperty("Accept-Encoding","identity")
             if(offset>0)connection.setRequestProperty("Range","bytes=$offset-")

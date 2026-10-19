@@ -8,6 +8,32 @@ import org.junit.Assert.*
 import kotlin.math.*
 
 class SeparationTest {
+    @Test fun demucsOverlapPreservesAllSamplesIncludingEdges() {
+        val n=DemucsChunks.SAMPLES;val overlap=DemucsChunks.OVERLAP;val stride=n-overlap
+        for(length in listOf(1,overlap,stride,n,n+17,n*2+31)) {
+            val sum=FloatArray(length);val weights=FloatArray(length)
+            var base=-overlap
+            while(base<length) {
+                for(i in 0 until n)if(base+i in 0 until length) {
+                    val at=base+i;val sample=sin(at*.001).toFloat()+.25f
+                    val w=DemucsChunks.weight(i);sum[at]+=sample*w;weights[at]+=w
+                }
+                base+=stride
+            }
+            for(i in 0 until length) { assertTrue(weights[i]>0f);assertEquals(sin(i*.001).toFloat()+.25f,sum[i]/weights[i],.000001f) }
+        }
+    }
+    @Test fun sixStemNamesKeepLegacyResultsReadable() {
+        val dir=java.nio.file.Files.createTempDirectory("six-stems").toFile()
+        try {
+            File(dir,"complete").writeText("1\n${ModelStore.VERSION}")
+            SeparationOutputs.current.forEach { File(dir,"$it.wav").writeBytes(byteArrayOf()) }
+            assertEquals(listOf("Bateria","Baixo","Outros","Voz","Guitarra","Piano"),SeparationOutputs.names(dir))
+            File(dir,"complete").writeText("1\nspleeter-2stems-fp16-93ba771")
+            File(dir,"Instrumental.wav").writeBytes(byteArrayOf())
+            assertEquals(listOf("Voz","Instrumental"),SeparationOutputs.names(dir))
+        } finally { dir.deleteRecursively() }
+    }
     @Test fun integrityProgressCountsBytesAndDoesNotAcceptWrongHash() {
         val file=File.createTempFile("model-progress",".onnx")
         try {

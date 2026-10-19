@@ -47,13 +47,13 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.math.*
 
-internal val Bg = Color(0xFF151617)
-internal val Panel = Color(0xFF1E1F21)
-internal val Control = Color(0xFF282A2D)
-internal val Blue = Color(0xFF8AA7C2)
-internal val SecondaryText = Color(0xFFC2C5C9)
-internal val Muted = Color(0xFFA5A8AD)
-internal val White = Color(0xFFEBECEE)
+internal val Bg = Color(0xFF111315)
+internal val Panel = Color(0xFF191D21)
+internal val Control = Color(0xFF232A31)
+internal val Blue = Color(0xFF7398BA)
+internal val SecondaryText = Color(0xFF9BA9B6)
+internal val Muted = Color(0xFF8896A3)
+internal val White = Color(0xFFBAC7D3)
 internal val Red = Color(0xFFFF777C)
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
@@ -117,14 +117,14 @@ fun PlayerScreen(vm: PlayerViewModel) {
     val files = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { if (it.isNotEmpty()) vm.import(uris = it) }
     val folder = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { if (it != null) vm.import(tree = it) }
     val art = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { if (it != null) vm.artwork(it) }
-    MaterialTheme(colorScheme = darkColorScheme(primary=White,onPrimary=Bg,primaryContainer=Control,onPrimaryContainer=White,
+    MaterialTheme(colorScheme = darkColorScheme(primary=Blue,onPrimary=Bg,primaryContainer=Control,onPrimaryContainer=White,
         secondary=Blue,onSecondary=Bg,secondaryContainer=Control,onSecondaryContainer=White,
         tertiary=SecondaryText,onTertiary=Bg,tertiaryContainer=Control,onTertiaryContainer=White,
         background=Bg,onBackground=White,surface=Panel,onSurface=White,surfaceVariant=Control,onSurfaceVariant=Muted,
         surfaceContainer=Panel,surfaceContainerLow=Panel,surfaceContainerLowest=Bg,
         surfaceContainerHigh=Control,surfaceContainerHighest=Control,surfaceDim=Bg,surfaceBright=Control,
         surfaceTint=Color.Transparent,inversePrimary=Blue,error=Red,onError=Bg,errorContainer=Color(0xFF531F2A),onErrorContainer=White,
-        outline=Muted,outlineVariant=Control,inverseSurface=White,inverseOnSurface=Bg)) {
+        outline=Color(0xFF404B56),outlineVariant=Control,inverseSurface=White,inverseOnSurface=Bg)) {
         Surface(Modifier.fillMaxSize(), color = Bg) {
             BoxWithConstraints(Modifier.safeDrawingPadding()) {
                 val screenWidth=maxWidth
@@ -138,7 +138,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
                         Image(painterResource(R.drawable.brand_art), "Logo ATMyTrack", Modifier.size(if (narrow) 28.dp else 36.dp))
                         Text(androidx.compose.ui.res.stringResource(R.string.app_name), fontWeight = FontWeight.Bold, fontSize = if (narrow) 16.sp else 20.sp)
                         Spacer(Modifier.weight(1f))
-                        TextButton(onClick = { importDialog = true }, enabled = library.busy == null) { Text(if (narrow) "IMPORTAR" else "+ IMPORTAR") }
+                        TextButton(colors=ButtonDefaults.buttonColors(containerColor=Control,contentColor=Blue),onClick = { importDialog = true }, enabled = library.busy == null) { Text(if (narrow) "IMPORTAR" else "+ IMPORTAR") }
                         SearchButton { search=true }
                     }
                     if (library.busy != null) {
@@ -187,7 +187,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
                             Image(painterResource(R.drawable.brand_art), null, Modifier.size(120.dp))
                             Text("Seu multitrack.\nSeu palco. Seu controle.", fontSize = 28.sp, fontWeight = FontWeight.Bold, lineHeight = 36.sp)
                             Text("Suas stems, juntas do primeiro ao último compasso.", Modifier.padding(vertical = 20.dp), color = Muted)
-                            Button(onClick = { importDialog = true }, enabled = library.busy == null, modifier = Modifier.heightIn(min = 56.dp)) { Text("CRIAR PRIMEIRO PROJETO") }
+                            Button(colors=ButtonDefaults.buttonColors(containerColor=Control,contentColor=Blue),onClick = { importDialog = true }, enabled = library.busy == null, modifier = Modifier.heightIn(min = 56.dp)) { Text("CRIAR PRIMEIRO PROJETO") }
                             DspButton("PAD",if(padState.playing)"SOANDO" else "AMBIENTE",padState.playing,Modifier.width(160.dp)) { padOpen=true }
                         }
                     } else {
@@ -372,7 +372,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
         }
         val error = library.message ?: playback.error
         if (error != null) AlertDialog(onDismissRequest = vm::dismissError, title = { Text("ATMyTrack") }, text = { Text(error) }, confirmButton = { TextButton(onClick = vm::dismissError) { Text("ENTENDI") } })
-        if (help) AlertDialog(onDismissRequest = { help = false }, title = { Text("ATMyTrack • 0.15.3") }, text = {
+        if (help) AlertDialog(onDismissRequest = { help = false }, title = { Text("ATMyTrack • 0.16.0") }, text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("1. Importe uma pasta ou selecione as stems.\n2. Ajuste volume, pan, mute e solo.\n3. Defina BPM e compasso; o CLICK acompanha a timeline.\n4. Crie seções para saltar aos trechos da música.")
                 Text("A importação depende dos decoders disponíveis no Android. WAV, MP3, AAC/M4A, FLAC e OGG/Opus são tentados; arquivos incompatíveis geram erro.", color = Muted)
@@ -616,7 +616,7 @@ private fun MarkerEditor(p: Project, frame: Long, vm: PlayerViewModel, close: ()
     var name by remember { mutableStateOf("") }
     var start by remember { mutableStateOf("%.2f".format(java.util.Locale.US, frame.toDouble() / p.sampleRate)) }
     var end by remember { mutableStateOf("%.2f".format(java.util.Locale.US, minOf(p.seconds, frame.toDouble() / p.sampleRate + 16))) }
-    var color by remember { mutableLongStateOf(0xFF8AA7C2) }
+    var color by remember { mutableLongStateOf(0xFF7398BA) }
     val first = parseTime(start)?.times(p.sampleRate)?.toLong()
     val last = parseTime(end)?.times(p.sampleRate)?.toLong()
     val valid = name.isNotBlank() && first != null && last != null && MusicTime.validMarker(first, last, p.frames)

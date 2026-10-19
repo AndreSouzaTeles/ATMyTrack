@@ -34,6 +34,7 @@ import java.io.File
     var uriText by rememberSaveable { mutableStateOf("") }
     var title by rememberSaveable { mutableStateOf("") }
     var confirmDownload by remember { mutableStateOf(false) }
+    var details by remember { mutableStateOf(false) }
     var preview by remember { mutableStateOf<MediaPlayer?>(null) }
     var previewName by remember { mutableStateOf("") }
     var exportName by remember { mutableStateOf("") }
@@ -78,22 +79,21 @@ import java.io.File
         }
     }},text={
         Column(Modifier.verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(12.dp)) {
-            Text("Voz + Instrumental",color=SecondaryText)
-            Text("IA local gratuita • Spleeter 2 stems. Após instalar o modelo, funciona offline. Sua música não é enviada para servidores.")
-            Text("Recurso experimental: pode haver vazamento entre voz e instrumentos. Requer Android 64 bits e memória livre; recomendado 4 GB de RAM ou mais. Não separa bateria e baixo individualmente.",color=Muted)
-            Text(if(state.installed)"Modelo instalado e verificado" else "Download inicial: ${ModelStore.downloadBytes} bytes (37,54 MiB).",color=SecondaryText)
+            Text("Voz · Bateria · Baixo · Guitarra · Piano · Outros",color=SecondaryText)
+            Text("IA local gratuita • Demucs 6 faixas • offline após instalar o modelo.")
+            Text("Android 64 bits • mínimo 6 GB de RAM e cerca de 2,5 GB livres.",color=Muted)
+
+            Text(if(state.installed)"Modelo instalado e verificado" else "Download inicial: ${ModelStore.downloadBytes} bytes (130,11 MiB).",color=SecondaryText)
             OutlinedButton(onClick={stopPreview();confirmDownload=true},enabled=state.connected && !busy) { Text(if(state.installed)"VERIFICAR / REPARAR MODELO" else "BAIXAR MODELO GRATUITO") }
             OutlinedButton(onClick={stopPreview();choose.launch(arrayOf("audio/*"))},enabled=!busy) { Text("ESCOLHER MÚSICA") }
             if(title.isNotBlank())Text(title,color=SecondaryText)
-            Text("Mantenha esta tela aberta. Ao sair do aplicativo, a operação é cancelada após o bloco atual. Reprodução ao vivo fica bloqueada durante a separação. A duração depende da música e do aparelho.",color=Muted)
-            Text("Espaço estimado: 60,6 MiB por minuto de música + 64 MiB de reserva; o app verifica a duração e o espaço antes de processar.",color=Muted)
-            Button(onClick={stopPreview();localMessage="";vm.startSeparation(Uri.parse(uriText),title)},enabled=state.connected && state.installed && uriText.isNotBlank() && !busy && result==null) { Text("INICIAR SEPARAÇÃO") }
+            Button(colors=ButtonDefaults.buttonColors(containerColor=Control,contentColor=Blue),onClick={stopPreview();localMessage="";vm.startSeparation(Uri.parse(uriText),title)},enabled=state.connected && state.installed && uriText.isNotBlank() && !busy && result==null) { Text("INICIAR SEPARAÇÃO") }
             if(!state.busy)Text(state.text,color=SecondaryText)
             if(state.error.isNotBlank())Text(state.error,color=Red)
             if(localMessage.isNotBlank())Text(localMessage)
             if(result!=null && !state.busy) {
                 Text("Concluído • WAV estéreo 44,1 kHz / float32, com duração e alinhamento comuns.",color=SecondaryText)
-                for(name in listOf("Voz","Instrumental")) {
+                for(name in com.atmytrack.app.separation.SeparationOutputs.names(result)) {
                     Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
                         OutlinedButton(onClick={
                             if(previewName==name)stopPreview() else {
@@ -110,12 +110,20 @@ import java.io.File
                         TextButton(onClick={exportName=name;export.launch("${title.ifBlank { "ATMyTrack" }}-$name.wav")},enabled=!busy) { Text("WAV") }
                     }
                 }
-                Button(onClick={stopPreview();vm.importSeparation(false);close()},enabled=!busy) { Text("IMPORTAR EM NOVO PROJETO") }
+                Button(colors=ButtonDefaults.buttonColors(containerColor=Control,contentColor=Blue),onClick={stopPreview();vm.importSeparation(false);close()},enabled=!busy) { Text("IMPORTAR EM NOVO PROJETO") }
                 OutlinedButton(onClick={stopPreview();vm.importSeparation(true)},enabled=!busy && library.current!=null) { Text("ADICIONAR AO PROJETO ATUAL") }
                 Text("No projeto atual, as faixas entram no início da timeline. Use tom original e velocidade 100%. Mute tracks da música original para evitar soma de volume.",color=Muted)
                 TextButton(onClick={stopPreview();vm.discardSeparation()},enabled=!busy) { Text("DESCARTAR RESULTADO E SEPARAR OUTRA") }
             }
+            TextButton(onClick={details=!details}) { Text(if(details)"OCULTAR DETALHES" else "COMO FUNCIONA E LIMITES") }
+            if(details) {
+            Text("Separa seis categorias de instrumentos. Pode haver vazamentos e artefatos, especialmente em guitarra e piano. Sintetizadores, órgãos e outros timbres de teclado podem ficar em Outros. Requer Android 64 bits e memória livre; recomendado 6 GB de RAM ou mais.",color=Muted)
+            Text("Mantenha esta tela aberta. Ao sair do aplicativo, a operação é cancelada após o bloco atual. Reprodução ao vivo fica bloqueada durante a separação. A duração depende da música e do aparelho.",color=Muted)
+            Text("Espaço estimado: 141,4 MiB por minuto de música + 64 MiB de reserva; o app verifica a duração e o espaço antes de processar.",color=Muted)
+                Text("Sua música não é enviada para servidores.",color=Muted)
+            }
+
         }
     },confirmButton={TextButton(onClick={stopPreview();close()},enabled=!busy){Text("FECHAR")}},dismissButton={if(state.busy)TextButton(onClick={vm.separation.command(4)}){Text("CANCELAR")}})
-    if(confirmDownload)AlertDialog(onDismissRequest={confirmDownload=false},title={Text("Baixar modelo gratuito?")},text={Text("Serão verificados/baixados ${ModelStore.downloadBytes} bytes de pesos Spleeter (MIT), hospedados pelo mantenedor da conversão ONNX no Hugging Face. São necessários 102 MiB livres. Nenhum áudio será enviado. O download pode usar sua franquia de dados.")},confirmButton={TextButton(onClick={confirmDownload=false;vm.separation.command(2)}){Text("CONFIRMAR DOWNLOAD")}},dismissButton={TextButton(onClick={confirmDownload=false}){Text("CANCELAR")}})
+    if(confirmDownload)AlertDialog(onDismissRequest={confirmDownload=false},title={Text("Baixar modelo gratuito?")},text={Text("Serão verificados/baixados ${ModelStore.downloadBytes} bytes de pesos Demucs 6 faixas (MIT), hospedados pelo mantenedor da conversão ONNX no Hugging Face. São necessários 195 MiB livres. Nenhum áudio será enviado. O download pode usar sua franquia de dados.")},confirmButton={TextButton(onClick={confirmDownload=false;vm.separation.command(2)}){Text("CONFIRMAR DOWNLOAD")}},dismissButton={TextButton(onClick={confirmDownload=false}){Text("CANCELAR")}})
 }

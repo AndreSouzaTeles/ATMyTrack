@@ -56,7 +56,7 @@ class SeparationService:Service() {
                         require(Process.is64Bit()) { "A separação requer Android de 64 bits. O mixer continua compatível com 32 bits." }
                         val memory=android.app.ActivityManager.MemoryInfo()
                         getSystemService(android.app.ActivityManager::class.java).getMemoryInfo(memory)
-                        require(memory.totalMem>=3L*1024*1048576 && memory.availMem>=900L*1048576 && !memory.lowMemory) { "Memória insuficiente para a IA. Feche outros aplicativos; recomendado Android 64 bits com 4 GB de RAM ou mais." }
+                        require(memory.totalMem>=5L*1024*1048576 && memory.availMem>=2500L*1048576 && !memory.lowMemory) { "Memória insuficiente para separar seis instrumentos. Requer Android 64 bits com pelo menos 6 GB de RAM e cerca de 2,5 GB livres. Feche outros aplicativos e tente novamente." }
                         output=File(root,"results/${UUID.randomUUID()}").apply { mkdirs();File(this,"title.txt").writeText(title.take(200)) }
                         val pendingLock=File(root,"processing.lock.part")
                         pendingLock.writeText(Process.myPid().toString())

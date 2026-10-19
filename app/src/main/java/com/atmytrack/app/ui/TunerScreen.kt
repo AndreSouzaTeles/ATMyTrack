@@ -60,7 +60,7 @@ import kotlin.math.*
                         Text("O ATMyTrack precisa acessar o microfone para identificar a nota tocada pelo seu instrumento.",fontSize=20.sp)
                         if(denied)Text("O microfone não foi autorizado. Permita o acesso para usar o afinador.",color=Muted)
                         val settings=permanentDenial
-                        Button(onClick={if(settings)context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,Uri.parse("package:${context.packageName}"))) else launcher.launch(Manifest.permission.RECORD_AUDIO)}) { Text(if(settings)"ABRIR CONFIGURAÇÕES" else "PERMITIR MICROFONE") }
+                        Button(colors=ButtonDefaults.buttonColors(containerColor=Control,contentColor=Blue),onClick={if(settings)context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,Uri.parse("package:${context.packageName}"))) else launcher.launch(Manifest.permission.RECORD_AUDIO)}) { Text(if(settings)"ABRIR CONFIGURAÇÕES" else "PERMITIR MICROFONE") }
                     }
                 } else BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
                     val wide=maxWidth>=700.dp
@@ -82,7 +82,7 @@ import kotlin.math.*
                                 Text("MIC",Modifier.padding(end=8.dp),color=Muted)
                                 LinearProgressIndicator(progress={(state.reading.rms*8).toFloat().coerceIn(0f,1f)},modifier=Modifier.weight(1f).semantics { contentDescription="Nível do microfone" },color=Blue)
                             }
-                            if(state.error!=null) { Text(state.error!!,color=Red);Button(onClick={retry++}){Text("TENTAR NOVAMENTE")} }
+                            if(state.error!=null) { Text(state.error!!,color=Red);Button(colors=ButtonDefaults.buttonColors(containerColor=Control,contentColor=Blue),onClick={retry++}){Text("TENTAR NOVAMENTE")} }
                         }
                     }
                     if(wide) Row(Modifier.fillMaxSize(),horizontalArrangement=Arrangement.spacedBy(24.dp)) { Controls(Modifier.width(300.dp));TunerMeter(state.reading,tuning,stringNumber,a4,Modifier.weight(1f).fillMaxHeight()) }

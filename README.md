@@ -1,10 +1,16 @@
 # ATMyTrack
 
-**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [APK ATMyTrack_v2 0.15.3](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.15.3/ATMyTrack_v2.apk)
+**[Abrir ATMyTrack Web](https://atmytrack-web.andmtu.chatgpt.site)** · [APK ATMyTrack_v2 0.16.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.16.0/ATMyTrack_v2.apk)
 
-## Android 0.15.3 — ATMyTrack_v2
+## Android 0.16.0 — ATMyTrack_v2
 
 Player multitrack em Kotlin/Compose para Android 8.0+ (API 26). A entrega temporária ATMyTrack_v2 instala separadamente, sem acessar a biblioteca privada do aplicativo antigo.
+
+## Atualização 0.16.0 — seis faixas e menos branco
+
+A separação de duas faixas foi substituída por **Demucs 6 fontes**: Voz, Bateria, Baixo, Guitarra, Piano e Outros. Modelo local com novo download de 136.428.532 bytes (130,11 MiB), SHA-256 e revisão fixada. Os WAVs têm o mesmo início/duração e podem ser ouvidos, exportados e adicionados ao mixer. Sintetizadores/órgãos e instrumentos fora das categorias podem ficar em Outros; não identifica isoladamente todos os timbres de uma música. Há vazamentos e limitações de guitarra/piano. Requer Android 64 bits com pelo menos 6 GB de RAM e cerca de 2,5 GB de memória livre.
+
+Interface com menos brilho: textos azul-acinzentados, bordas discretas, botões preenchidos escuros; ícone mantido como aprovado. Resultados antigos de voz/instrumental e projetos importados são preservados. Continua atualizando o pacote temporário ATMyTrack_v2. [Implementação e testes](verification/REPORT-0.16.0.md).
 
 ## Atualização 0.15.3 — ATMyTrack_v2 temporário
 

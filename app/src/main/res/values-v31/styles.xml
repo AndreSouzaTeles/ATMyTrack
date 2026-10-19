@@ -1,12 +1,12 @@
 <resources>
     <style name="AppTheme" parent="android:style/Theme.Material.NoActionBar">
-        <item name="android:windowSplashScreenBackground">#151617</item>
+        <item name="android:windowSplashScreenBackground">#111315</item>
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:statusBarColor">#151617</item>
-        <item name="android:navigationBarColor">#151617</item>
-        <item name="android:windowBackground">#151617</item>
-        <item name="android:colorAccent">#8AA7C2</item>
+        <item name="android:statusBarColor">#111315</item>
+        <item name="android:navigationBarColor">#111315</item>
+        <item name="android:windowBackground">#111315</item>
+        <item name="android:colorAccent">#7398BA</item>
     </style>
 </resources>
 

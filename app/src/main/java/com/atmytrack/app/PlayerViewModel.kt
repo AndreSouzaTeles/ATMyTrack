@@ -37,9 +37,10 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
         val id=separation.state.value.result
         if(!id.matches(Regex("[a-f0-9-]{36}")))return
         val dir=File(getApplication<Application>().filesDir,"separation/results/$id")
+        val names=runCatching { com.atmytrack.app.separation.SeparationOutputs.names(dir) }.getOrElse { message("Resultado incompleto. Separe a música novamente.");return }
         val current=library.value.current
-        if(intoCurrent && (current==null || current.stems.size>62 || current.semitones!=0 || current.speed!=100)) {
-            message("Use um novo projeto ou um projeto com até 62 tracks, tom original e velocidade 100% para adicionar stems alinhadas.");return
+        if(intoCurrent && (current==null || current.stems.size>64-names.size || current.semitones!=0 || current.speed!=100)) {
+            message("Use um novo projeto ou um projeto com espaço para todas as faixas, tom original e velocidade 100% para adicionar stems alinhadas.");return
         }
         stop();pad.stop()
         mutable.update { it.copy(busy="Importando stems separadas…") }
@@ -49,7 +50,7 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
                     check(File(dir,"complete").isFile) { "Separação incompleta. Tente novamente." }
                     val frames=File(dir,"complete").readLines().first().toLong()
                     val rate=if(intoCurrent)current!!.sampleRate else 44100
-                    val tracks=listOf("Voz","Instrumental").map { name ->
+                    val tracks=names.map { name ->
                         val file=File(dir,"$name.wav")
                         check(file.length()==44+frames*8) { "Stem incompleta: $name" }
                         Stem(name=name,pcm="separation/results/$id/$name.wav",frames=(frames.toDouble()*rate/44100).roundToLong(),format=PcmFormat(offset=44),sourceRate=44100,sourceFrames=frames)

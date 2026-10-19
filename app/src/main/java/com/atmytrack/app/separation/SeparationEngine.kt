@@ -10,16 +10,6 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import kotlin.math.*
-import com.atmytrack.app.separation.SeparationDsp.FFT
-import com.atmytrack.app.separation.SeparationDsp.HOP
-import com.atmytrack.app.separation.SeparationDsp.BINS
-import com.atmytrack.app.separation.SeparationDsp.STEPS
-import com.atmytrack.app.separation.SeparationDsp.CONTEXT
-import com.atmytrack.app.separation.SeparationDsp.CORE
-import com.atmytrack.app.separation.SeparationDsp.window
-import com.atmytrack.app.separation.SeparationDsp.fft
-import com.atmytrack.app.separation.SeparationDsp.vocalMask
-
 class SeparationEngine(private val context:Context) {
     suspend fun run(uri:Uri,dir:File,check:()->Unit,progress:(String,Int)->Unit) {
         val models=ModelStore(File(context.filesDir,"models/${ModelStore.VERSION}"))
@@ -32,7 +22,7 @@ class SeparationEngine(private val context:Context) {
             imported=source
             val frames=(source.frames.toDouble()*44100/source.sampleRate).roundToLong()
             require(frames in 1..((0xffffffffL-36)/8)) { "Música excede o limite WAV de 4 GB por faixa." }
-            require(dir.usableSpace>frames*24+64L*1048576) { "Espaço insuficiente. Necessário: ${frames*24/1048576+64} MiB (preparo e duas faixas)." }
+            require(dir.usableSpace>frames*56+64L*1048576) { "Espaço insuficiente. Necessário: ${frames*56/1048576+64} MiB (preparo e seis faixas)." }
             val stem=source.stems.single().copy(frames=frames)
             val raw=File(dir,"input.pcm")
             Readers.open(context,stem,44100,4096,true).use { reader ->
@@ -52,16 +42,13 @@ class SeparationEngine(private val context:Context) {
             OrtSession.SessionOptions().use { options ->
                 options.setIntraOpNumThreads(2);options.setInterOpNumThreads(1)
                 options.setMemoryPatternOptimization(false);options.setCPUArenaAllocator(false)
-                env.createSession(models.file(ModelStore.weights[0]).path,options).use { vocals ->
-                    env.createSession(models.file(ModelStore.weights[1]).path,options).use { accompaniment ->
-                        PcmReader(raw,frames,FFT,PcmFormat()).use { reader ->
-                            FloatWav(File(dir,"Voz.wav"),frames).use { voice ->
-                                FloatWav(File(dir,"Instrumental.wav"),frames).use { music ->
-                                    separate(reader,frames,env,vocals,accompaniment,voice,music,check,progress,dir)
-                                    voice.finish();music.finish()
-                                }
-                            }
-                        }
+                env.createSession(models.file(ModelStore.weights.single()).path,options).use { session ->
+                    PcmReader(raw,frames,DemucsChunks.SAMPLES,PcmFormat()).use { reader ->
+                        val outputs=SeparationOutputs.current.map { FloatWav(File(dir,"$it.wav"),frames) }
+                        try {
+                            separate(reader,frames,env,session,outputs,check,progress,dir)
+                            outputs.forEach { it.finish() }
+                        } finally { outputs.forEach { it.close() } }
                     }
                 }
             }
@@ -73,74 +60,53 @@ class SeparationEngine(private val context:Context) {
         }
     }
     private fun disk(dir:File) { check(dir.usableSpace>32L*1048576) { "Armazenamento cheio. Libere espaço e tente novamente." } }
-    private fun separate(reader:FrameReader,frames:Long,env:OrtEnvironment,v:OrtSession,a:OrtSession,voice:FloatWav,music:FloatWav,check:()->Unit,progress:(String,Int)->Unit,dir:File) {
-        val stride=CORE*HOP;val tail=FFT-HOP;val length=stride+tail
-        val carryV=FloatArray(tail*2);val carryA=FloatArray(tail*2);val carryN=FloatArray(tail)
-        val re=FloatArray(FFT);val im=FloatArray(FFT);val source=FloatArray(FFT*2)
-        fun spectrum(center:Long,ch:Int) {
-            source.fill(0f)
-            val begin=center-FFT/2
-            val first=max(0L,begin);val count=(min(frames,begin+FFT)-first).coerceAtLeast(0).toInt()
-            if(count>0) {
-                reader.read(first,count,source)
-                val shift=(first-begin).toInt()
-                for(i in 0 until FFT)re[i]=if(i in shift until shift+count)source[(i-shift)*2+ch]*window[i] else 0f
-            } else re.fill(0f)
-            im.fill(0f);fft(re,im)
-        }
-        fun infer(session:OrtSession,tensor:OnnxTensor):FloatArray=session.run(mapOf("x" to tensor)).use { result ->
-            val out=result[0] as OnnxTensor
-            require(out.info.shape.contentEquals(longArrayOf(2,1,512,1024))) { "Formato de saída do modelo incompatível." }
-            FloatArray(2*STEPS*BINS).also { out.floatBuffer.get(it) }
-        }
-        var core=-1L
-        while(core*HOP-FFT/2<frames) {
+    private fun separate(reader:FrameReader,frames:Long,env:OrtEnvironment,session:OrtSession,outputs:List<FloatWav>,check:()->Unit,progress:(String,Int)->Unit,dir:File) {
+        val n=DemucsChunks.SAMPLES;val overlap=DemucsChunks.OVERLAP;val stride=n-overlap
+        val carry=Array(6) { FloatArray(overlap*2) };val carryWeight=FloatArray(overlap)
+        val inputInterleaved=FloatArray(n*2)
+        var base=-overlap.toLong()
+        while(base<frames) {
             check();disk(dir)
-            val input=FloatArray(2*STEPS*BINS)
-            for(ch in 0..1)for(t in 0 until STEPS) {
-                check();spectrum((core-CONTEXT+t)*HOP,ch)
-                val offset=(ch*STEPS+t)*BINS
-                for(k in 0 until BINS)input[offset+k]=hypot(re[k],im[k])
-            }
-            val percent=((core*HOP).coerceAtLeast(0)*100/frames).coerceIn(0,99).toInt()
-            progress("Separando voz e instrumental • blocos concluídos: $percent%",percent)
-            val predictions=OnnxTensor.createTensor(env,FloatBuffer.wrap(input),longArrayOf(2,1,512,1024)).use { tensor ->
-                val vv=infer(v,tensor);check();val aa=infer(a,tensor);check();vv to aa
-            }
-            val sumV=FloatArray(length*2);val sumA=FloatArray(length*2);val norm=FloatArray(length)
-            carryV.copyInto(sumV);carryA.copyInto(sumA);carryN.copyInto(norm)
-            val vr=FloatArray(FFT);val vi=FloatArray(FFT)
-            for(t in 0 until CORE) {
-                check()
-                for(ch in 0..1) {
-                    spectrum((core+t)*HOP,ch)
-                    val offset=(ch*STEPS+t+CONTEXT)*BINS
-                    for(k in 0..FFT/2) {
-                        val mask=if(k<BINS)vocalMask(predictions.first[offset+k],predictions.second[offset+k]) else 0f
-                        vr[k]=re[k]*mask;vi[k]=im[k]*mask
-                        if(k in 1 until FFT/2) { vr[FFT-k]=vr[k];vi[FFT-k]=-vi[k] }
-                    }
-                    fft(vr,vi,true)
-                    fft(re,im,true)
-                    for(i in 0 until FFT) {
-                        val at=t*HOP+i;val w=window[i]
-                        sumV[at*2+ch]+=vr[i]*w
-                        sumA[at*2+ch]+=(re[i]-vr[i])*w
-                        if(ch==0)norm[at]+=w*w
+            val input=FloatArray(n*2)
+            val first=max(0L,base);val count=(min(frames,base+n)-first).coerceAtLeast(0).toInt()
+            val shift=(first-base).toInt()
+            inputInterleaved.fill(0f)
+            reader.read(first,count,inputInterleaved)
+            for(i in 0 until count) { input[shift+i]=inputInterleaved[i*2];input[n+shift+i]=inputInterleaved[i*2+1] }
+            val percent=(base.coerceAtLeast(0)*100/frames).coerceIn(0,99).toInt()
+            progress("Separando 6 faixas • $percent%",percent)
+            val sum=Array(6) { FloatArray(n*2) };val weight=FloatArray(n)
+            for(s in 0 until 6)carry[s].copyInto(sum[s])
+            carryWeight.copyInto(weight)
+            OnnxTensor.createTensor(env,FloatBuffer.wrap(input),longArrayOf(1,2,n.toLong())).use { tensor ->
+                session.run(mapOf("mix" to tensor)).use { result ->
+                    check()
+                    val out=result[0] as OnnxTensor
+                    require(out.info.shape.contentEquals(longArrayOf(1,6,2,n.toLong()))) { "Saída do modelo incompatível com seis instrumentos." }
+                    val prediction=out.floatBuffer
+                    for(i in 0 until n) {
+                        if(i%4096==0)check()
+                        val w=DemucsChunks.weight(i)
+                        weight[i]+=w
+                        for(s in 0 until 6)for(ch in 0..1) {
+                            val sample=prediction.get((s*2+ch)*n+i)
+                            require(sample.isFinite()) { "Modelo produziu áudio inválido." }
+                            sum[s][i*2+ch]+=sample*w
+                        }
                     }
                 }
             }
-            sumV.copyInto(carryV,0,stride*2);sumA.copyInto(carryA,0,stride*2);norm.copyInto(carryN,0,stride)
-            val base=core*HOP-FFT/2
-            val start=(-base).coerceIn(0,stride.toLong()).toInt()
-            val end=min(stride.toLong(),frames-base).toInt()
-            for(i in start until end) {
-                require(norm[i]>1e-8f) { "Falha no alinhamento dos blocos." }
-                for(ch in 0..1) { sumV[i*2+ch]/=norm[i];sumA[i*2+ch]/=norm[i] }
+            for(s in 0 until 6)sum[s].copyInto(carry[s],0,stride*2)
+            weight.copyInto(carryWeight,0,stride)
+            val begin=(-base).coerceIn(0,stride.toLong()).toInt()
+            val end=(frames-base).coerceIn(0,stride.toLong()).toInt()
+            for(i in begin until end) {
+                require(weight[i]>1e-8f) { "Falha no alinhamento dos blocos." }
+                for(s in 0 until 6)for(ch in 0..1)sum[s][i*2+ch]/=weight[i]
             }
-            if(end>start) { voice.write(sumV,start,end-start);music.write(sumA,start,end-start) }
-            core+=CORE
-            progress("Separando voz e instrumental",((core*HOP-FFT/2).coerceAtLeast(0)*100/frames).coerceIn(0,100).toInt())
+            for(s in 0 until 6)if(end>begin)outputs[s].write(sum[s],begin,end-begin)
+            base+=stride
+            progress("Separando 6 faixas",(base.coerceAtLeast(0)*100/frames).coerceIn(0,100).toInt())
         }
     }
 }

@@ -1,3 +1,5 @@
+> Histórico da implementação 0.15.0. A partir de 0.16.0, o modelo ativo é Demucs 6 fontes. Veja [REPORT-0.16.0](REPORT-0.16.0.md) para contrato, memória e validação atuais.
+
 # Separação local Android — 0.15.0
 
 ## Auditoria (Etapa A)
