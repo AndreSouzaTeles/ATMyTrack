@@ -1,6 +1,6 @@
 plugins { id("com.android.application"); id("org.jetbrains.kotlin.plugin.compose") }
-// Temporary side-by-side build requested by the user. Use -PatmytrackV2=false for the original package.
-val temporaryV2 = providers.gradleProperty("atmytrackV2").map { it.toBoolean() }.orElse(true).get()
+// Original signing key restored. V2 remains opt-in for its existing separate installation.
+val temporaryV2 = providers.gradleProperty("atmytrackV2").map { it.toBoolean() }.orElse(false).get()
 android {
     namespace = "com.atmytrack.app"
     compileSdk = 36
@@ -8,12 +8,22 @@ android {
         applicationId = if (temporaryV2) "com.atmytrack.app.v2" else "com.atmytrack.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 31
-        versionName = "0.18.0"
+        versionCode = 32
+        versionName = "0.19.0"
         manifestPlaceholders["appLabel"] = if (temporaryV2) "ATMyTrack_v2" else "ATMyTrack"
         resValue("string", "app_name", if (temporaryV2) "ATMyTrack_v2" else "ATMyTrack")
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64") }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+    signingConfigs.getByName("debug") {
+        if (!temporaryV2) {
+            val originalStore = rootProject.file("debug.keystore")
+            require(originalStore.isFile) { "Chave original ausente: restaure debug.keystore na pasta do projeto antes de compilar ATMyTrack." }
+            storeFile = originalStore
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
     }
     buildFeatures { compose = true; resValues = true }
     ndkVersion = "28.2.13676358"

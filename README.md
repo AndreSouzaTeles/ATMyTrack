@@ -1,20 +1,20 @@
 # ATMyTrack
 
-**[APK ATMyTrack_v2 0.18.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.18.0/ATMyTrack_v2-0.18.0.apk)**
+**[APK ATMyTrack original 0.19.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.19.0/ATMyTrack-0.19.0-debug.apk)**
 
 Player multitrack para Android 8.0+ (API 26), em Kotlin/Compose.
 
-## Android 0.18.0 — cores por instrumento e função
+## Android 0.19.0 — assinatura original e ícone circular
 
-Base grafite neutra com canais em coral, verde suave, azul, violeta, ciano e âmbar. Cabeçalhos, PAN e faders usam a cor do instrumento; os nomes das faixas orientam essa indicação visual. Tom, velocidade, PAD, loop, metrônomo e routing têm cores próprias. Transporte verde suave, SOLO azul, MUTE âmbar e medidores verde/âmbar/vermelho. Cores personalizadas das seções já salvas são preservadas.
+A chave trazida do outro computador foi comparada com o APK original 0.14.4: certificado SHA-256 `1f9c8116100c1b13aded62b0c2711e3aa045b60c77bb40f57f5f1a71f77e9c39` em ambos. O build padrão volta a ser **ATMyTrack** (`com.atmytrack.app`), para atualizar o aplicativo original. A chave local `debug.keystore` está ignorada pelo Git e não integra o repositório ou a release. Builds originais exigem esse arquivo; não existe troca automática por outra chave.
 
-Ícone, logo, splash e PNGs refeitos a partir da nova referência de play/barras em ciano, azul e violeta. A separação de instrumentos continua removida.
+Ícone com a mesma identidade ciano/azul/violeta, agora com borda circular ampliada, cantos transparentes e recurso `roundIcon`. Logo, splash, PNGs por densidade e arte web local usam a mesma imagem. A paleta grafite com cores por instrumento e função da 0.18.0 foi mantida. A separação de instrumentos continua removida.
 
-Atualiza **ATMyTrack_v2** (`com.atmytrack.app.v2`) com a mesma assinatura das entregas anteriores deste computador. Preserva projetos e arquivos importados.
+O ATMyTrack_v2 continua sendo um aplicativo separado; seus projetos não são transferidos automaticamente ao original. Para compilar essa instalação separada por solicitação explícita, use `-PatmytrackV2=true`; a assinatura dela continua sendo a chave debug deste computador.
 
-[Identidade e prompt](branding/BRAND-0.18.0.md) · [Validação e capturas](verification/REPORT-0.18.0.md).
+[Identidade e prompt](branding/BRAND-0.19.0.md) · [Validação](verification/REPORT-0.19.0.md).
 
-Build: `tools/build-android.ps1`. Acrescente `-DeviceTest` para testes Android em dispositivo/emulador configurado. APKs em `dist/ATMyTrack-debug.apk` e `dist/ATMyTrack_v2.apk`. A versão web local acompanha a identidade; não foi republicada no site.
+Build: `tools/build-android.ps1`. APK padrão em `dist/ATMyTrack-debug.apk`; cópia versionada em `dist/ATMyTrack-0.19.0-debug.apk`. O site público não foi republicado.
 
 ## Histórico anterior
 

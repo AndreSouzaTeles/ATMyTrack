@@ -1,0 +1,21 @@
+{
+  "oldVersion": "0.14.4 (24)",
+  "newVersion": "0.19.0 (32)",
+  "package": "com.atmytrack.app",
+  "certificateSha256": "1f9c8116100c1b13aded62b0c2711e3aa045b60c77bb40f57f5f1a71f77e9c39",
+  "files/library.json": {
+    "bytes": 1109,
+    "sha256": "9729fde21756fb36e12fb47d304e78d6e909da6965ad8c70784b72d03c22a01e",
+    "unchangedAfterInstall": true
+  },
+  "files/audio/upgrade-tone.pcm": {
+    "bytes": 4608000,
+    "sha256": "c66fcd754042e1ef7d1ae7f3e1ba16ca148363c22c60317d6f2b9521dd934bd9",
+    "unchangedAfterInstall": true
+  },
+  "afterFirstLaunch": {
+    "ready": true,
+    "projectsPreserved": 1,
+    "libraryUnchanged": true
+  }
+}
