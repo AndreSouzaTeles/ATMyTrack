@@ -1,5 +1,7 @@
 # Dependências e licenças
 
+Fonte do nome no menu: Outfit (Google Fonts), incluída localmente em `res/font/outfit.ttf`, SIL Open Font License 1.1. Fonte: https://github.com/google/fonts/tree/main/ofl/outfit. Licença distribuída no APK em `assets/Outfit-OFL.txt`.
+
 Versões fixadas, verificadas em 06/10/2026. Bibliotecas AndroidX/Kotlin são projetos mantidos por Google/JetBrains. As versões escolhidas formam a base compilada desta entrega; não são uma alegação de serem as versões mais recentes.
 
 | Componente | Versão | Finalidade | Licença / fonte |

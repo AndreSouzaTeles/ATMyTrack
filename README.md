@@ -1,8 +1,12 @@
 # ATMyTrack
 
-**[APK ATMyTrack original 0.21.1](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.21.1/ATMyTrack-0.21.1-debug.apk)**
+**[APK ATMyTrack original 0.21.2](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.21.2/ATMyTrack-0.21.2-debug.apk)**
 
 Player multitrack para Android 8.0+ (API 26), em Kotlin/Compose.
+
+## Android 0.21.2 — assinatura visual do menu
+
+Nome à direita do ícone, em uma única linha, com fonte geométrica Outfit incluída no aplicativo. Letras em branco suave e destaque ciano discreto no “My”, sobre o grafite existente. Cabeçalho mais compacto e botão FECHAR preservado. [Validação](verification/REPORT-0.21.2.md). APK em `dist/ATMyTrack-debug.apk`, com a assinatura original.
 
 ## Android 0.21.1 — cadeados fechados vermelhos
 

@@ -14,6 +14,12 @@ import com.atmytrack.app.PlayerViewModel
 import com.atmytrack.app.data.Project
 import com.atmytrack.app.R
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.withStyle
 import kotlin.math.roundToInt
 
 @Composable internal fun MenuButton(click:()->Unit) {
@@ -30,8 +36,20 @@ internal enum class MainDestination(val title:String,val symbol:String) {
             Surface(Modifier.fillMaxHeight().widthIn(max=360.dp).fillMaxWidth().clickable(enabled=false){},color=Panel) {
                 Column(Modifier.safeDrawingPadding().padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
                     Column(Modifier.weight(1f).verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(12.dp)) {
-                    Image(painterResource(R.drawable.brand_art),"Logo ATMyTrack",Modifier.size(80.dp))
-                    Row(verticalAlignment=Alignment.CenterVertically) { Text(androidx.compose.ui.res.stringResource(R.string.app_name),Modifier.weight(1f),fontSize=24.sp);TextButton(onClick=close){Text("FECHAR")} }
+                    Row(Modifier.fillMaxWidth().padding(vertical=8.dp),verticalAlignment=Alignment.CenterVertically) {
+                        Image(painterResource(R.drawable.brand_art),"Logo ATMyTrack",Modifier.size(56.dp))
+                        Spacer(Modifier.width(12.dp))
+                        BoxWithConstraints(Modifier.weight(1f)) {
+                            val appName=androidx.compose.ui.res.stringResource(R.string.app_name)
+                            Text(buildAnnotatedString {
+                                append("AT")
+                                withStyle(SpanStyle(color=Color(0xFF80D9EC))) { append("My") }
+                                append(appName.removePrefix("ATMy"))
+                            },fontFamily=FontFamily(Font(R.font.outfit)),fontSize=if(maxWidth<150.dp) 22.sp else 26.sp,
+                                letterSpacing=(-0.5).sp,color=Color(0xFFE6EBF0),maxLines=1,softWrap=false)
+                        }
+                        TextButton(onClick=close,contentPadding=PaddingValues(horizontal=6.dp)) { Text("FECHAR",fontSize=11.sp) }
+                    }
                     HorizontalDivider()
                     listOf(MainDestination.PROJECTS,MainDestination.TUNER).forEach { item ->
                         OutlinedButton(onClick={navigate(item)},modifier=Modifier.fillMaxWidth().heightIn(min=60.dp)) { Text(item.symbol,Modifier.padding(end=16.dp),fontSize=22.sp);Text(item.title,Modifier.weight(1f)) }
