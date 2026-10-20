@@ -71,7 +71,9 @@ fun PlayerScreen(vm: PlayerViewModel) {
     var dragGrab by remember { mutableFloatStateOf(0f) }
     var help by remember { mutableStateOf(false) }
     var delete by remember { mutableStateOf<Project?>(null) }
-    var page by rememberSaveable { mutableIntStateOf(0) }
+    var crossOpen by remember { mutableStateOf(false) }
+    var endCross by remember { mutableStateOf(false) }
+    val cross by vm.crossMusic.collectAsState()
     var pitch by remember { mutableStateOf(false) }
     var padOpen by remember { mutableStateOf(false) }
     val padState by vm.pad.state.collectAsState()
@@ -82,12 +84,10 @@ fun PlayerScreen(vm: PlayerViewModel) {
     var routing by remember { mutableStateOf<String?>(null) }
     var metronome by remember { mutableStateOf(false) }
     val channelList = rememberLazyListState()
-    val projectList = rememberLazyListState()
     val mainScroll=rememberScrollState()
     val uiScope=rememberCoroutineScope()
-    LaunchedEffect(library.selected,library.projects.size) {
-        val index=library.projects.indexOfFirst { it.id==library.selected }
-        if(index>=0)projectList.scrollToItem(index)
+    LaunchedEffect(library.editRequestedId,p?.id) {
+        if(library.editRequestedId!=null && library.editRequestedId==p?.id) { edit=true;vm.consumeEditRequest() }
     }
     var dragged by remember { mutableStateOf<String?>(null) }
     var dragX by remember { mutableFloatStateOf(0f) }
@@ -125,149 +125,98 @@ fun PlayerScreen(vm: PlayerViewModel) {
         outline=Color(0xFF424B55),outlineVariant=Control,inverseSurface=White,inverseOnSurface=Bg)) {
         Surface(Modifier.fillMaxSize(), color = Bg) {
             BoxWithConstraints(Modifier.safeDrawingPadding()) {
-                val screenWidth=maxWidth
-                val compact = maxHeight < 500.dp
-                val wide = maxWidth >= 840.dp
-                val narrow = maxWidth < 400.dp
-                val mixerHeight = when { compact->410.dp;wide && page==1->(maxHeight-302.dp).coerceAtLeast(450.dp);else->470.dp }
+                val compact=maxHeight<500.dp
+                val wide=maxWidth>=840.dp
+                val mixerHeight=if(compact)450.dp else 490.dp
                 Column(Modifier.fillMaxSize()) {
-                    if(p==null || (!wide && !compact)) Row(Modifier.fillMaxWidth().padding(horizontal = if (narrow) 8.dp else 16.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.fillMaxWidth().padding(horizontal=8.dp),verticalAlignment=Alignment.CenterVertically) {
                         MenuButton { navigation=true }
-                        Image(painterResource(R.drawable.brand_art), "Logo ATMyTrack", Modifier.size(if (narrow) 28.dp else 36.dp))
-                        Text(androidx.compose.ui.res.stringResource(R.string.app_name), fontWeight = FontWeight.Bold, fontSize = if (narrow) 16.sp else 20.sp)
-                        Spacer(Modifier.weight(1f))
-                        TextButton(colors=ButtonDefaults.buttonColors(containerColor=Control,contentColor=Accent),onClick = { importDialog = true }, enabled = library.busy == null) { Text(if (narrow) "IMPORTAR" else "+ IMPORTAR") }
+                        Image(painterResource(R.drawable.brand_art),"Logo ATMyTrack",Modifier.size(28.dp))
+                        Text(androidx.compose.ui.res.stringResource(R.string.app_name),Modifier.weight(1f).padding(start=4.dp),fontWeight=FontWeight.Bold,fontSize=16.sp,maxLines=1,overflow=TextOverflow.Ellipsis)
+                        ToolsMenu(buildList {
+                            if(p!=null) {
+                                add(ToolAction("TOM",p.semitones!=0){pitch=true})
+                                add(ToolAction("VELOCIDADE",p.speed!=100){speed=true})
+                            }
+                            add(ToolAction("PAD",padState.playing){padOpen=true})
+                            if(p!=null) {
+                                add(ToolAction("LOOP",p.loop){vm.update { it.copy(loop=!it.loop) }})
+                                add(ToolAction("+ SEÇÃO"){markers=true})
+                                add(ToolAction("METRÔNOMO",p.click){metronome=true})
+                                add(ToolAction("DCA"){group="DCA:"})
+                                add(ToolAction("BUS"){group="BUS:"})
+                                add(ToolAction("ROUTING"){allRouting=true})
+                                add(ToolAction("ATUALIZAR SAÍDA"){vm.refreshOutput()})
+                            }
+                            add(ToolAction("CROSSMUSIC",cross.running){crossOpen=true})
+                        })
+                        IconButton(onClick={importDialog=true},enabled=library.busy==null,modifier=Modifier.semantics { contentDescription="Importar projeto" }) { Text("+",fontSize=26.sp,color=Accent) }
                         SearchButton { search=true }
                     }
-                    if (library.busy != null) {
-                        Column(Modifier.fillMaxWidth().padding(horizontal=12.dp,vertical=4.dp)) {
-                            LinearProgressIndicator(Modifier.fillMaxWidth(), color = SecondaryText)
-                            Text(library.busy!!, Modifier.padding(top = 4.dp), color = Muted,fontSize=11.sp)
-                        }
+                    if(library.busy!=null)Column(Modifier.padding(horizontal=12.dp)) {
+                        LinearProgressIndicator(Modifier.fillMaxWidth())
+                        Text(library.busy!!,fontSize=11.sp,color=SecondaryText)
                     }
-                    if(library.imports.isNotEmpty() && library.busy!=null) {
-                        Column(Modifier.fillMaxWidth().heightIn(max=140.dp).verticalScroll(rememberScrollState()).padding(horizontal=12.dp)) {
-                            Row(verticalAlignment=Alignment.CenterVertically) {
-                                Text("${library.imports.count { it.status!="DISCOVERED" }} / ${library.imports.size} tracks",Modifier.weight(1f),fontSize=11.sp,color=Muted)
-                                if(library.busy==null)TextButton(onClick=vm::dismissImportReport){Text("FECHAR RELATÓRIO",fontSize=10.sp)}
-                            }
-                            library.imports.forEach { item -> Text("${item.status} · ${item.name}${if(item.detail.isEmpty())"" else " · ${item.detail}"}",color=if(item.status=="ERROR")Red else if(item.status=="READY")SecondaryText else Muted,fontSize=11.sp) }
-                        }
+                    if(playback.preparing)Row(Modifier.fillMaxWidth().padding(horizontal=12.dp),verticalAlignment=Alignment.CenterVertically) {
+                        val total=playback.preparation.size.coerceAtLeast(1)
+                        val done=playback.preparation.count { it.status=="READY" }
+                        Text("Preparando áudio · $done/$total",Modifier.weight(1f).clickable { importDetails=true },fontSize=11.sp,color=SecondaryText)
+                        TextButton(onClick=vm::cancelPreparation) { Text("CANCELAR",fontSize=10.sp) }
                     }
                     if(library.imports.isNotEmpty() && library.busy==null)Row(Modifier.padding(horizontal=12.dp),verticalAlignment=Alignment.CenterVertically) {
-                        Text("${library.imports.count { it.status=="DISCOVERED" }} localizadas · ${library.imports.count { it.status=="ERROR" }} erros",Modifier.weight(1f),fontSize=11.sp,color=Muted)
+                        Text("Importação · ${library.imports.count { it.status=="ERROR" }} erros",Modifier.weight(1f),fontSize=11.sp,color=Muted)
                         TextButton(onClick={importDetails=true}){Text("DETALHES",fontSize=10.sp)}
-                        TextButton(onClick=vm::dismissImportReport){Text("×")}
+                        IconButton(onClick=vm::dismissImportReport){Text("×")}
                     }
-                    if(playback.preparing) {
-                        val done=playback.preparation.count { it.status=="READY" }
-                        Column(Modifier.fillMaxWidth().padding(horizontal=12.dp)) {
-                            LinearProgressIndicator(progress={done.toFloat()/playback.preparation.size.coerceAtLeast(1)},modifier=Modifier.fillMaxWidth())
-                            Row(verticalAlignment=Alignment.CenterVertically) {
-                                Text("PREPARANDO ÁUDIO · $done / ${playback.preparation.size}",Modifier.weight(1f).clickable { importDetails=true },fontSize=11.sp,color=SecondaryText)
-                                TextButton(onClick=vm::cancelPreparation) { Text("CANCELAR",fontSize=10.sp) }
-                            }
-                            playback.preparation.firstOrNull { it.status=="PREPARING" }?.let { Text("${it.name} · ${it.detail}",fontSize=11.sp,color=Muted,maxLines=1) }
-                        }
-                    } else if(playback.ready && playback.projectId==p?.id) {
-                        Text("MULTITRACK PRONTA · DETALHES",Modifier.padding(horizontal=12.dp).clickable { importDetails=true },fontSize=10.sp,maxLines=1,color=SecondaryText)
-                    }
-                    if(!playback.preparing && playback.preparation.any { it.status=="ERROR" }) {
-                        Row(Modifier.fillMaxWidth().padding(horizontal=12.dp),verticalAlignment=Alignment.CenterVertically) {
-                            val failed=playback.preparation.first { it.status=="ERROR" }
-                            Text("${failed.name}: ${failed.detail}",Modifier.weight(1f),fontSize=11.sp,color=Red,maxLines=2)
-                            TextButton(onClick=vm::retryPreparation) { Text("TENTAR NOVAMENTE",fontSize=10.sp) }
-                            TextButton(onClick={vm.removeTrack(failed.id)}) { Text("REMOVER TRACK",fontSize=10.sp) }
-                        }
-                    }
-                    if (p == null) {
-                        Column(Modifier.weight(1f).fillMaxWidth().padding(24.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-                            Image(painterResource(R.drawable.brand_art), null, Modifier.size(120.dp))
-                            Text("Seu multitrack.\nSeu palco. Seu controle.", fontSize = 28.sp, fontWeight = FontWeight.Bold, lineHeight = 36.sp)
-                            Text("Suas stems, juntas do primeiro ao último compasso.", Modifier.padding(vertical = 20.dp), color = Muted)
-                            Button(colors=ButtonDefaults.buttonColors(containerColor=Control,contentColor=Accent),onClick = { importDialog = true }, enabled = library.busy == null, modifier = Modifier.heightIn(min = 56.dp)) { Text("CRIAR PRIMEIRO PROJETO") }
-                            DspButton("PAD",if(padState.playing)"SOANDO" else "AMBIENTE",padState.playing,Modifier.width(160.dp)) { padOpen=true }
-                        }
+                    if(p==null)Column(Modifier.weight(1f).fillMaxWidth().padding(24.dp),verticalArrangement=Arrangement.Center,horizontalAlignment=Alignment.CenterHorizontally) {
+                        Image(painterResource(R.drawable.brand_art),null,Modifier.size(120.dp))
+                        Text("Seu multitrack.\nSeu palco. Seu controle.",fontSize=28.sp,fontWeight=FontWeight.Bold,lineHeight=36.sp)
+                        Text("Importe suas faixas para criar o primeiro projeto.",Modifier.padding(vertical=20.dp),color=Muted)
+                        Button(onClick={importDialog=true},enabled=library.busy==null) { Text("CRIAR PRIMEIRO PROJETO") }
                     } else {
-                            Row(Modifier.fillMaxWidth().padding(horizontal=12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                if(wide || compact) {
-                                    MenuButton { navigation=true }
-                                    Text(androidx.compose.ui.res.stringResource(R.string.app_name),fontWeight=FontWeight.Bold,fontSize=15.sp)
-                                }
-                                SmallButton("|◀", onClick = { vm.seek(0) })
-                                Button(onClick = { if(playback.playing)vm.pause() else vm.play() }, enabled = library.busy == null && playback.ready && !playback.preparing && playback.projectId==p.id,
-                                    modifier = Modifier.weight(1f).height(52.dp), colors = ButtonDefaults.buttonColors(containerColor=Mint.copy(alpha=.15f),contentColor=Mint), contentPadding = PaddingValues(4.dp)) {
-                                    Text(if(playback.playing) "Ⅱ PAUSAR" else "▶ PLAY", maxLines = 1)
-                                }
-                                SmallButton("■", onClick = vm::stop)
-                                SmallButton("▶|", onClick = { if(playback.playing)vm.message("Pause antes de trocar de projeto.") else vm.adjacent(1) })
-                                if(wide || compact) Column(Modifier.padding(horizontal=8.dp)) {
-                                    Text("${MusicTime.time(playback.frame.toDouble()/p.sampleRate/p.timelineScale)} / ${MusicTime.time(p.playbackSeconds)}", color=SecondaryText)
-                                    Text("${"%.1f".format(p.effectiveBpm)} BPM · ${p.beats}/${p.denominator}", color=Muted, fontSize=12.sp)
-                                }
-                                if(wide || compact) {
-                                    TextButton(onClick={importDialog=true},enabled=library.busy==null) { Text("IMPORTAR",fontSize=11.sp) }
-                                    SearchButton { search=true }
+                        Row(Modifier.fillMaxWidth().padding(horizontal=8.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(4.dp)) {
+                            IconButton(onClick={vm.seek(0)},modifier=Modifier.semantics { contentDescription="Início" }) { Text("|◀",color=White) }
+                            Button(onClick={if(playback.playing)vm.pause() else vm.play()},enabled=library.busy==null && playback.ready && !playback.preparing && playback.projectId==p.id,
+                                modifier=Modifier.weight(1f).height(52.dp).semantics { contentDescription=if(playback.playing)"Pausar" else "Reproduzir" },
+                                colors=ButtonDefaults.buttonColors(containerColor=Mint.copy(alpha=.15f),contentColor=Mint),contentPadding=PaddingValues(4.dp)) {
+                                Column(horizontalAlignment=Alignment.CenterHorizontally) {
+                                    Text(if(playback.playing)"Ⅱ PAUSAR" else "▶ PLAY",maxLines=1,fontSize=13.sp)
+                                    if(cross.running)Text("CROSSMUSIC ${cross.index+1}/${cross.total}",fontSize=9.sp,maxLines=1)
                                 }
                             }
-                            if(!wide && !compact) Text("${MusicTime.time(playback.frame.toDouble()/p.sampleRate/p.timelineScale)} / ${MusicTime.time(p.playbackSeconds)}    •    ${"%.1f".format(p.effectiveBpm)} BPM    •    ${p.beats}/${p.denominator}", color = SecondaryText)
-
-                        Column(Modifier.weight(1f).verticalScroll(mainScroll).padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            LazyRow(Modifier.semantics { contentDescription="Projetos" },state=projectList,horizontalArrangement = Arrangement.spacedBy(10.dp), contentPadding = PaddingValues(vertical = 4.dp)) {
-                                items(library.projects, key = { it.id }) { project ->
-                                    ProjectCard(project, project.id == p.id, compact || wide, { delete = project }) {
-                                        if (project.id != p.id && playback.playing) vm.message("Pause a reprodução antes de trocar de projeto.") else vm.select(project)
-                                    }
-                                }
-                                item { Box(Modifier.width(150.dp).height(if(compact || wide)76.dp else 102.dp).clip(RoundedCornerShape(12.dp)).background(Control).clickable { importDialog = true }.semantics { contentDescription="Novo projeto" }, contentAlignment = Alignment.Center) { Text("+\nNOVO PROJETO", color = SecondaryText) } }
-                            }
-                            if (page==0) Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                Column(Modifier.weight(1f)) {
-                                    Text(p.name, fontSize = if (compact) 18.sp else 22.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                    Text("${p.stems.size} STEMS  •  ${p.sampleRate / 1000.0} kHz  •  ESTÉREO", color = Muted, fontSize = 11.sp)
-                                }
-                                TextButton(onClick = { edit = true }, enabled = !playback.playing) { Text("EDITAR") }
-                            }
-                            if (page == 0) Timeline(p, playback.frame, wide, library.waveform, vm::seek)
-                            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Panel).padding(6.dp),verticalArrangement=Arrangement.spacedBy(4.dp)) {
-                                FlowRow(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(6.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {
-                                    Row(Modifier.width(if(wide)300.dp else (screenWidth-36.dp).coerceAtMost(340.dp)),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
-                                        DspButton("TOM",if(p.semitones==0)"ORIGINAL" else "%+d semitons".format(p.semitones),p.semitones!=0,Modifier.weight(1f)) { pitch=true }
-                                        DspButton("VELOCIDADE","${p.speed}%",p.speed!=100,Modifier.weight(1f)) { speed=true }
-                                        DspButton("PAD",if(padState.playing)"SOANDO" else "AMBIENTE",padState.playing,Modifier.weight(1f)) { padOpen=true }
-                                    }
-                                    if(page==0) {
-                                        DspButton("LOOP",if(p.loop)"ON" else "OFF",p.loop,Modifier.width(104.dp)) { vm.update { it.copy(loop=!it.loop) } }
-                                        DspButton("+ SEÇÃO","CRIAR",false,Modifier.width(104.dp)) { markers=true }
-                                    }
-                                    DspButton("METRÔNOMO",if(p.click)"ATIVO" else "CLICK",p.click,Modifier.width(116.dp)) { metronome=true }
-                                    if(page==1) {
-                                        DspButton("DCA","CRIAR",false,Modifier.width(104.dp)) { group="DCA:" };DspButton("BUS","CRIAR",false,Modifier.width(104.dp)) { group="BUS:" }
-                                        DspButton("ROUTING","SAÍDAS",false,Modifier.width(132.dp)) { allRouting=true };DspButton("ATUALIZAR SAÍDA","DISPOSITIVO",false,Modifier.width(150.dp),vm::refreshOutput)
-                                    }
-                                }
-                                if(page==0 && p.markers.isNotEmpty()) Row(Modifier.horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
-                                    p.markers.sortedBy { it.start }.forEach { m ->
-                                        Box(Modifier.clip(RoundedCornerShape(20.dp)).background(Color(m.color).copy(alpha=if(p.selectedMarker==m.id).65f else .22f))
-                                            .combinedClickable(onClick={vm.seek(m.start)},onLongClick={vm.update { it.copy(selectedMarker=if(it.selectedMarker==m.id)"" else m.id) }})
-                                            .semantics { selected=p.selectedMarker==m.id;contentDescription="Seção ${m.name}" }.padding(horizontal=16.dp,vertical=12.dp)) {
-                                            Text(m.name,color=White,fontSize=12.sp)
-                                        }
-                                    }
+                            if(cross.running)Checkbox(true,{endCross=true},colors=CheckboxDefaults.colors(checkedColor=Violet),modifier=Modifier.semantics { contentDescription="Encerrar CrossMusic" })
+                            IconButton(onClick=vm::stop,modifier=Modifier.semantics { contentDescription="Parar" }) { Text("■",color=White) }
+                            IconButton(onClick={if(playback.playing)vm.message("Pause antes de trocar de projeto.") else vm.adjacent(1)},modifier=Modifier.semantics { contentDescription="Próximo projeto" }) { Text("▶|",color=White) }
+                        }
+                        Text("${MusicTime.time(playback.frame.toDouble()/p.sampleRate/p.timelineScale)} / ${MusicTime.time(p.playbackSeconds)}  ·  ${"%.1f".format(p.effectiveBpm)} BPM  ·  ${p.beats}/${p.denominator}",Modifier.padding(horizontal=12.dp,vertical=4.dp),fontSize=12.sp,color=SecondaryText,maxLines=1)
+                        Box(Modifier.fillMaxWidth().padding(horizontal=8.dp,vertical=4.dp)) { Timeline(p,playback.frame,true,library.waveform,vm::seek) }
+                        library.background?.let { Text(it,Modifier.padding(horizontal=12.dp),color=SecondaryText,fontSize=11.sp);LinearProgressIndicator(Modifier.fillMaxWidth()) }
+                        if(playback.error!=null || (!playback.preparing && playback.preparation.any { it.status=="ERROR" })) Row(Modifier.padding(horizontal=12.dp)) {
+                            TextButton(onClick=vm::retryPreparation){Text("TENTAR NOVAMENTE")}
+                            TextButton(onClick={importDetails=true}){Text("DETALHES")}
+                        }
+                        Column(Modifier.weight(1f).verticalScroll(mainScroll).padding(horizontal=8.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {
+                            ReorderableProjects(library.projects,p.id,vm,{ project ->
+                                if(project.id!=p.id && playback.playing)vm.message("Pause a reprodução antes de trocar de projeto.") else vm.select(project)
+                            },{project->
+                                if(project.id!=p.id && playback.playing)vm.message("Pause a reprodução antes de trocar de projeto.") else {vm.select(project);edit=true}
+                            },{delete=it},{importDialog=true})
+                            if(p.markers.isNotEmpty())Row(Modifier.horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
+                                p.markers.sortedBy { it.start }.forEach { m ->
+                                    Box(Modifier.clip(RoundedCornerShape(16.dp)).background(Color(m.color).copy(alpha=if(p.selectedMarker==m.id).5f else .16f))
+                                        .combinedClickable(onClick={vm.seek(m.start)},onLongClick={vm.update { it.copy(selectedMarker=if(it.selectedMarker==m.id)"" else m.id) }})
+                                        .semantics { selected=p.selectedMarker==m.id;contentDescription="Seção ${m.name}" }.padding(horizontal=12.dp,vertical=8.dp)) { Text(m.name,color=White,fontSize=11.sp) }
                                 }
                             }
-                            library.background?.let { Text(it, color = SecondaryText, fontSize = 12.sp); LinearProgressIndicator(Modifier.fillMaxWidth()) }
-                            if(page == 1) Text("${p.name} · ${playback.outputName} • ${playback.outputChannels} canais", color = Muted, fontSize = 12.sp,maxLines=1,overflow=TextOverflow.Ellipsis)
-                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                Text(if (wide) "MIXER  •  ${p.stems.size} STEMS  •  ${p.sampleRate / 1000.0} kHz" else "MIXER", color = Muted, fontSize = 11.sp, letterSpacing = 2.sp)
-                                Spacer(Modifier.weight(1f))
-                                Text(if (playback.playing) "● REPRODUZINDO" else if(playback.ready && playback.projectId==p.id) "● PRONTO" else "● PREPARANDO", color = if (playback.playing) Mint else Muted, fontSize = 11.sp)
+                            Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+                                Text("${p.stems.size} FAIXAS · ${playback.outputChannels} CANAIS",Modifier.weight(1f),color=Muted,fontSize=10.sp,letterSpacing=1.sp)
+                                Text(if(playback.playing)"● REPRODUZINDO" else if(playback.ready && playback.projectId==p.id)"● PRONTO" else "● PREPARANDO",fontSize=10.sp,color=if(playback.playing)Mint else Muted)
                             }
                             Row(Modifier.fillMaxWidth().height(mixerHeight), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 LazyRow(Modifier.weight(1f).semantics { contentDescription="Canais" }.pointerInput(p.id) {
                                     awaitEachGesture {
                                         val down = awaitFirstDown(requireUnconsumed = false)
-                                        if(down.position.y < 7.dp.toPx() || down.position.y > 55.dp.toPx()) return@awaitEachGesture
+                                        if(down.position.y < 28.dp.toPx() || down.position.y > 82.dp.toPx()) return@awaitEachGesture
                                         val item = channelList.layoutInfo.visibleItemsInfo.firstOrNull { down.position.x >= it.offset && down.position.x < it.offset+it.size } ?: return@awaitEachGesture
                                         val stem = latestProject?.stems?.getOrNull(item.index) ?: return@awaitEachGesture
                                         val held = awaitLongPressOrCancellation(down.id) ?: return@awaitEachGesture
@@ -291,13 +240,12 @@ fun PlayerScreen(vm: PlayerViewModel) {
                                             onPan = { v -> vm.stem(s.id) { it.copy(pan = v) } },
                                             onMute = { vm.stem(s.id) { it.copy(mute = !it.mute) } },
                                             onSolo = { vm.stem(s.id) { it.copy(solo = !it.solo) } },
-                                            locked=p.gainLocked(s.id),onLock={vm.lockFader(s.id)},draggable = true, dragging = dragged == s.id,
-                                            routeLabel = if(page == 1) "${p.buses.find { it.id == s.bus }?.name ?: "MASTER"} · ${s.route}" else null,
+                                            accent=s.color?.let { Color(it) } ?: channelColor(s.name),locked=p.gainLocked(s.id),onLock={vm.lockFader(s.id)},draggable = true, dragging = dragged == s.id,
+                                            routeLabel = "${p.buses.find { it.id == s.bus }?.name ?: "MASTER"} · ${s.route}",
                                             routing = { routing = s.id }, modifier=Modifier.zIndex(if(dragged==s.id)1f else 0f).graphicsLayer {
                                                 if(dragged==s.id) { translationX=dragX-dragGrab-(channelList.layoutInfo.visibleItemsInfo.firstOrNull { it.key==s.id }?.offset ?: 0);scaleX=1.035f;scaleY=1.015f;shadowElevation=16.dp.toPx() }
                                             })
                                     }
-                                    if(page == 1) {
                                         items(p.dcas, key = { "dca"+it.id }) { d ->
                                             ChannelStrip(d.name,d.volume,0f,d.mute,false,0f,master = true,
                                                 onVolume = { v -> vm.update { it.copy(dcas=it.dcas.map { x -> if(x.id==d.id)x.copy(volume=v) else x }) } },
@@ -310,16 +258,11 @@ fun PlayerScreen(vm: PlayerViewModel) {
                                                 onPan = {},onMute = { vm.update { it.copy(buses=it.buses.map { x -> if(x.id==bus.id)x.copy(mute=!x.mute) else x }) } },onSolo = {},
                                                 locked=p.gainLocked("BUS:"+bus.id),onLock={vm.lockFader("BUS:"+bus.id)},accent=Violet,routeLabel = "BUS · EDITAR",routing = { group = "BUS:"+bus.id },outputLabel=ConsoleMath.outputChoices(playback.outputChannels).find { it.first==bus.destination }?.second ?: bus.destination)
                                         }
-                                    }
                                 }
                                 ChannelStrip("MASTER", p.master, p.masterPan, p.masterMute, false, playback.left, playback.right, true,
                                     { v -> vm.update { it.copy(master = v) } }, { v -> vm.update { it.copy(masterPan=v) } }, { vm.update { it.copy(masterMute = !it.masterMute) } }, {},locked=p.masterFaderLock,onLock={vm.lockFader("MASTER")})
                             }
                             Spacer(Modifier.height(8.dp))
-                        }
-                        Row(Modifier.fillMaxWidth().padding(6.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
-                            TextButton(onClick = { page = 0 }, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Playback", color = if(page == 0) Accent else Muted, fontSize = 11.sp) }
-                            TextButton(onClick = { page = 1 }, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Mixer", color = if(page == 1) Accent else Muted, fontSize = 11.sp) }
                         }
                     }
                 }
@@ -328,12 +271,15 @@ fun PlayerScreen(vm: PlayerViewModel) {
         if(navigation) MainMenu({navigation=false}) { destination ->
             navigation=false
             when(destination) {
-                MainDestination.PROJECTS -> { page=0;uiScope.launch { mainScroll.scrollTo(0) } }
+                MainDestination.PROJECTS -> { uiScope.launch { mainScroll.scrollTo(0) } }
                 MainDestination.TUNER -> { vm.pause();vm.pad.stop();tuner=true }
                 MainDestination.PAYMENT -> supporters=true
                 MainDestination.HELP -> help=true
             }
         }
+        if(crossOpen)CrossMusicDialog(vm) { crossOpen=false }
+        if(endCross)AlertDialog(onDismissRequest={endCross=false},title={Text("Encerrar CrossMusic")},text={Text("Tem certeza que deseja encerrar o CrossMusic?")},
+            confirmButton={TextButton(onClick={vm.endCrossMusic();endCross=false}){Text("Sim")}},dismissButton={TextButton(onClick={endCross=false}){Text("Não")}})
         if(tuner && !playback.playing) TunerScreen { tuner=false }
         if(search) ProjectLibraryMenu(library.projects,search,{ navigation=false;search=false },{ project ->
             if(playback.playing)vm.pause()
@@ -368,12 +314,12 @@ fun PlayerScreen(vm: PlayerViewModel) {
         }
         val error = library.message ?: playback.error
         if (error != null) AlertDialog(onDismissRequest = vm::dismissError, title = { Text("ATMyTrack") }, text = { Text(error) }, confirmButton = { TextButton(onClick = vm::dismissError) { Text("ENTENDI") } })
-        if (help) AlertDialog(onDismissRequest = { help = false }, title = { Text("ATMyTrack • 0.19.0") }, text = {
+        if (help) AlertDialog(onDismissRequest = { help = false }, title = { Text("ATMyTrack • 0.20.0") }, text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("1. Importe uma pasta ou selecione as stems.\n2. Ajuste volume, pan, mute e solo.\n3. Defina BPM e compasso; o CLICK acompanha a timeline.\n4. Crie seções para saltar aos trechos da música.")
                 Text("A importação depende dos decoders disponíveis no Android. WAV, MP3, AAC/M4A, FLAC e OGG/Opus são tentados; arquivos incompatíveis geram erro.", color = Muted)
                 Text("Saída estéreo ou canais USB anunciados pelo Android. BPM manual não muda a velocidade das stems. A unidade do BPM é a figura do denominador do compasso. Click e stems passam pelo master.", color = Muted)
-                Text("TOM processa as tracks selecionadas em background, preservando a duração. Smart Click aplica o BPM ao ativar. Mixer reúne DCA, buses e roteamento. Segure o nome superior do canal para reordenar.", color = Muted)
+                Text("TOM processa as tracks selecionadas em background, preservando a duração. Smart Click aplica o BPM ao ativar. Ferramentas reúne DCA, buses, roteamento e CrossMusic. Segure um quadro de projeto ou o nome superior do canal para reordenar.", color = Muted)
                 Text("VELOCIDADE altera o tempo preservando o tom. Use todas as tracks para manter a sincronização. O preparo ocorre antes da troca; extremos podem ter mais artefatos. AFINADOR usa o microfone apenas nesta tela e pausa o player.", color = Muted)
                 Text("Bibliotecas: AndroidX/Compose, Kotlin e Coroutines (Apache 2.0). Pitch: Signalsmith Stretch e Linear (MIT). Identidade visual original ATMyTrack.", fontSize = 12.sp)
             }
@@ -391,18 +337,21 @@ internal fun SmallButton(label: String, active: Boolean = false, onClick: () -> 
 }
 
 @Composable
-private fun ProjectCard(p: Project, selected: Boolean, compact: Boolean, remove: () -> Unit, onClick: () -> Unit) {
+internal fun ProjectCard(p: Project, selected: Boolean, compact: Boolean, remove: () -> Unit, onEdit:(()->Unit)?=null,modifier:Modifier=Modifier,onClick: () -> Unit) {
     val context = LocalContext.current
     val bitmap by produceState<ImageBitmap?>(null, p.artwork) {
         value = if (p.artwork.isBlank()) null else withContext(Dispatchers.IO) { BitmapFactory.decodeFile(File(context.filesDir, p.artwork).path)?.asImageBitmap() }
     }
-    Box(Modifier.width(190.dp).height(if (compact) 76.dp else 102.dp).clip(RoundedCornerShape(12.dp))
+    Box(modifier.width(210.dp).height(104.dp).clip(RoundedCornerShape(12.dp))
         .background(Brush.linearGradient(listOf(Control, Panel)))
         .border(1.dp, if (selected) Accent else Control, RoundedCornerShape(12.dp)).clickable(onClick = onClick).semantics { this.selected = selected;contentDescription="Projeto ${p.name}" }) {
-        TextButton(onClick = remove, modifier = Modifier.align(Alignment.TopEnd).size(48.dp).semantics { contentDescription = "Excluir ${p.name}" }, contentPadding = PaddingValues(0.dp)) { Text("−", color = SecondaryText, fontSize = 24.sp) }
         bitmap?.let { Image(it, null, Modifier.matchParentSize(), contentScale = ContentScale.Crop, alpha = .28f) }
+        Column(Modifier.align(Alignment.TopEnd)) {
+            IconButton(onClick=remove,modifier=Modifier.size(48.dp).semantics { contentDescription="Excluir ${p.name}" }) { Text("−",color=SecondaryText,fontSize=22.sp) }
+            if(onEdit!=null)IconButton(onClick=onEdit,modifier=Modifier.size(48.dp).semantics { contentDescription="Editar ${p.name}" }) { Text("✎",color=SecondaryText,fontSize=21.sp) }
+        }
         Column(Modifier.padding(start=12.dp,end=40.dp,top=12.dp,bottom=12.dp).fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
-            Text(p.name, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(p.name, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
             Text("${p.key}  •  ${p.effectiveBpm.roundToInt()} BPM  •  ${MusicTime.time(p.playbackSeconds)}", color = SecondaryText, fontSize = 11.sp)
         }
     }
@@ -449,32 +398,32 @@ private fun Timeline(p: Project, frame: Long, compact: Boolean, peaks: List<Floa
 private fun ChannelStrip(name: String, volume: Float, pan: Float, mute: Boolean, solo: Boolean, peak: Float,
     right: Float = peak, master: Boolean = false, onVolume: (Float) -> Unit, onPan: (Float) -> Unit, onMute: () -> Unit, onSolo: () -> Unit, draggable: Boolean = false, dragging: Boolean = false, routeLabel: String? = null, routing: () -> Unit = {}, modifier:Modifier=Modifier,outputLabel:String="OUT 1–2",locked:Boolean=false,onLock:()->Unit={},accent:Color=channelColor(name)) {
     Column(modifier.width(if (master) 100.dp else 124.dp).fillMaxHeight().clip(RoundedCornerShape(10.dp)).background(if (master) Control else Panel).padding(7.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        TextButton(onClick=onLock,modifier=Modifier.height(28.dp).semantics { contentDescription="Cadeado $name";selected=locked },contentPadding=PaddingValues(0.dp)) { Canvas(Modifier.size(16.dp)) {
-            val c=if(locked)Amber else Muted
+        TextButton(onClick=onLock,modifier=Modifier.height(24.dp).semantics { contentDescription="Cadeado $name";selected=locked },contentPadding=PaddingValues(0.dp)) { Canvas(Modifier.size(16.dp)) {
+            val c=if(locked)LockPurple else Muted
             drawRoundRect(c,Offset(size.width*.15f,size.height*.45f),Size(size.width*.7f,size.height*.5f),androidx.compose.ui.geometry.CornerRadius(2.dp.toPx()),style=androidx.compose.ui.graphics.drawscope.Stroke(1.5.dp.toPx()))
             drawArc(c,if(locked)180f else 220f,if(locked)180f else 140f,false,Offset(size.width*.3f,size.height*.05f),Size(size.width*.4f,size.height*.65f),style=androidx.compose.ui.graphics.drawscope.Stroke(1.5.dp.toPx()))
         } }
         Box(Modifier.fillMaxWidth().height(3.dp).background(accent, RoundedCornerShape(2.dp)))
-        Text(name, Modifier.fillMaxWidth().height(48.dp).background(accent.copy(alpha=if(dragging).35f else .12f)).semantics { contentDescription = if(draggable) "Arrastar $name" else name }.padding(4.dp), textAlign=TextAlign.Center,maxLines = 2, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = accent)
+        Text(name, Modifier.fillMaxWidth().height(40.dp).background(accent.copy(alpha=if(dragging).35f else .12f)).semantics { contentDescription = if(draggable) "Arrastar $name" else name }.padding(4.dp), textAlign=TextAlign.Center,maxLines = 2,lineHeight=14.sp,overflow=TextOverflow.Ellipsis, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = accent)
         Text(if (master && routeLabel!=null) "OUTPUT" else when { pan < -.05f -> "L ${(abs(pan) * 100).roundToInt()}"; pan > .05f -> "R ${(pan * 100).roundToInt()}"; else -> "PAN · C" }, color = Muted, fontSize = 10.sp)
         if (master && routeLabel!=null) Box(Modifier.height(48.dp), contentAlignment = Alignment.Center) { Text(if(routeLabel?.startsWith("DCA")==true) "RELATIVO" else outputLabel, color = SecondaryText, fontSize = 11.sp) }
-        else Slider(pan, { if(!locked)onPan(it) }, enabled = !locked, valueRange = -1f..1f, modifier = Modifier.height(48.dp).semantics { contentDescription = "Pan $name" }, colors = SliderDefaults.colors(thumbColor = accent, activeTrackColor = accent.copy(alpha=.6f), inactiveTrackColor = Bg))
+        else PanKnob(pan,name,accent,locked,onPan)
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             if (!master) ChannelToggle("S", solo, Accent, "Solo $name", Modifier.weight(1f), onSolo)
             ChannelToggle("M", mute, Amber, "Mute $name", Modifier.weight(1f), onMute)
         }
         var fine by remember { mutableStateOf(false) }
         Text(if (volume <= 0f) "−∞ dB" else "%+.1f dB".format(20 * log10(volume)), color = White, fontSize = 11.sp,
-            modifier = Modifier.fillMaxWidth().heightIn(min=32.dp).clickable(enabled=!locked) { fine=true }.padding(top = 8.dp).semantics { contentDescription="Ajuste fino $name" })
+            modifier = Modifier.fillMaxWidth().heightIn(min=24.dp).clickable(enabled=!locked) { fine=true }.padding(top = 8.dp).semantics { contentDescription="Ajuste fino $name" })
         if(fine) FineGainDialog(name,volume,onVolume) { fine=false }
         Row(Modifier.weight(1f).padding(vertical = 6.dp), horizontalArrangement = Arrangement.Center) {
             Fader(volume, name, Modifier.weight(1f).fillMaxHeight(),accent) { if(!locked)onVolume(it) }
             Meter(peak, Modifier.width(5.dp).fillMaxHeight())
             if (master) { Spacer(Modifier.width(3.dp)); Meter(right, Modifier.width(5.dp).fillMaxHeight()) }
         }
-        Column(Modifier.fillMaxWidth().height(80.dp),horizontalAlignment=Alignment.CenterHorizontally) {
-            TextButton(enabled=!locked,onClick={onVolume(1f)},modifier=Modifier.fillMaxWidth().height(40.dp).semantics { contentDescription="0dB $name" },contentPadding=PaddingValues(0.dp)) { Text("0dB",fontSize=12.sp) }
-            Box(Modifier.fillMaxWidth().height(40.dp),contentAlignment=Alignment.Center) {
+        Column(Modifier.fillMaxWidth().height(48.dp),horizontalAlignment=Alignment.CenterHorizontally) {
+            TextButton(enabled=!locked,onClick={onVolume(1f)},modifier=Modifier.fillMaxWidth().height(24.dp).semantics { contentDescription="0dB $name" },contentPadding=PaddingValues(0.dp)) { Text("0dB",fontSize=12.sp) }
+            Box(Modifier.fillMaxWidth().height(24.dp),contentAlignment=Alignment.Center) {
                 if(routeLabel!=null)TextButton(onClick=routing,modifier=Modifier.fillMaxSize(),contentPadding=PaddingValues(0.dp)) { Text(routeLabel,fontSize=10.sp,maxLines=2) }
                 else if(master)Text(outputLabel,color=Muted,fontSize=9.sp)
             }
@@ -530,28 +479,39 @@ private fun Meter(peak: Float, modifier: Modifier) {
 }
 
 @Composable
-private fun ProjectEditor(p: Project, vm: PlayerViewModel, close: () -> Unit, artwork: () -> Unit, delete: () -> Unit) {
+private fun ProjectEditor(p:Project,vm:PlayerViewModel,close:()->Unit,artwork:()->Unit,delete:()->Unit) {
     var name by remember(p.id) { mutableStateOf(p.name) }
     var key by remember(p.id) { mutableStateOf(p.key) }
     var keyEdited by remember(p.id) { mutableStateOf(false) }
+    var tracks by remember(p.id) { mutableStateOf(p.stems) }
+    var coloring by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(p.key) { if(!keyEdited)key=p.key }
-    AlertDialog(onDismissRequest = close, title = { Text("Editar projeto") }, text = {
-        Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            OutlinedTextField(name, { name = it }, label = { Text("Nome") }, singleLine = true)
-            OutlinedTextField(key, { key = it;keyEdited=true }, label = { Text("Tonalidade (informação)") }, singleLine = true)
-            SmallButton(if(p.artwork.isBlank()) "ADICIONAR IMAGEM" else "ALTERAR IMAGEM", onClick = artwork)
-            if(p.artwork.isNotBlank()) { ProjectCard(p,true,true,{},{});TextButton(onClick={vm.update { it.copy(artwork="") }}) { Text("REMOVER IMAGEM") } }
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                SmallButton("PROJETO ←", onClick = { vm.moveProject(p.id, -1) }); SmallButton("PROJETO →", onClick = { vm.moveProject(p.id, 1) })
+    AlertDialog(onDismissRequest=close,title={Text("Editar projeto")},text={
+        Column(Modifier.verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(10.dp)) {
+            OutlinedTextField(name,{name=it},label={Text("Nome")},singleLine=true)
+            OutlinedTextField(key,{key=it;keyEdited=true},label={Text("Tonalidade (informação)")},singleLine=true)
+            SmallButton(if(p.artwork.isBlank())"ADICIONAR IMAGEM" else "ALTERAR IMAGEM",onClick=artwork)
+            if(p.artwork.isNotBlank()) { ProjectCard(p,true,true,{},onClick={});TextButton(onClick={vm.update { it.copy(artwork="") }}) { Text("REMOVER IMAGEM") } }
+            Row(horizontalArrangement=Arrangement.spacedBy(6.dp)) {
+                SmallButton("PROJETO ←",onClick={vm.moveProject(p.id,-1)});SmallButton("PROJETO →",onClick={vm.moveProject(p.id,1)})
             }
-            Text("Ordem das tracks", color = Muted)
-            p.stems.forEach { stem -> Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(stem.name, Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                TextButton(onClick = { vm.moveStem(stem.id, -1) }) { Text("↑") }
-                TextButton(onClick = { vm.moveStem(stem.id, 1) }) { Text("↓") }
+            Text("Ordem e cores das tracks",color=Muted)
+            tracks.forEachIndexed { index,stem -> Row(verticalAlignment=Alignment.CenterVertically) {
+                IconButton(onClick={coloring=stem.id},modifier=Modifier.semantics { contentDescription="Cor da faixa ${stem.name}" }) { Canvas(Modifier.size(20.dp)) { drawCircle(stem.color?.let { Color(it) } ?: channelColor(stem.name)) } }
+                Text(stem.name,Modifier.weight(1f),maxLines=1,overflow=TextOverflow.Ellipsis,fontSize=12.sp)
+                TextButton(onClick={tracks=tracks.toMutableList().apply { java.util.Collections.swap(this,index,index-1) }},enabled=index>0,contentPadding=PaddingValues(4.dp)) { Text("↑") }
+                TextButton(onClick={tracks=tracks.toMutableList().apply { java.util.Collections.swap(this,index,index+1) }},enabled=index<tracks.lastIndex,contentPadding=PaddingValues(4.dp)) { Text("↓") }
             } }
         }
-    }, confirmButton = { TextButton(onClick = { vm.update { it.copy(name = name.trim(), key = if(keyEdited)key.trim() else it.key,keyAnalyzed=keyEdited || it.keyAnalyzed) }; close() }, enabled = name.isNotBlank()) { Text("SALVAR") } }, dismissButton = { TextButton(onClick = close) { Text("FECHAR") } })
+    },confirmButton={TextButton(onClick={
+        vm.update { current->current.copy(name=name.trim(),key=if(keyEdited)key.trim() else current.key,keyAnalyzed=keyEdited || current.keyAnalyzed,
+            stems=tracks.mapNotNull { draft->current.stems.find { it.id==draft.id }?.copy(color=draft.color) }+current.stems.filter { live->tracks.none { it.id==live.id } }) }
+        close()
+    },enabled=name.isNotBlank()){Text("SALVAR")}},dismissButton={TextButton(onClick=close){Text("FECHAR")}})
+    coloring?.let { id -> tracks.find { it.id==id }?.let { stem ->
+        AlertDialog(onDismissRequest={coloring=null},title={Text("Cor · ${stem.name}")},text={Column { SectionColors(stem.color ?: (channelColor(stem.name).toArgb().toLong() and 0xFFFFFFFF),"Cor da faixa") { color->tracks=tracks.map { if(it.id==id)it.copy(color=color) else it } } }},
+            confirmButton={TextButton(onClick={coloring=null}){Text("PRONTO")}},dismissButton={TextButton(onClick={tracks=tracks.map { if(it.id==id)it.copy(color=null) else it };coloring=null}){Text("AUTOMÁTICA")}})
+    } }
 }
 
 @Composable
@@ -563,7 +523,7 @@ private fun MetronomeEditor(p: Project, vm: PlayerViewModel, close: () -> Unit) 
         Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(verticalAlignment=Alignment.CenterVertically) {
                 SmallButton("TAP",onClick=vm::tap)
-                Checkbox(p.smartClick,{vm.smartClick(it)},enabled=library.background==null || p.smartClick)
+                Checkbox(p.smartClick,{vm.smartClick(it)},enabled=library.background==null || p.smartClick,modifier=Modifier.semantics { contentDescription="Smart Click" })
                 Text("Smart Click",fontSize=12.sp)
             }
             OutlinedTextField(bpm, { bpm = it }, label = { Text("BPM • 30 a 300") }, singleLine = true, isError = !valid)

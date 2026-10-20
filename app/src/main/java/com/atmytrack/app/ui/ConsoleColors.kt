@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 import java.text.Normalizer
 import java.util.Locale
 
+internal val LockPurple = Color(0xFFB16CF2)
 internal val Accent = Color(0xFF89ACF2)
 internal val Mint = Color(0xFF88B9A0)
 internal val Amber = Color(0xFFD0AD74)
@@ -34,7 +35,7 @@ internal fun channelColor(name: String): Color {
 internal fun toolColor(label: String): Color = when(label) {
     "TOM" -> Accent
     "VELOCIDADE", "DCA" -> Amber
-    "PAD", "BUS" -> Violet
+    "PAD", "BUS", "CROSSMUSIC" -> Violet
     "LOOP", "BOTH ALL" -> Mint
     "METRÔNOMO", "CLICK INTERNO" -> Coral
     "ROUTING", "STEREO SPLIT", "ATUALIZAR SAÍDA" -> Cyan

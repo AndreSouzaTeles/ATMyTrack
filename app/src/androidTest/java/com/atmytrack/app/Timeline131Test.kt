@@ -14,7 +14,7 @@ class Timeline131Test {
   compose.waitUntil(45000){vm.library.value.current!=null&&vm.playback.value.ready}
   compose.runOnUiThread{vm.pause();vm.dismissError();vm.dismissImportReport();vm.update{it.copy(loop=false,selectedMarker="")};vm.seek(0)}
   compose.waitUntil(5000){!vm.playback.value.playing&&vm.playback.value.frame==0L}
-  val total=vm.library.value.current!!.timelineFrames;val node=compose.onNodeWithContentDescription("Posição da música");node.performScrollTo()
+  val total=vm.library.value.current!!.timelineFrames;val node=compose.onNodeWithContentDescription("Posição da música");node.assertIsDisplayed()
   node.performTouchInput { down(Offset(width*.1f,height*.5f));repeat(100){moveTo(Offset(width*(.1f+.65f*(it+1)/100),height*.5f),delayMillis=4)} }
   compose.waitForIdle();assertEquals("Audio must not chase each pointer event",0L,vm.playback.value.frame)
   val start=SystemClock.elapsedRealtime();node.performTouchInput{up()}

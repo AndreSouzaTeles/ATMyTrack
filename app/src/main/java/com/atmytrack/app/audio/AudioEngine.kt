@@ -18,7 +18,7 @@ data class PlaybackState(val projectId: String = "", val playing: Boolean = fals
     val frame: Long = 0, val peaks: List<Float> = emptyList(), val left: Float = 0f,
     val right: Float = 0f, val error: String? = null, val underruns: Int = 0,
     val busPeaks: Map<String,Float> = emptyMap(), val outputName: String = "Saída Android", val outputChannels: Int = 2, val preparing:Boolean=false, val ready:Boolean=false,
-    val preparation:List<PreparationItem> = emptyList(), val preparationMs:Long=0, val starvation:Long=0, val limiting:Boolean=false,val producerWaits:Long=0)
+    val preparation:List<PreparationItem> = emptyList(), val preparationMs:Long=0, val starvation:Long=0, val limiting:Boolean=false,val producerWaits:Long=0,val completionSerial:Long=0,val completedProjectId:String="")
 
 class AudioEngine(private val context: Context) {
     @Volatile var maxReadNanos=0L; private set
@@ -50,8 +50,11 @@ class AudioEngine(private val context: Context) {
     private var endFrame=0L
     private var base = 0L
     private var headBase = 0L
+    private var completedSerial=0L
+    private var completedProject=""
     private var playing = false
     private var ending = false
+    private var endPaddingRemaining=0
     private val input = FloatArray(1024)
     private val output = FloatArray(1024)
     private var hardware = FloatArray(1024)
@@ -258,7 +261,7 @@ class AudioEngine(private val context: Context) {
     fun unload() { latestSeek.clear();cancelPreparation();commands.offer {
         playing = false; pump?.close();pump=null; sink = null
         readers.values.forEach { runCatching { it.close() } }; readers = emptyMap(); project = null
-        mutable.value = PlaybackState()
+        mutable.value = PlaybackState(completionSerial=completedSerial,completedProjectId=completedProject)
     } }
     fun clearError() { mutable.value = mutable.value.copy(error = null) }
     private fun reset(frame: Long) {
@@ -297,14 +300,20 @@ class AudioEngine(private val context: Context) {
         queue.error?.let { error(it) }
         if (ending) {
             if (absolutePosition() >= endFrame) {
-                reset(p.frames); playing = false; publish(force = true)
-            } else { publish(); Thread.sleep(4) }
+                reset(p.frames); playing = false
+                completedSerial++;completedProject=p.id;publish(force = true)
+            } else {
+                // Flush the final partial hardware burst so playbackHeadPosition can
+                // reach the last music frame. Padding never advances the musical cursor.
+                if(endPaddingRemaining>0 && !queue.full) { hardware.fill(0f);check(queue.offer(hardware,512));endPaddingRemaining-=512 }
+                publish();Thread.sleep(4)
+            }
             return
         }
         if(queue.full) { java.util.concurrent.locks.LockSupport.parkNanos(5_000_000);return }
         val renderFrame=p.playbackFrame(cursor)
         val count = minOf(512L, (p.loopSection?.end ?: p.frames)-renderFrame,endFrame-cursor).toInt()
-        if (count <= 0) { ending = true; return }
+        if (count <= 0) { ending = true;endPaddingRemaining=4096;return }
         output.fill(0f)
         hardware.fill(0f); busBuffers.values.forEach { it.fill(0f) }
         val anySolo = p.stems.any { it.solo }
@@ -365,6 +374,6 @@ class AudioEngine(private val context: Context) {
         val now = System.nanoTime()
         if (!force && now - lastPublish < 33_000_000) return
         lastPublish = now
-        mutable.value = PlaybackState(project?.id ?: "", playing, kotlin.math.round(audiblePosition()*timelineScale).toLong(), peaks?.toList() ?: emptyList(), left, right, underruns = sink?.underrunCount ?: 0,busPeaks=busLevels.toMap(),outputName=outputName,outputChannels=outputChannels,ready=mutable.value.ready,preparing=mutable.value.preparing,preparation=mutable.value.preparation,preparationMs=mutable.value.preparationMs,starvation=pump?.starvation ?: 0,limiting=limited,producerWaits=pump?.producerWaits ?: 0)
+        mutable.value = PlaybackState(project?.id ?: "", playing, kotlin.math.round(audiblePosition()*timelineScale).toLong(), peaks?.toList() ?: emptyList(), left, right, underruns = sink?.underrunCount ?: 0,busPeaks=busLevels.toMap(),outputName=outputName,outputChannels=outputChannels,ready=mutable.value.ready,preparing=mutable.value.preparing,preparation=mutable.value.preparation,preparationMs=mutable.value.preparationMs,starvation=pump?.starvation ?: 0,limiting=limited,producerWaits=pump?.producerWaits ?: 0,completionSerial=completedSerial,completedProjectId=completedProject)
     }
 }

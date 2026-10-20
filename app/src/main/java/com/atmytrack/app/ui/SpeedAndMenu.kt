@@ -89,6 +89,10 @@ internal enum class MainDestination(val title:String,val symbol:String) {
         val stroke=androidx.compose.ui.graphics.drawscope.Stroke(2.dp.toPx())
         fun line(x:Float,y:Float,x2:Float,y2:Float)=drawLine(tint,Offset(size.width*x,size.height*y),Offset(size.width*x2,size.height*y2),2.dp.toPx())
         when(label) {
+            "CROSSMUSIC" -> {
+                drawPath(androidx.compose.ui.graphics.Path().apply { moveTo(size.width*.1f,size.height*.1f);lineTo(size.width*.6f,size.height*.5f);lineTo(size.width*.1f,size.height*.9f);close() },tint,style=stroke)
+                line(.6f,.15f,.9f,.5f);line(.9f,.5f,.6f,.85f)
+            }
             "VELOCIDADE" -> { drawArc(tint,150f,240f,false,style=stroke);line(.5f,.5f,.8f,.2f) }
             "PAD" -> { line(.1f,.7f,.1f,.4f);line(.3f,.85f,.3f,.2f);line(.5f,.95f,.5f,.1f);line(.7f,.85f,.7f,.2f);line(.9f,.7f,.9f,.4f) }
             "TOM" -> { line(.35f,.1f,.25f,.9f);line(.75f,.1f,.65f,.9f);line(.1f,.4f,.9f,.3f);line(.1f,.7f,.9f,.6f) }

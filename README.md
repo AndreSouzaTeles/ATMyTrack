@@ -1,8 +1,18 @@
 # ATMyTrack
 
-**[APK ATMyTrack original 0.19.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.19.0/ATMyTrack-0.19.0-debug.apk)**
+**[APK ATMyTrack original 0.20.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.20.0/ATMyTrack-0.20.0-debug.apk)**
 
 Player multitrack para Android 8.0+ (API 26), em Kotlin/Compose.
+
+## Android 0.20.0 — player unificado e CrossMusic
+
+Playback e mixer estão juntos, com timeline fixa abaixo do transporte. As ferramentas ficam no menu de ícones do cabeçalho. PAN giratório com marca central; cadeados fechados em violeta. Cada faixa pode receber uma cor no editor, sem mudar as cores fixas do app. Segurar e arrastar um cartão reorganiza os projetos; Editar fica dentro do cartão. Novas importações abrem o editor automaticamente e Smart Click começa desligado.
+
+CrossMusic salva uma sequência de projetos com volume/mute por faixa e PAD por projeto (tom, timbre e volume). Avança ao término natural da música e troca os acordes do PAD com crossfade de três segundos. O player continua disponível durante a sequência. Encerrar pela confirmação do indicador desliga apenas a automação, preservando a reprodução atual. [Comportamento e limites](verification/CROSSMUSIC-0.20.0.md).
+
+SeuNomeNoApp abre o globo com André Teles à frente. Texto da contribuição e identificação do beneficiário atualizados conforme solicitado. O ícone circular aprovado permanece igual; a separação de instrumentos continua removida.
+
+Build: `tools/build-android.ps1`. APK padrão em `dist/ATMyTrack-debug.apk`; cópia versionada em `dist/ATMyTrack-0.20.0-debug.apk`. Mesma identidade e assinatura do aplicativo original. [Validação](verification/REPORT-0.20.0.md).
 
 ## Android 0.19.0 — assinatura original e ícone circular
 

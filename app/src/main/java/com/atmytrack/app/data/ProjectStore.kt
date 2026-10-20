@@ -32,7 +32,7 @@ class ProjectStore(private val root: File) {
         put("dcas",JSONArray(p.dcas.map { d->JSONObject().put("id",d.id).put("name",d.name).put("members",JSONArray(d.members)).put("volume",d.volume).put("mute",d.mute) }))
         put("buses",JSONArray(p.buses.map { b->JSONObject().put("id",b.id).put("name",b.name).put("volume",b.volume).put("mute",b.mute).put("destination",b.destination) }))
         put("stems", JSONArray(p.stems.map { s -> JSONObject().apply {
-            put("id", s.id); put("name", s.name); put("pcm", s.pcm); put("frames", s.frames)
+            put("color",s.color ?: JSONObject.NULL);put("id", s.id); put("name", s.name); put("pcm", s.pcm); put("frames", s.frames)
             put("source", s.source); put("volume", s.volume); put("pan", s.pan); put("mute", s.mute); put("solo", s.solo)
             put("channels", s.format.channels); put("encoding", s.format.encoding.name); put("dataOffset", s.format.offset)
             put("external",s.external); put("compressed",s.compressed); put("fingerprint",s.fingerprint); put("bus",s.bus); put("route",s.route); put("pitchFile",s.pitchFile); put("pitchApplied",s.pitchApplied);put("dspSpeed",s.dspSpeed);put("sourceRate",s.sourceRate);put("sourceFrames",s.sourceFrames)
@@ -45,7 +45,7 @@ class ProjectStore(private val root: File) {
         id = j.getString("id"), name = j.getString("name"), sampleRate = j.getInt("rate"),
         stems = j.getJSONArray("stems").objects().map { s -> Stem(s.getString("id"), s.getString("name"), s.getString("pcm"), s.getLong("frames"), s.optString("source"), s.getDouble("volume").toFloat(), s.getDouble("pan").toFloat(), s.getBoolean("mute"), s.getBoolean("solo"),
             PcmFormat(s.optInt("channels", 2), PcmEncoding.valueOf(s.optString("encoding", "FLOAT32")), s.optLong("dataOffset", 0)),
-            s.optBoolean("external"),s.optBoolean("compressed"),s.optString("fingerprint"),s.optString("bus"),s.optString("route","BOTH"),s.optString("pitchFile"),s.optInt("pitchApplied"),s.optInt("sourceRate"),s.optLong("sourceFrames"),s.optInt("dspSpeed",100).coerceIn(50,200)) },
+            s.optBoolean("external"),s.optBoolean("compressed"),s.optString("fingerprint"),s.optString("bus"),s.optString("route","BOTH"),s.optString("pitchFile"),s.optInt("pitchApplied"),s.optInt("sourceRate"),s.optLong("sourceFrames"),s.optInt("dspSpeed",100).coerceIn(50,200),if(s.isNull("color"))null else (s.optLong("color") and 0xFFFFFF) or 0xFF000000) },
         bpm = j.getDouble("bpm"), beats = j.getInt("beats"), denominator = j.optInt("denominator", 4),
         multiplier = j.getDouble("multiplier"), click = j.getBoolean("click"), clickVolume = j.getDouble("clickVolume").toFloat(),
         master = j.getDouble("master").toFloat(), masterPan=j.optDouble("masterPan",0.0).toFloat().coerceIn(-1f,1f), masterMute = j.getBoolean("masterMute"), loop = j.getBoolean("loop"),

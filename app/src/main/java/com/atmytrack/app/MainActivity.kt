@@ -12,7 +12,7 @@ import com.atmytrack.app.ui.PlayerScreen
 
 class MainActivity : ComponentActivity() {
     private val notifications = registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
-    override fun onStop() { super.onStop();if(!isChangingConfigurations)(application as TrackApplication).pad.stop() }
+    override fun onStop() { super.onStop();if(!isChangingConfigurations && !(application as TrackApplication).session.crossMusic.value.running)(application as TrackApplication).pad.stop() }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)

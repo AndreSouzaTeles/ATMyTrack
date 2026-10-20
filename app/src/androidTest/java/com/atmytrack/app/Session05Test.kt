@@ -46,15 +46,14 @@ class Session05Test {
         val pssStart=Debug.getPss()
         val duration=InstrumentationRegistry.getArguments().getString("soakMs")?.toLong() ?: 600000L
         var turn=0;var maxUnderruns=0;var maxStarvation=0L;var maxPss=pssStart
-        var page=0
         var previousUnderruns=0
         while(SystemClock.elapsedRealtime()-wallStart<duration) {
             val elapsed=SystemClock.elapsedRealtime()-wallStart
             // Actual UI actions repeatedly exercise layout and gesture dispatch.
             if(turn%10==0) {
-                compose.onNodeWithText(if(page==0)"Mixer" else "Playback").performClick();page=1-page
+                compose.inspectTools()
                 compose.onNodeWithText("Ⅱ PAUSAR").assertIsDisplayed()
-                compose.onNodeWithText("METRÔNOMO").performScrollTo().performClick()
+                compose.openTool("METRÔNOMO")
                 compose.onNodeWithText("FECHAR").performClick()
                 compose.onNodeWithContentDescription("Canais").performScrollTo()
                 compose.onNodeWithText("Ⅱ PAUSAR").assertIsDisplayed()

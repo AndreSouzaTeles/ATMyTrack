@@ -71,7 +71,8 @@ private const val pix="atelestechnology@jim.com"
     val context=LocalContext.current
     val names=remember { val json=JSONArray(context.assets.open("supporters.json").bufferedReader().use { it.readText() });(0 until json.length()).map { val o=json.getJSONObject(it);GlobeName(o.getString("name"),o.optBoolean("demo",false)) } }
     var query by remember { mutableStateOf("") }
-    var yaw by remember { mutableFloatStateOf(0f) };var pitch by remember { mutableFloatStateOf(0f) };var rotating by remember { mutableStateOf(true) };var focused by remember { mutableStateOf("") }
+    val first=remember(names) { names.indexOfFirst { normalized(it.name)=="andre teles" }.coerceAtLeast(0) }
+    var yaw by remember { mutableFloatStateOf(-(first*2.399963f)) };var pitch by remember { mutableFloatStateOf(asin(1f-2f*(first+.5f)/names.size)) };var rotating by remember { mutableStateOf(true) };var focused by remember { mutableStateOf(names[first].name) }
     val paint=remember { Paint(Paint.ANTI_ALIAS_FLAG).apply { textAlign=Paint.Align.CENTER;typeface=android.graphics.Typeface.create("sans-serif-medium",android.graphics.Typeface.NORMAL) } }
     fun center(i:Int) { yaw=-(i*2.399963f);pitch=asin(1f-2f*(i+.5f)/names.size);rotating=query.isBlank();focused=names[i].name }
     LaunchedEffect(query) { rotating=query.isBlank();if(query.isNotBlank()) names.indexOfFirst { normalized(it.name).contains(normalized(query)) }.takeIf { it>=0 }?.let { center(it) } }
@@ -84,7 +85,7 @@ private const val pix="atelestechnology@jim.com"
                     Text("Globo exemplo",color=SecondaryText)
                     OutlinedTextField(query,{query=it},modifier=Modifier.fillMaxWidth(),label={Text("⌕ Encontrar um nome no globo")},singleLine=true)
                     if(query.isNotBlank() && names.none { normalized(it.name).contains(normalized(query)) })Text("Nome não encontrado.",color=Muted)
-                    Canvas(Modifier.fillMaxWidth().height(300.dp).semantics { contentDescription="Globo de nomes; arraste para girar" }
+                    Canvas(Modifier.fillMaxWidth().height(300.dp).semantics { contentDescription="Globo de nomes; arraste para girar";stateDescription="Nome em destaque: $focused" }
                         .pointerInput(query) { detectDragGestures(onDragStart={rotating=false},onDragEnd={rotating=query.isBlank()},onDragCancel={rotating=query.isBlank()}) { change,drag -> change.consume();yaw+=drag.x*.009f;pitch=(pitch-drag.y*.009f).coerceIn(-1.5f,1.5f) } }
                         .pointerInput(query) { detectTapGestures { tap ->
                             val radius=min(size.width,size.height)*.37f
@@ -100,10 +101,10 @@ private const val pix="atelestechnology@jim.com"
                     }
                     if(focused.isNotBlank())Text(focused,color=SecondaryText,fontWeight=FontWeight.Bold)
                     TextButton(onClick={query="";rotating=true}) { Text("GIRAR AUTOMATICAMENTE") }
-                    Text("Contribua com o valor que desejar via Pix e deixe sua marca no mundo ATMyTrack.")
+                    Text("Contribua com um valor acima de U$ 5,00 (Cinco dólares) e deixe sua marca no Globo ATMyTrack")
                     Text(pix,color=SecondaryText)
                     OutlinedButton(onClick={(context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager).setPrimaryClip(ClipData.newPlainText("Pix ATMyTrack",pix))},modifier=Modifier.fillMaxWidth()) { Text("COPIAR CHAVE PIX") }
-                    Text("Beneficiário informado: Andre Souza Teles. Confira os dados no aplicativo do seu banco antes de confirmar.",color=Muted,fontSize=12.sp)
+                    Text("Beneficiário informado: 64.876.586 ANDRE SOUZA TELES. Confira os dados no aplicativo do seu banco antes de confirmar.",color=Muted,fontSize=12.sp)
                     OutlinedButton(onClick={context.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse("https://wa.me/5511970317078?text="+Uri.encode("Olá! Fiz um Pix para ATMyTrack. Vou enviar o comprovante nesta conversa."))))}) { Text("ENVIAR COMPROVANTE NO WHATSAPP") }
                 }
             }

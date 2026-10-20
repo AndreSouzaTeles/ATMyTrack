@@ -30,7 +30,7 @@ class Layout05Test {
             instrumentation.uiAutomation.takeScreenshot().let { bitmap -> file.outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG,100,it) };bitmap.recycle() }
         }
         capture("top")
-        compose.onNodeWithText("Mixer").performClick()
+        compose.inspectTools()
         compose.onNodeWithContentDescription("Canais").performScrollTo()
         compose.onNodeWithContentDescription("Volume ${p.stems.first().name}").performScrollTo()
         compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.VerticalScrollAxisRange))

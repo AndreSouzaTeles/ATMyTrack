@@ -96,7 +96,7 @@ class AudioImporter(private val context: Context) {
             } } }.awaitAll().filterNotNull() }
             require(stems.isNotEmpty()) { "Nenhuma track pôde ser importada. Consulte os erros por arquivo." }
             val rate=stems.first().first
-            Project(id=id,name=title.ifBlank { "Novo projeto" },sampleRate=rate,stems=stems.map { (sourceRate,s) ->
+            Project(smartClick=false,id=id,name=title.ifBlank { "Novo projeto" },sampleRate=rate,stems=stems.map { (sourceRate,s) ->
                 s.copy(frames=(s.frames.toDouble()*rate/sourceRate).roundToLong())
             })
         } catch(e:Exception) { dir.deleteRecursively(); throw e }

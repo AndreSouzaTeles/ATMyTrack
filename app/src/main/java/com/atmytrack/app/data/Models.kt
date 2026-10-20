@@ -8,7 +8,7 @@ data class Stem(
     val volume: Float = 1f, val pan: Float = 0f, val mute: Boolean = false,
     val solo: Boolean = false, val format: PcmFormat = PcmFormat(),
     val external: Boolean = false, val compressed: Boolean = false, val fingerprint: String = "",
-    val bus: String = "", val route: String = "BOTH", val pitchFile: String = "", val pitchApplied: Int = 0, val sourceRate: Int = 0, val sourceFrames: Long = 0, val dspSpeed: Int = 100
+    val bus: String = "", val route: String = "BOTH", val pitchFile: String = "", val pitchApplied: Int = 0, val sourceRate: Int = 0, val sourceFrames: Long = 0, val dspSpeed: Int = 100, val color:Long? = null
 )
 data class Marker(val id: String = UUID.randomUUID().toString(), val name: String,
     val start: Long, val end: Long, val color: Long = 0xFF89ACF2)

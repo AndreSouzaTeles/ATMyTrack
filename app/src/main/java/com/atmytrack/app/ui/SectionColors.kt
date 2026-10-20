@@ -14,10 +14,10 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable internal fun SectionColors(color:Long,change:(Long)->Unit) {
+@Composable internal fun SectionColors(color:Long,title:String="Cor da seção",change:(Long)->Unit) {
     var custom by remember { mutableStateOf(false) }
     val colors=listOf("Azul" to 0xFF89ACF2,"Verde" to 0xFF88B9A0,"Violeta" to 0xFFB29CDA,"Coral" to 0xFFDC938A,"Âmbar" to 0xFFD0AD74,"Ciano" to 0xFF81BDC8)
-    Text("Cor da seção",color=SecondaryText)
+    Text(title,color=SecondaryText)
     FlowRow(horizontalArrangement=Arrangement.spacedBy(6.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {
         colors.forEach { (name,value) -> Box(Modifier.size(48.dp).clip(CircleShape).background(Color(value)).border(if(color==value)3.dp else 1.dp,if(color==value)White else Muted,CircleShape).clickable { change(value) }.semantics { contentDescription="Cor $name";selected=color==value }) }
         Box(Modifier.size(48.dp).clip(CircleShape).background(Brush.sweepGradient(colors.map { Color(it.second) }+Color(colors.first().second))).border(2.dp,White,CircleShape).clickable { custom=true }.semantics { contentDescription="Escolher cor personalizada" })

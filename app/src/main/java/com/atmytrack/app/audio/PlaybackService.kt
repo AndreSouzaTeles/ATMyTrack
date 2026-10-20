@@ -14,14 +14,14 @@ class PlaybackService : Service() {
     private lateinit var focus: AudioFocusRequest
     private lateinit var wake: PowerManager.WakeLock
     private val noisy = object : BroadcastReceiver() {
-        override fun onReceive(c: Context?, i: Intent?) { engine.pause("Saída desconectada. Confira o roteamento antes de retomar.") }
+        override fun onReceive(c: Context?, i: Intent?) { (application as TrackApplication).session.pauseForInterruption("Saída desconectada. Confira o roteamento antes de retomar.") }
     }
     override fun onCreate() {
         super.onCreate()
         audio = getSystemService(AudioManager::class.java)
         focus = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
             .setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
-            .setOnAudioFocusChangeListener { if (it != AudioManager.AUDIOFOCUS_GAIN) engine.pause("Reprodução pausada por outro aplicativo ou chamada.") }.build()
+            .setOnAudioFocusChangeListener { if (it != AudioManager.AUDIOFOCUS_GAIN) (application as TrackApplication).session.pauseForInterruption("Reprodução pausada por outro aplicativo ou chamada.") }.build()
         wake = getSystemService(PowerManager::class.java).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ATMyTrack:playback")
         if (Build.VERSION.SDK_INT >= 33) registerReceiver(noisy, IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY), RECEIVER_NOT_EXPORTED)
         else registerReceiver(noisy, IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY))
@@ -40,10 +40,10 @@ class PlaybackService : Service() {
             .addAction(Notification.Action.Builder(null, "Parar", action("stop")).build()).build()
         startForeground(1, notification)
         when (intent?.action) {
-            "pause" -> engine.pause()
-            "stop" -> { engine.stop(); stopSelf() }
+            "pause" -> (application as TrackApplication).session.pause()
+            "stop" -> { (application as TrackApplication).session.stop(); stopSelf() }
             else -> if (audio.requestAudioFocus(focus) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) engine.play()
-                else engine.pause("A saída está sendo utilizada por outro aplicativo.")
+                else (application as TrackApplication).session.pauseForInterruption("A saída está sendo utilizada por outro aplicativo.")
         }
         return START_NOT_STICKY
     }

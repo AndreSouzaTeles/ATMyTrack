@@ -30,14 +30,14 @@ class Feature06Test {
     compose.onNodeWithContentDescription("Abrir projeto ${vm.library.value.selected}").performClick()
     compose.runOnUiThread { vm.artwork(Uri.parse("android.resource://${context.packageName}/${R.drawable.brand_art}")) }
     compose.waitUntil(10000) { vm.library.value.current!!.artwork.isNotBlank() }
-    compose.onNodeWithText("METRÔNOMO").performScrollTo().performClick()
+    compose.openTool("METRÔNOMO")
     compose.onNodeWithText("Smart Click").assertIsDisplayed()
     compose.onAllNodes(isToggleable())[0].performClick()
     compose.waitUntil(30000) { vm.library.value.current!!.detectedBpm>0 && vm.library.value.background==null }
     assertEquals(vm.library.value.current!!.detectedBpm,vm.library.value.current!!.bpm,0.0)
     compose.onNodeWithText("PLAY").performClick();assertTrue(vm.library.value.current!!.click)
     compose.onNodeWithText("FECHAR").performClick()
-    compose.onNodeWithText("+ SEÇÃO").performScrollTo().performClick()
+    compose.openTool("+ SEÇÃO")
     compose.onNode(hasContentDescription("Posição da música") and hasAnyAncestor(isDialog())).assertIsDisplayed()
     compose.onNodeWithText("MARCAR INÍCIO").assertExists()
     compose.onNodeWithText("FECHAR").performClick()

@@ -49,7 +49,7 @@ class Sections09Test {
     val vm=ViewModelProvider(compose.activity)[PlayerViewModel::class.java]
     compose.waitUntil(30000) { vm.library.value.busy==null && vm.playback.value.ready }
     compose.runOnUiThread { vm.stop();vm.dismissError();vm.dismissImportReport() }
-    compose.onNodeWithText("+ SEÇÃO").performScrollTo().performClick()
+    compose.openTool("+ SEÇÃO")
     compose.onNodeWithContentDescription("Cor Azul").performScrollTo().performClick()
     compose.onNodeWithContentDescription("Cor Azul").assertIsSelected()
     compose.onNodeWithContentDescription("Escolher cor personalizada").performClick()
@@ -58,8 +58,8 @@ class Sections09Test {
     compose.onNodeWithText("Nome • INTRO, VERSO, REFRÃO…").performTextInput("Seção azul")
     compose.onNodeWithText("ADICIONAR").performClick()
     compose.waitUntil(5000) { vm.library.value.current!!.markers.any { it.name=="Seção azul" && it.color==0xFF89ACF2 } }
-    compose.onNodeWithText("TOM").performScrollTo()
+    compose.onNodeWithContentDescription("Ferramentas").performClick()
     compose.onNodeWithText("Toque ou arraste para navegar").assertDoesNotExist()
-    assertTrue(compose.onNodeWithText("TOM").fetchSemanticsNode().boundsInRoot.left < compose.onNodeWithText("VELOCIDADE").fetchSemanticsNode().boundsInRoot.left)
+    assertTrue(compose.onNodeWithContentDescription("TOM").fetchSemanticsNode().boundsInRoot.left < compose.onNodeWithContentDescription("VELOCIDADE").fetchSemanticsNode().boundsInRoot.left)
  }
 }

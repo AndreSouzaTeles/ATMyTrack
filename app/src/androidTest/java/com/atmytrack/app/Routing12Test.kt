@@ -15,8 +15,7 @@ class Routing12Test {
     val vm=ViewModelProvider(compose.activity)[PlayerViewModel::class.java]
     compose.waitUntil(30000) { vm.library.value.current!=null && vm.playback.value.ready }
     compose.runOnUiThread { vm.stop();vm.dismissError();vm.dismissImportReport() }
-    compose.onNodeWithText("Mixer",useUnmergedTree=true).performClick()
-    compose.onNodeWithText("ROUTING").performScrollTo().performClick()
+    compose.openTool("ROUTING")
     compose.onNodeWithContentDescription("STEREO SPLIT").performScrollTo().performClick()
     compose.onNodeWithContentDescription("STEREO SPLIT").assertIsSelected()
     compose.onNodeWithContentDescription("CLICK INTERNO").assertIsNotSelected()

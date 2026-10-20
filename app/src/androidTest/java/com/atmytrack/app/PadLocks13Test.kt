@@ -36,7 +36,7 @@ class PadLocks13Test {
     assertEquals(p.master,vm.library.value.current!!.master,0f);assertEquals(p.stems.map { it.volume },vm.library.value.current!!.stems.map { it.volume })
     compose.runOnUiThread { vm.lockFader("MASTER") }
     assertTrue(vm.library.value.current!!.gainLocked(s.id))
-    compose.onNodeWithText("PAD",useUnmergedTree=true).performScrollTo().performClick()
+    compose.openTool("PAD")
     compose.onNodeWithText("▶ PLAY PAD").performClick()
     compose.waitUntil(5000) { vm.pad.state.value.playing }
     compose.runOnUiThread { vm.stop() }

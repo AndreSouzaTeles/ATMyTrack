@@ -39,6 +39,7 @@ class PlaybackInstrumentedTest {
         compose.runOnUiThread { vm.stop();vm.import(uris=names.map { wav("$it.wav",20) }) }
         compose.waitUntil(20000){vm.library.value.busy==null && vm.library.value.selected!=previous && vm.playback.value.projectId==vm.library.value.selected}
         compose.runOnUiThread { vm.dismissError();vm.dismissImportReport() }
+        compose.closeImportedProjectEditor()
         return vm to vm.library.value.current!!
     }
     @Test fun smartClickAnalysisAllowsPageNavigationAndRequiresBpmConfirmation() {
@@ -49,9 +50,9 @@ class PlaybackInstrumentedTest {
         compose.waitUntil(20000){vm.library.value.busy==null && vm.library.value.selected!=previous && vm.playback.value.projectId==vm.library.value.selected}
         compose.runOnUiThread { vm.dismissError();vm.dismissImportReport();vm.update { it.copy(bpm=72.0) };vm.analyzeTempo(true) }
         assertNull(vm.library.value.busy)
-        compose.onNodeWithText("Mixer").performClick()
-        compose.onNodeWithText("+ DCA").assertExists()
-        compose.onNodeWithText("Playback").performClick()
+        compose.inspectTools()
+        compose.onNodeWithContentDescription("Canais").assertExists()
+        compose.onNodeWithContentDescription("Posição da música").assertExists()
         compose.waitUntil(15000){vm.library.value.background==null && vm.library.value.current!!.detectedBpm>0}
         assertEquals(120.0,vm.library.value.current!!.detectedBpm,1.0)
         assertEquals(72.0,vm.library.value.current!!.bpm,0.0)
@@ -59,7 +60,7 @@ class PlaybackInstrumentedTest {
     @Test fun doubleTapFineGainAllFadersAndDragRemainIndependent() {
         val (vm,p)=prepared(listOf("FaderTrack"))
         compose.runOnUiThread { vm.update { it.copy(master=.3f,stems=it.stems.map { s->s.copy(volume=.4f) },dcas=listOf(Dca(name="Fine DCA",volume=.2f)),buses=listOf(Bus(name="Fine BUS",volume=.2f))) } }
-        compose.onNodeWithText("Mixer").performClick()
+        compose.inspectTools()
         compose.onNodeWithContentDescription("Canais").performScrollTo()
         for(name in listOf("FaderTrack","Fine DCA","Fine BUS","MASTER")) {
             if(name!="MASTER")compose.onNodeWithContentDescription("Canais").performScrollToNode(hasContentDescription(if(name=="FaderTrack")"Arrastar $name" else name))
@@ -129,20 +130,21 @@ class PlaybackInstrumentedTest {
         assertEquals(384000L, p.frames)
         assertEquals(240000L, p.stems[1].frames)
         compose.runOnUiThread { vm.dismissError(); vm.update { it.copy(name = "Ensaio • teste de áudio", bpm = 96.0, markers = listOf(Marker(name = "VERSO", start = 48000, end = 192000))) } }
+        compose.closeImportedProjectEditor()
         compose.onNodeWithText("▶ PLAY").assertIsDisplayed().performClick()
         compose.waitUntil(10000) { vm.playback.value.playing && vm.playback.value.frame > 16000 }
         val beforePage = vm.playback.value.frame
         val pageUnderruns=vm.playback.value.underruns
-        compose.onNodeWithText("Mixer").performClick()
+        compose.inspectTools()
         compose.waitUntil(5000) { vm.playback.value.frame > beforePage + 5000 }
         assertEquals(p.id, vm.playback.value.projectId)
         assertTrue(vm.playback.value.playing)
-        compose.onNodeWithText("Playback").performClick()
+        compose.onNodeWithContentDescription("Posição da música").assertExists()
         repeat(5) {
-            compose.onNodeWithText("Mixer").performClick();compose.onNodeWithText("Playback").performClick()
+            compose.inspectTools();compose.onNodeWithContentDescription("Posição da música").assertExists()
             assertTrue(vm.playback.value.playing);assertEquals(p.id,vm.playback.value.projectId)
         }
-        assertEquals("Changing pages must not starve the output",pageUnderruns,vm.playback.value.underruns)
+        assertEquals("Inspecting tools must not starve the output",pageUnderruns,vm.playback.value.underruns)
         assertTrue(vm.playback.value.frame>=beforePage)
         assertEquals(p.stems.map { it.volume },vm.library.value.current!!.stems.map { it.volume })
         compose.onNodeWithText("Ⅱ PAUSAR").assertIsDisplayed().performClick()
@@ -156,6 +158,7 @@ class PlaybackInstrumentedTest {
             vm.stem(p.stems[0].id) { it.copy(volume = .35f, pan = -.5f, solo = true) }
             vm.update { it.copy(click = true, master = .5f) }
         }
+        compose.closeImportedProjectEditor()
         compose.onNodeWithText("▶ PLAY").assertIsDisplayed().performClick()
         compose.waitUntil(5000) { vm.playback.value.frame > 110000L }
         compose.runOnUiThread { vm.stop() }
@@ -173,21 +176,22 @@ class PlaybackInstrumentedTest {
         compose.runOnUiThread { vm.import(uris=listOf(wav("Drag Piano.wav",20),wav("Drag Bass.wav",20))) }
         compose.waitUntil(20000) { vm.library.value.busy==null && vm.library.value.selected!=previousId && vm.library.value.current?.name=="Drag Piano" && vm.playback.value.projectId==vm.library.value.selected }
         compose.runOnUiThread { vm.dismissError() }
+        compose.closeImportedProjectEditor()
         val original=vm.library.value.current!!
-        compose.onNodeWithText("Mixer").performClick()
-        compose.onNodeWithText("+ DCA").performScrollTo().performClick()
+        compose.inspectTools()
+        compose.openTool("DCA")
         compose.onNodeWithText("DCA 1").performTextReplacement("Band")
         compose.onNode(hasText("Drag Piano") and hasAnyAncestor(isDialog())).performClick()
         compose.onNodeWithText("SALVAR").performClick()
         compose.waitUntil { vm.library.value.current!!.dcas.size==1 }
         assertTrue(original.stems[0].id in vm.library.value.current!!.dcas.single().members)
-        compose.onNodeWithText("+ BUS").performScrollTo().performClick()
+        compose.openTool("BUS")
         compose.onNodeWithText("BUS 1").performTextReplacement("Keys")
         compose.onNode(hasText("Drag Piano") and hasAnyAncestor(isDialog())).performClick()
         compose.onNodeWithText("SALVAR").performClick()
         compose.waitUntil { vm.library.value.current!!.buses.size==1 }
         assertEquals(vm.library.value.current!!.buses[0].id,vm.library.value.current!!.stems[0].bus)
-        compose.onNodeWithText("Playback").performClick()
+        compose.onNodeWithContentDescription("Posição da música").assertExists()
         val header=compose.onNodeWithContentDescription("Arrastar Drag Piano")
         header.performScrollTo()
         header.performTouchInput { down(center) }
