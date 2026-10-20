@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 import java.text.Normalizer
 import java.util.Locale
 
-internal val LockPurple = Color(0xFFB16CF2)
+internal val LockRed = Color(0xFFE05B60)
 internal val Accent = Color(0xFF89ACF2)
 internal val Mint = Color(0xFF88B9A0)
 internal val Amber = Color(0xFFD0AD74)

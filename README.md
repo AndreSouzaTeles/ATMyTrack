@@ -1,8 +1,12 @@
 # ATMyTrack
 
-**[APK ATMyTrack original 0.21.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.21.0/ATMyTrack-0.21.0-debug.apk)**
+**[APK ATMyTrack original 0.21.1](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.21.1/ATMyTrack-0.21.1-debug.apk)**
 
 Player multitrack para Android 8.0+ (API 26), em Kotlin/Compose.
+
+## Android 0.21.1 — cadeados fechados vermelhos
+
+Cadeados fechados dos faders agora usam vermelho, incluindo tracks, Master, DCA e BUS. Abertos continuam com a cor neutra. [Validação](verification/REPORT-0.21.1.md). APK em `dist/ATMyTrack-debug.apk`, com a assinatura do aplicativo original.
 
 ## Android 0.21.0 — nova arte azul e ciano
 
