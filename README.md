@@ -1,8 +1,14 @@
 # ATMyTrack
 
-**[APK ATMyTrack original 0.20.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.20.0/ATMyTrack-0.20.0-debug.apk)**
+**[APK ATMyTrack original 0.21.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.21.0/ATMyTrack-0.21.0-debug.apk)**
 
 Player multitrack para Android 8.0+ (API 26), em Kotlin/Compose.
+
+## Android 0.21.0 — nova arte azul e ciano
+
+Ícone, logo e abertura atualizados a partir do print enviado em 20/10/2026: disco circular azul-marinho, aro azul/ciano e play contornado com barras de áudio. Fundo externo transparente e recursos Android consistentes em todas as densidades. A mesma imagem foi aplicada à web local; site público não republicado. Controles, projetos, CrossMusic e cores das faixas preservados.
+
+[Arte e prompt](branding/BRAND-0.21.0.md) · [Validação](verification/REPORT-0.21.0.md). APK em `dist/ATMyTrack-debug.apk` e `dist/ATMyTrack-0.21.0-debug.apk`, com a assinatura do aplicativo original.
 
 ## Android 0.20.0 — player unificado e CrossMusic
 

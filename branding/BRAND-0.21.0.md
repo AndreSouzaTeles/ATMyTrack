@@ -1,0 +1,11 @@
+# Identidade 0.21.0 — disco azul e ciano
+
+Referência: print enviado pelo usuário em 20/10/2026, preservado em [0.21.0/reference.png](0.21.0/reference.png). Play contornado em ciano, barras brilhantes azul/ciano/branco, disco azul-marinho e aro circular luminoso. Substitui a arte ciano/azul/violeta anterior nos recursos ativos. Paleta dos controles e cores personalizadas das faixas não mudam.
+
+[Arte final 1024 px](0.21.0/icon-1024.png), [512 px](0.21.0/icon-512.png). A logo do cabeçalho, menu, estado vazio, splash e ícones Android usam a mesma arte. PNGs legacy/round exportados em 48/72/96/144/192 px; camadas adaptativas mantêm a configuração circular existente. Logo da web local sincronizada; site público não republicado.
+
+Ferramenta de imagem integrada, modo de edição com transparência. Primeiro resultado selecionado em [source.png](0.21.0/source.png); o segundo ensaio de limpeza não foi usado. Exportação reprodutível em `tools/export-brand-021.ps1`: recorte do disco, viewport circular, margens iguais e redimensionamento para os recursos Android/web. O launcher controla a máscara e o tamanho final na grade.
+
+Prompt utilizado:
+
+> Use case: background-extraction. Edit target: supplied screenshot of the user's exact approved ATMyTrack icon. Extract and preserve this exact circular blue/cyan audio equalizer + outlined play icon. Remove ONLY the flat charcoal screenshot background OUTSIDE the circular disc. Preserve every interior feature, colors, luminous cyan/cobalt circular rim, deep navy disc, frosted white-to-cyan and cobalt bars, dark outlined triangular play interior, dimensions/gradients/gloss and exact arrangement as closely as possible. Center the complete circle on a square transparent canvas, diameter 98% of canvas, equal tiny transparent margins, no clipped rim. No purple/magenta, no new elements, no text, no invented design. Genuine alpha transparency outside the circle, keep the full dark navy background INSIDE the circle fully opaque. Single app icon asset.

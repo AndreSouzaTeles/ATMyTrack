@@ -8,8 +8,8 @@ android {
         applicationId = if (temporaryV2) "com.atmytrack.app.v2" else "com.atmytrack.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 33
-        versionName = "0.20.0"
+        versionCode = 34
+        versionName = "0.21.0"
         manifestPlaceholders["appLabel"] = if (temporaryV2) "ATMyTrack_v2" else "ATMyTrack"
         resValue("string", "app_name", if (temporaryV2) "ATMyTrack_v2" else "ATMyTrack")
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64") }
