@@ -7,6 +7,22 @@ import org.junit.Assert.*
 import kotlin.math.*
 
 class ImportAnalysisTest {
+ @Test fun waveformEnergyShowsDynamicsDespiteEqualTransientPeaks() {
+    val frames=WaveformAccumulator.BINS*32
+    val samples=FloatArray(frames*2)
+    repeat(frames) { i ->
+        // Every bin has the same full-scale transient, but very different sustained energy.
+        val value=if(i%32==0)1f else if(i<frames/2).08f else .7f
+        samples[i*2]=value;samples[i*2+1]=-value
+    }
+    val waveform=WaveformAccumulator(frames.toLong()).apply { add(samples,frames,0) }.peaks
+    assertTrue(waveform[WaveformAccumulator.BINS*3/4]>waveform[WaveformAccumulator.BINS/4]*3)
+ }
+ @Test fun waveformSilenceAndInvalidSamplesStayFiniteAndSilent() {
+    val waveform=WaveformAccumulator(4096)
+    waveform.add(FloatArray(8192){if(it<8)Float.NaN else 0f},4096,0)
+    assertTrue(waveform.peaks.all { it.isFinite() && it==0f })
+ }
  @Test fun pcmCopyEnvelopeRetainsPartialFramesAndIgnoresHeaders() {
     val frames=2048;val format=PcmFormat(2,PcmEncoding.S24,45);val bytes=ByteArray(45+frames*6+17)
     val floats=FloatArray(frames*2)

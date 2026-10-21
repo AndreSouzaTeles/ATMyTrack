@@ -46,9 +46,10 @@ object TempoDetector {
 class Analysis(private val context:Context) {
     fun key(p:Project)=java.security.MessageDigest.getInstance("SHA-256").digest(p.stems.joinToString("|") { "${it.id}:${it.fingerprint}:${it.frames}" }.toByteArray()).joinToString("") { "%02x".format(it) }
     suspend fun waveform(p:Project,canWork:()->Boolean,emit:(List<Float>)->Unit):List<Float> {
-        val file=File(context.filesDir,"analysis/${p.id}/${key(p)}-wave-v2.json")
+        val file=File(context.filesDir,"analysis/${p.id}/${key(p)}-wave-rms-v3.json")
         if(file.exists())return JSONArray(file.readText()).let { a->(0 until a.length()).map { a.getDouble(it).toFloat() } }.also(emit)
-        val peaks=FloatArray(512);val cache=PlaybackCache(context);val job=coroutineContext
+        val peaks=FloatArray(WaveformAccumulator.BINS);val energy=DoubleArray(peaks.size)
+        val cache=PlaybackCache(context);val job=coroutineContext
         for(stem in p.stems) {
             coroutineContext.ensureActive()
             val original=stem.copy(pitchFile="",pitchApplied=0,dspSpeed=100)
@@ -66,11 +67,15 @@ class Analysis(private val context:Context) {
                 cache.saveEnvelope(original,p.sampleRate,accumulator.peaks)
                 accumulator.peaks.toList()
             }
-            // Each completed stem covers its entire duration, not just an unfinished prefix.
-            summary.forEachIndexed { i,v ->
-                val first=(i.toLong()*stem.frames/p.frames).toInt().coerceIn(0,511)
-                val end=(((i+1L)*stem.frames+p.frames-1)/p.frames).toInt().coerceIn(first+1,512)
-                for(j in first until end)peaks[j]=max(peaks[j],v)
+            // Aggregate energy instead of selecting the loudest transient across all tracks.
+            // Align shorter stems to the project clock, leaving their tails silent.
+            for(j in peaks.indices) {
+                val sourceFrame=(j+.5)*p.frames/peaks.size
+                if(sourceFrame<stem.frames && stem.frames>0) {
+                    val v=summary[(sourceFrame/stem.frames*summary.size).toInt().coerceIn(summary.indices)]
+                    energy[j]+=v.toDouble()*v
+                }
+                peaks[j]=sqrt(energy[j]/p.stems.size.coerceAtLeast(1)).toFloat()
             }
             emit(peaks.toList());yield()
         }

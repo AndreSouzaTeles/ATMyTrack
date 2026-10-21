@@ -3,9 +3,13 @@ package com.atmytrack.app.audio
 import com.atmytrack.app.data.*
 import kotlin.math.*
 
-/** Peak bins accumulated while copying/decoding, with partial PCM frames retained. */
+/** RMS energy bins accumulated while copying/decoding, with partial PCM frames retained.
+ * Unlike a maximum envelope, isolated transients cannot flatten a whole song. */
 class WaveformAccumulator(private val frames:Long) {
-    val peaks=FloatArray(512)
+    companion object { const val BINS=2048 }
+    private val energy=DoubleArray(BINS)
+    private val counts=LongArray(BINS)
+    val peaks:FloatArray get()=FloatArray(BINS) { i -> if(counts[i]==0L)0f else sqrt(energy[i]/counts[i]).toFloat() }
     private val carry=ByteArray(8)
     private var carried=0
     private var rawFrame=0L
@@ -13,7 +17,11 @@ class WaveformAccumulator(private val frames:Long) {
         repeat(count) { i -> put(start+i,max(abs(samples[i*2]),abs(samples[i*2+1]))) }
     }
     private fun put(frame:Long,value:Float) {
-        if(frames>0 && frame<frames && value.isFinite()) { val bin=(frame*512/frames).toInt().coerceIn(0,511);peaks[bin]=max(peaks[bin],value.coerceIn(0f,1f)) }
+        if(frames>0 && frame>=0 && frame<frames && value.isFinite()) {
+            val bin=(frame*BINS/frames).toInt().coerceIn(0,BINS-1)
+            val amplitude=value.coerceIn(0f,1f).toDouble()
+            energy[bin]+=amplitude*amplitude;counts[bin]++
+        }
     }
     fun addRaw(bytes:ByteArray,count:Int,offset:Long,format:PcmFormat) {
         var pos=(format.offset-offset).coerceIn(0,count.toLong()).toInt()

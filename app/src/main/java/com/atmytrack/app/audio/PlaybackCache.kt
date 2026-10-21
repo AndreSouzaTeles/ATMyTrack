@@ -22,12 +22,12 @@ class PlaybackCache(private val context:Context) {
         }
     }
     fun envelope(s:Stem,rate:Int):List<Float>? = runCatching {
-        val array=org.json.JSONArray(File(context.filesDir,"playback/${key(s,rate)}.wave.json").readText())
-        require(array.length()==512)
-        (0 until 512).map { array.getDouble(it).toFloat() }
+        val array=org.json.JSONArray(File(context.filesDir,"playback/${key(s,rate)}.wave-rms-v1.json").readText())
+        require(array.length()==WaveformAccumulator.BINS)
+        (0 until array.length()).map { array.getDouble(it).toFloat() }
     }.getOrNull()
     fun saveEnvelope(s:Stem,rate:Int,peaks:FloatArray) {
-        val target=File(context.filesDir,"playback/${key(s,rate)}.wave.json");target.parentFile!!.mkdirs()
+        val target=File(context.filesDir,"playback/${key(s,rate)}.wave-rms-v1.json");target.parentFile!!.mkdirs()
         val part=File(target.path+".${java.util.UUID.randomUUID()}.part")
         try { part.writeText(org.json.JSONArray(peaks.toList()).toString());check(part.renameTo(target)) }
         catch(e:Exception) { android.util.Log.w("ATMyTrack","Não foi possível guardar a waveform; o áudio continua disponível",e) }

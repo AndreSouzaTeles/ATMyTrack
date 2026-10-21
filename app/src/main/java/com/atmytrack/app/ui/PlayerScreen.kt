@@ -32,6 +32,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.font.FontWeight
@@ -127,6 +128,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
             BoxWithConstraints(Modifier.safeDrawingPadding()) {
                 val compact=maxHeight<500.dp
                 val wide=maxWidth>=840.dp
+                val tabletTransport=LocalConfiguration.current.smallestScreenWidthDp>=600 && maxWidth>=600.dp
                 val mixerHeight=if(compact)450.dp else 490.dp
                 Column(Modifier.fillMaxSize()) {
                     Row(Modifier.fillMaxWidth().padding(horizontal=8.dp),verticalAlignment=Alignment.CenterVertically) {
@@ -174,6 +176,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
                         Text("Importe suas faixas para criar o primeiro projeto.",Modifier.padding(vertical=20.dp),color=Muted)
                         Button(onClick={importDialog=true},enabled=library.busy==null) { Text("CRIAR PRIMEIRO PROJETO") }
                     } else {
+                        val transportControls:@Composable ()->Unit = {
                         Row(Modifier.fillMaxWidth().padding(horizontal=8.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(4.dp)) {
                             IconButton(onClick={vm.seek(0)},modifier=Modifier.semantics { contentDescription="Início" }) { Text("|◀",color=White) }
                             Button(onClick={if(playback.playing)vm.pause() else vm.play()},enabled=library.busy==null && playback.ready && !playback.preparing && playback.projectId==p.id,
@@ -189,7 +192,16 @@ fun PlayerScreen(vm: PlayerViewModel) {
                             IconButton(onClick={if(playback.playing)vm.message("Pause antes de trocar de projeto.") else vm.adjacent(1)},modifier=Modifier.semantics { contentDescription="Próximo projeto" }) { Text("▶|",color=White) }
                         }
                         Text("${MusicTime.time(playback.frame.toDouble()/p.sampleRate/p.timelineScale)} / ${MusicTime.time(p.playbackSeconds)}  ·  ${"%.1f".format(p.effectiveBpm)} BPM  ·  ${p.beats}/${p.denominator}",Modifier.padding(horizontal=12.dp,vertical=4.dp),fontSize=12.sp,color=SecondaryText,maxLines=1)
-                        Box(Modifier.fillMaxWidth().padding(horizontal=8.dp,vertical=4.dp)) { Timeline(p,playback.frame,true,library.waveform,vm::seek) }
+                        }
+                        if(tabletTransport) {
+                            Row(Modifier.fillMaxWidth().padding(end=8.dp,top=4.dp,bottom=4.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                                Column(Modifier.width(300.dp)) { transportControls() }
+                                Box(Modifier.weight(1f)) { Timeline(p,playback.frame,true,library.waveform,vm::seek) }
+                            }
+                        } else {
+                            transportControls()
+                            Box(Modifier.fillMaxWidth().padding(horizontal=8.dp,vertical=4.dp)) { Timeline(p,playback.frame,true,library.waveform,vm::seek) }
+                        }
                         library.background?.let { Text(it,Modifier.padding(horizontal=12.dp),color=SecondaryText,fontSize=11.sp);LinearProgressIndicator(Modifier.fillMaxWidth()) }
                         if(playback.error!=null || (!playback.preparing && playback.preparation.any { it.status=="ERROR" })) Row(Modifier.padding(horizontal=12.dp)) {
                             TextButton(onClick=vm::retryPreparation){Text("TENTAR NOVAMENTE")}
@@ -314,7 +326,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
         }
         val error = library.message ?: playback.error
         if (error != null) AlertDialog(onDismissRequest = vm::dismissError, title = { Text("ATMyTrack") }, text = { Text(error) }, confirmButton = { TextButton(onClick = vm::dismissError) { Text("ENTENDI") } })
-        if (help) AlertDialog(onDismissRequest = { help = false }, title = { Text("ATMyTrack • 0.21.2") }, text = {
+        if (help) AlertDialog(onDismissRequest = { help = false }, title = { Text("ATMyTrack • 0.22.0") }, text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("1. Importe uma pasta ou selecione as stems.\n2. Ajuste volume, pan, mute e solo.\n3. Defina BPM e compasso; o CLICK acompanha a timeline.\n4. Crie seções para saltar aos trechos da música.")
                 Text("A importação depende dos decoders disponíveis no Android. WAV, MP3, AAC/M4A, FLAC e OGG/Opus são tentados; arquivos incompatíveis geram erro.", color = Muted)
@@ -367,8 +379,12 @@ private fun Timeline(p: Project, frame: Long, compact: Boolean, peaks: List<Floa
     LaunchedEffect(frame,dragging) { if(!dragging && preview!=null && abs(frame-preview!!)<p.sampleRate/2)preview=null }
     LaunchedEffect(preview,dragging) { if(!dragging && preview!=null) { delay(1000);preview=null } }
     Column(Modifier.clip(RoundedCornerShape(10.dp)).background(Panel).padding(if (compact) 8.dp else 12.dp)) {
-        Row(Modifier.fillMaxWidth()) { Text("TIMELINE", fontSize = 10.sp, color = Muted, letterSpacing = 2.sp) }
-        Canvas(Modifier.fillMaxWidth().height(if (compact) 32.dp else 48.dp)
+        Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween) {
+            Text("TIMELINE", fontSize = 10.sp, color = Muted, letterSpacing = 2.sp)
+            if(peaks.isEmpty())Text("ANALISANDO ÁUDIO",fontSize=9.sp,color=Muted)
+        }
+        val maximum=remember(peaks) { peaks.filter { it.isFinite() }.maxOrNull()?.coerceAtLeast(.001f) ?: 1f }
+        Canvas(Modifier.fillMaxWidth().height(if (compact) 48.dp else 64.dp)
             .semantics { contentDescription = "Posição da música"; progressBarRangeInfo = ProgressBarRangeInfo(display.toFloat(), 0f..total.toFloat()); setProgress { callback(it.toLong()); true } }
             .pointerInput(total) { detectTapGestures { callback((it.x / size.width * total).toLong().coerceIn(0, total)) } }
             .pointerInput(total) { detectDragGestures(
@@ -377,19 +393,29 @@ private fun Timeline(p: Project, frame: Long, compact: Boolean, peaks: List<Floa
                 onDragCancel={ dragging=false;preview=null }
             ) { change, _ -> change.consume();preview=(change.position.x/size.width*total).toLong().coerceIn(0,total) } }) {
             val w = size.width; val h = size.height
-            for (i in 0..40) { val x = w * i / 40; drawLine(Control, Offset(x, h * .30f), Offset(x, h * if (i % 5 == 0) .85f else .6f), 1.dp.toPx()) }
+            val center=h*.47f
+            for (i in 0..8) { val x = w * i / 8; drawLine(Control.copy(alpha=.6f), Offset(x, 3.dp.toPx()), Offset(x, h-5.dp.toPx()), 1.dp.toPx()) }
+            drawLine(Control,Offset(0f,center),Offset(w,center),1.dp.toPx())
+            p.markers.forEach { m -> drawRect(Color(m.color).copy(alpha = .16f), Offset(w * m.start / total, 2f), Size((w * (m.end - m.start) / total).coerceAtLeast(2f), h-4f)) }
+            val x = (w * display / total).coerceIn(0f,w)
             if(peaks.isNotEmpty()) {
-                val path=Path(); val width=w*p.frames/total
-                path.moveTo(0f,h*.5f)
-                peaks.forEachIndexed { i,v -> path.lineTo(width*i/peaks.size,h*(.5f-v.coerceIn(0f,1f)*.45f)); path.lineTo(width*(i+1)/peaks.size,h*(.5f-v.coerceIn(0f,1f)*.45f)) }
-                for(i in peaks.indices.reversed()) { val y=h*(.5f+peaks[i].coerceIn(0f,1f)*.45f);path.lineTo(width*(i+1)/peaks.size,y);path.lineTo(width*i/peaks.size,y) }
-                path.close();drawPath(path,Muted)
+                val width=w*p.frames/total
+                val bars=(width/3.5.dp.toPx()).toInt().coerceIn(1,peaks.size)
+                val step=width/bars
+                repeat(bars) { i ->
+                    val first=i*peaks.size/bars;val end=((i+1)*peaks.size/bars).coerceAtLeast(first+1)
+                    var energy=0.0
+                    for(j in first until end) { val v=peaks[j].takeIf { it.isFinite() } ?: 0f;energy+=v.toDouble()*v }
+                    val amplitude=(sqrt(energy/(end-first)).toFloat()/maximum).coerceIn(0f,1f).pow(1.35f)
+                    val halfHeight=(amplitude*h*.40f).coerceAtLeast(.5.dp.toPx())
+                    val barX=step*(i+.5f)
+                    drawLine(if(barX<=x)Mint.copy(alpha=.85f) else Color(0xFF7895AB),Offset(barX,center-halfHeight),Offset(barX,center+halfHeight),minOf(2.dp.toPx(),step*.62f),StrokeCap.Round)
+                }
             }
-            p.markers.forEach { m -> drawRect(Color(m.color).copy(alpha = .28f), Offset(w * m.start / total, 2f), Size((w * (m.end - m.start) / total).coerceAtLeast(2f), h * .9f)) }
-            val x = w * display / total
-            drawLine(Accent.copy(alpha = .4f), Offset(0f, h * .7f), Offset(x, h * .7f), 3.dp.toPx())
+            drawLine(Control,Offset(0f,h-2.dp.toPx()),Offset(w,h-2.dp.toPx()),2.dp.toPx())
+            drawLine(Mint.copy(alpha=.55f),Offset(0f,h-2.dp.toPx()),Offset(x,h-2.dp.toPx()),2.dp.toPx())
             drawLine(Accent, Offset(x, 0f), Offset(x, h), 2.dp.toPx())
-            drawCircle(Accent, 4.dp.toPx(), Offset(x, h * .7f))
+            drawCircle(Accent, 3.dp.toPx(), Offset(x, h-2.dp.toPx()))
         }
     }
 }

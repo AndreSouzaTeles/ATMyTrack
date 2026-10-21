@@ -1,8 +1,12 @@
 # ATMyTrack
 
-**[APK ATMyTrack original 0.21.2](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.21.2/ATMyTrack-0.21.2-debug.apk)**
+**[APK ATMyTrack original 0.22.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.22.0/ATMyTrack-debug.apk)**
 
 Player multitrack para Android 8.0+ (API 26), em Kotlin/Compose.
+
+## Android 0.22.0 — timeline e transporte para tablets
+
+Em tablets (menor dimensão a partir de 600 dp), os controles ficam compactos à esquerda e a timeline à direita. Celulares mantêm a timeline abaixo dos controles. Forma de onda em barras separadas, com energia RMS real em 2.048 intervalos, destaque do trecho reproduzido e cursor de posição. O novo cache visual é recalculado para projetos existentes sem reimportação; áudio e projetos preservados. [Validação](verification/REPORT-0.22.0.md).
 
 ## Android 0.21.2 — assinatura visual do menu
 
