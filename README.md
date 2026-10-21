@@ -1,8 +1,12 @@
 # ATMyTrack
 
-**[APK ATMyTrack original 0.22.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.22.0/ATMyTrack-debug.apk)**
+**[APK ATMyTrack original 0.22.1](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.22.1/ATMyTrack-debug.apk)**
 
 Player multitrack para Android 8.0+ (API 26), em Kotlin/Compose.
+
+## Android 0.22.1 — ferramentas diretamente na barra do tablet
+
+Tom, Velocidade, PAD, Loop, Seção, Metrônomo, DCA, BUS, Routing, Atualizar saída e CrossMusic aparecem lado a lado no cabeçalho dos tablets, antes do botão de importar projeto. Rolagem horizontal mantém acesso a todas as ferramentas em tablets mais estreitos; “+” e pesquisa permanecem fixos. Celulares mantêm o menu de ferramentas. [Validação](verification/REPORT-0.22.1.md).
 
 ## Android 0.22.0 — timeline e transporte para tablets
 

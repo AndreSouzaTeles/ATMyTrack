@@ -45,6 +45,24 @@ class Timeline22UiTest {
         val tablet=context.resources.configuration.smallestScreenWidthDp>=600
         if(tablet) { assertTrue(playBounds.right<timelineBounds.left);assertTrue(playBounds.width<timelineBounds.width) }
         else assertTrue(timelineBounds.top>=playBounds.bottom)
+        if(tablet) {
+            compose.onNodeWithContentDescription("Ferramentas").assertDoesNotExist()
+            for(label in listOf("TOM","VELOCIDADE","PAD","LOOP","+ SEÇÃO","METRÔNOMO","DCA","BUS","ROUTING","ATUALIZAR SAÍDA","CROSSMUSIC")) {
+                val tool=compose.onNodeWithContentDescription(label).performScrollTo().assertIsDisplayed()
+                val add=compose.onNodeWithContentDescription("Importar projeto").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+                val bounds=tool.fetchSemanticsNode().boundsInRoot
+                assertEquals(add.center.y,bounds.center.y,1f)
+                assertTrue(bounds.right<=add.left+1f)
+            }
+        } else {
+            compose.onNodeWithContentDescription("Ferramentas").assertIsDisplayed()
+            compose.onNodeWithContentDescription("TOM").assertDoesNotExist()
+        }
+        compose.openTool("TOM");compose.onNodeWithText("Tom / Key").assertIsDisplayed()
+        compose.onNodeWithText("FECHAR").performClick()
+        compose.openTool("VELOCIDADE");compose.onNodeWithText("VELOCIDADE").assertIsDisplayed()
+        compose.onNodeWithText("FECHAR").performClick()
+        if(tablet)compose.onNodeWithContentDescription("TOM").performScrollTo()
         val waveform=vm.library.value.waveform
         assertTrue(waveform.take(80).maxOrNull()!!<.01f)
         assertTrue(waveform.maxOrNull()!!-waveform.minOrNull()!!>.1f)
@@ -59,6 +77,6 @@ class Timeline22UiTest {
         val label=InstrumentationRegistry.getArguments().getString("label") ?: "device"
         compose.waitForIdle()
         val bitmap=InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
-        File(context.getExternalFilesDir(null),"timeline-0.22.0-$label.png").outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG,100,it) };bitmap.recycle()
+        File(context.getExternalFilesDir(null),"timeline-0.22.1-$label.png").outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG,100,it) };bitmap.recycle()
     }
 }
