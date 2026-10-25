@@ -43,3 +43,7 @@ Vincular à percussão / Vincular ao metrônomo são o mesmo ajuste, ativo por p
 ## TAP da percussão — 0.25.1
 
 TAP BPM define o tempo a partir de dois ou mais toques. Com Sincronizar com metrônomo/percussão ativo, o BPM propaga em ambos os sentidos, incluindo os toques. O metrônomo fica imediatamente à esquerda da percussão, na barra e no menu móvel. Sem sincronização e acompanhando música, desative Acompanhar música antes de definir um BPM separado.
+
+## BPM vinculado com projeto — 0.25.2
+
+A entrega corrige a integração Android entre o estado do ritmo e o projeto exibido no editor. O site mantém o BPM único nos dois campos, com regressão adicional usando um projeto carregado, edição da percussão, TAP e edição inversa do metrônomo.

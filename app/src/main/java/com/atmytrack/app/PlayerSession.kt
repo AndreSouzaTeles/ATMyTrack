@@ -52,6 +52,12 @@ class PlayerSession(private val app:Application) {
     private var waveJob:Job?=null
     private var workJob:Job?=null
     init {
+        rhythm.onLinkedProjectChange={ next ->
+            if(library.value.current?.id==next.id)update { current ->
+                current.copy(bpm=next.bpm,beats=next.beats,denominator=next.denominator,
+                    click=next.click,clickFollow=next.clickFollow)
+            }
+        }
         viewModelScope.launch { library.map { it.current }.distinctUntilChanged().collect(rhythm::syncProject) }
         viewModelScope.launch {
             rhythm.state.map { it.independentWanted }.distinctUntilChanged().collect { active ->
