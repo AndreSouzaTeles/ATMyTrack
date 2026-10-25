@@ -1,16 +1,8 @@
-// Peak envelope scans every sample and both channels; zero bins remain silent.
-export function peakEnvelope(channels,bins=512) {
- const length=channels[0]?.length||0,peaks=new Array(bins).fill(0);
- for(const samples of channels)for(let i=0;i<samples.length;i++){const v=Math.abs(samples[i]);if(Number.isFinite(v)){const bin=Math.min(bins-1,Math.floor(i*bins/length));if(v>peaks[bin])peaks[bin]=Math.min(1,v);}}
- return peaks;
-}
-export function projectEnvelope(tracks,bins=512) {
- const duration=Math.max(0,...tracks.map(t=>t.duration)),out=new Array(bins).fill(0);
- for(const t of tracks){const peaks=t.peaks||[];for(let i=0;i<peaks.length;i++){const from=Math.floor(i/peaks.length*t.duration/duration*bins),to=Math.ceil((i+1)/peaks.length*t.duration/duration*bins);for(let j=from;j<Math.min(bins,to);j++)out[j]=Math.max(out[j],peaks[i]);}}
- return out;
-}
-export function drawEnvelope(ctx,peaks,width,height) {
- ctx.fillStyle='#8198bb';ctx.beginPath();ctx.moveTo(0,height/2);
- peaks.forEach((v,i)=>{ctx.lineTo(i/peaks.length*width,height*(.5-v*.43));ctx.lineTo((i+1)/peaks.length*width,height*(.5-v*.43));});
- for(let i=peaks.length-1;i>=0;i--){ctx.lineTo((i+1)/peaks.length*width,height*(.5+peaks[i]*.43));ctx.lineTo(i/peaks.length*width,height*(.5+peaks[i]*.43));}ctx.closePath();ctx.fill();
+export function peakEnvelope(channels,bins=2048){const length=channels[0]?.length||0,energy=new Float64Array(bins),count=new Uint32Array(bins);for(let i=0;i<length;i++){let v=0;for(const data of channels)if(Number.isFinite(data[i]))v=Math.max(v,Math.abs(data[i]));const bin=Math.min(bins-1,Math.floor(i*bins/length));energy[bin]+=Math.min(1,v)**2;count[bin]++;}return Array.from(energy,(v,i)=>count[i]?Math.sqrt(v/count[i]):0);}
+export function projectEnvelope(tracks,bins=2048){const duration=Math.max(0,...tracks.map(t=>t.duration)),out=new Array(bins).fill(0);if(!duration)return out;for(let j=0;j<bins;j++){let energy=0;const time=(j+.5)*duration/bins;for(const t of tracks){if(time>=t.duration)continue;const peaks=t.peaks||[],v=peaks[Math.min(peaks.length-1,Math.floor(time/t.duration*peaks.length))]||0;energy+=v*v;}out[j]=Math.sqrt(energy/Math.max(1,tracks.length));}return out;}
+export function drawEnvelope(ctx,peaks,width,height,progress=-1){
+ const maximum=Math.max(.001,...peaks),bars=Math.min(peaks.length,Math.max(1,Math.floor(width/3.5))),step=width/bars,center=height*.47;
+ ctx.strokeStyle='#272d34';ctx.lineWidth=1;for(let i=0;i<=8;i++){ctx.beginPath();ctx.moveTo(width*i/8,3);ctx.lineTo(width*i/8,height-5);ctx.stroke();}
+ ctx.lineCap='round';for(let i=0;i<bars;i++){const first=Math.floor(i*peaks.length/bars),end=Math.max(first+1,Math.floor((i+1)*peaks.length/bars));let energy=0;for(let j=first;j<end;j++)energy+=(peaks[j]||0)**2;const amplitude=(Math.sqrt(energy/(end-first))/maximum)**1.35,h=Math.max(.5,amplitude*height*.4),x=step*(i+.5);ctx.strokeStyle=i/bars<=progress?'#88b9a0':'#7895ab';ctx.lineWidth=Math.min(2,step*.62);ctx.beginPath();ctx.moveTo(x,center-h);ctx.lineTo(x,center+h);ctx.stroke();}
+ ctx.lineCap='butt';ctx.strokeStyle='#424b55';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,height-2);ctx.lineTo(width,height-2);ctx.stroke();if(progress>=0){ctx.strokeStyle='#88b9a0';ctx.beginPath();ctx.moveTo(0,height-2);ctx.lineTo(width*Math.min(1,progress),height-2);ctx.stroke();}
 }

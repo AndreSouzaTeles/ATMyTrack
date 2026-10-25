@@ -1,70 +1,33 @@
-# ATMyTrack Web 0.14.4
+# ATMyTrack Web 0.24.0
 
-Player local no navegador, sem conta e sem upload de áudios. Projetos/arquivos ficam no IndexedDB da origem. Exportação/importação `.atmytrack` transfere projetos entre navegadores. Não compartilha o formato interno Android.
+Player multitrack local no navegador. Site público: https://atmytrack-web.andmtu.chatgpt.site . Áudios e projetos ficam no navegador, sem upload de músicas ou conta.
 
-## Atualização 0.14.4
+## Paridade com o aplicativo
 
-“Globo exemplo”, sem formulário de nome. Chave/cópia Pix antes de enviar comprovante; WhatsApp com mensagem genérica, mantendo os nomes do globo.
+- Transporte, timeline e mixer na mesma tela. Tablet: timeline ao lado do transporte compacto e ferramentas na barra superior. Celular: ferramentas em menu e timeline abaixo do transporte.
+- Identidade grafite, cores por instrumento, logo circular azul/ciano e marca Outfit ao lado do ícone. Waveform RMS de 2048 pontos, barras separadas e progresso colorido.
+- Faders de −80 a +10 dB com curva de console, ajuste fino, UNITY, silêncio, PAN rotativo/centralização, cadeados, MUTE/SOLO, Master fixo, canais DCA/BUS e medição logarítmica. Migração preserva o silêncio dos projetos antigos.
+- Importação por pasta ou multiarquivo (até 64 faixas), editor após importar, capa, cores manuais, ordem e exclusão de faixas, cartões de projetos reordenáveis e busca sem acentos/por tom maior ou menor.
+- Tom original/destino, estimativa automática por FFT/chroma, seleção de faixas, exclusão inicial de click/percussão do pitch e velocidade independente com preservação de afinação.
+- Seções coloridas, seek por arraste aplicado ao soltar e loop de seção/projeto.
+- Metrônomo com Acompanhar música, modo independente mesmo sem projeto, oito timbres, TAP, Smart Click, BPM, compasso com unidade 4/8, divisão, acento, volume e routing.
+- Percussão ao lado do PAD: dez padrões sintetizados originais, modo acompanhado/independente, BPM, compasso, volume e biblioteca de loops importados. Loops de 0,05–60 s, ajuste de 0,125× a 8× preservando pitch, resultado até 120 s. Informe os compassos contidos no loop.
+- CrossMusic: sequência persistente/reordenável, volume/mute por faixa, PAD por projeto com tom manual ou do projeto e transição de três segundos. Avança no fim natural. Pausar não avança; encerrar a automação mantém a música/PAD atuais.
+- PAD independente com quatro timbres, afinador por microfone, routing estéreo/esquerda/direita e retomada/seleção de saída quando oferecida pelo navegador.
+- Deixe sua marca com Pix, nomes atuais, globo com toque, busca e rotação automática. Central de dúvidas atualizada.
 
-## Atualização 0.14.3
+## Dados e limites da plataforma
 
-Chave Pix `atelestechnology@jim.com` visível e copiável; removidos QR Code, link Nubank e texto indicado sobre inclusão manual. André Teles incluído no globo.
+Projetos antigos e backups web JSON/base64 continuam legíveis; novos backups usam contêiner binário de Blobs. O formato Android permanece separado. Limpar dados do site pode apagar a biblioteca; exporte backups regularmente. Os loops de percussão importados são guardados separadamente na biblioteca deste navegador.
 
-## Atualização 0.14.2
+WAV PCM é lido em fatias; formatos comprimidos dependem dos decoders do navegador. Streaming PCM usa Worker/AudioWorklet, pré-buffer comum e OPFS; pitch/velocidade usam Signalsmith Stretch em Worker com cache em disco. O DSP preserva a afinação, mas mudanças podem exigir preparação.
 
-Cadeados bloqueiam volume e PAN, inclusive Master, preservando MUTE/SOLO e exceções individuais. Proteção tanto no controle visual quanto no callback de edição.
+Não há garantia de USB multicanal, reprodução com tela bloqueada ou em segundo plano. Mantenha a página aberta e a tela ativa; a perda de blocos pausa o transporte para manter sincronismo. Memória, armazenamento, permissões e formatos variam. Chrome Windows foi testado; hardware Android, Safari/iPad e estabilidade em palco não foram certificados nesta entrega. Resultados do computador não estimam tempos no aparelho do usuário.
 
-## Atualização 0.14.1
+## Executar e testar
 
-Perfil DSP adaptativo para reduzir o custo de cada nova tonalidade, mantendo processamento mais preciso nos extremos. Preparação de tons inéditos e retorno ao cache testados separadamente. [Validação](../verification/REPORT-0.14.1.md).
+Sirva dist/ por HTTPS ou localhost: python -m http.server 4173 --bind 127.0.0.1 --directory dist . No Windows, execute Abrir ATMyTrack Web.bat (requer Python).
 
-## Atualização 0.14.0
+Dependências: pnpm install --frozen-lockfile . Execute pnpm test com o servidor ativo. Playwright usa Chrome instalado. Testes cobrem DSP, leitura PCM, waveform RMS, migração, faders/cadeados, routing, PAD, metrônomo independente, percussão/importação, CrossMusic e layouts responsivos.
 
-Woodblock; quatro timbres PAD com picos controlados na sua própria saída; exceções por fader ao cadeado global; rotação do globo retomada após arraste; duas preparações DSP paralelas com cancelamento conjunto. [Validação](../verification/REPORT-0.14.0.md).
-
-## Atualização 0.13.1
-
-PAD com ganho maior e limitador próprio. Timeline permite arraste com prévia visual e aplica a posição ao soltar; movimentos não iniciam seeks repetidos. Backend mantém a posição pendente mais recente. [Validação](../verification/REPORT-0.13.1.md).
-
-## Atualização 0.13.0
-
-Cadeados individuais e global no Master; PAD independente com os 12 tons maiores/menores e volume; cache de versões recentes de tom/velocidade e gravação DSP em blocos maiores. Denner Mendes no globo e comprovantes pelo WhatsApp +55 11 97031-7078. O PAD é sintetizado localmente e para ao ocultar a página. [Medições](../verification/REPORT-0.13.0.md).
-
-## Executar
-
-Sirva `dist/` por HTTPS (ou localhost para desenvolvimento). Exemplo: `python -m http.server 4173 --bind 127.0.0.1 --directory dist`.
-
-## Recursos
-
-- Projetos, capa, busca por nome/tom, importação multiarquivo e backup.
-- Um AudioContext para transporte, gain/pan/mute/solo/master, DCA, BUS e rotas estéreo/esquerda/direita.
-- Signalsmith Stretch WASM em Worker (preparo offline), 50–200%, pitch ±12, seleção independente, bypass de DSP em 100%/0 semitons. Configuração 120 ms/10 ms; início comum agendado 100 ms à frente. Mudanças fazem pequena preparação e retomam posição musical.
-- Markers na timeline original, seek, loop de seção; click sintetizado em AudioWorklet acompanha clock e velocidade global. Smart Click estima o BPM original em Worker.
-- Afinador YIN em Worker, microfone real, cromático/instrumentos, A4 e alvo independente da nota medida. Captura encerrada ao ocultar/sair.
-- Menu com logo, DEIXE SUA MARCA, QR/Pix existente e Central de dúvidas. Nomes demonstrativos identificados como fictícios.
-
-## Limites reais
-
-- Reprodução por blocos: um Worker lê PCM do Blob/armazenamento e envia quatro blocos de um segundo por MessageChannel diretamente a um AudioWorklet. Todas as tracks têm início e cursor comuns. Ganhos/pan/DCA/BUS permanecem no grafo Web Audio. Não existe limite fixo de tamanho agregado de 384 MiB no caminho de arquivos importados. O pré-buffer de 30 tracks estéreo em 48 kHz ocupa cerca de 44 MiB, além dos blocos em produção e estruturas do navegador. Isso não é uma medição da RAM total do navegador.
-- WAV PCM mono/estéreo 8/16/24/32-bit e float32/64, incluindo WAV extensível/RF64: leitura em fatias. Taxas diferentes usam sinc de 32 taps em Worker, com tabela de fases e filtro para reduzir aliasing; a implementação web é independente do resampler Android.
-- Áudio comprimido: decoder nativo por arquivo, descartado após gravar PCM no OPFS. Não retém todos os arquivos decodificados em RAM, mas uma única track comprimida muito longa ainda depende da memória/limites do decoder do navegador. Não foi implementado demux/decodificação incremental universal.
-- TOM/VELOCIDADE: Signalsmith em Worker, saída PCM gravada no OPFS em blocos; uma variante em disco por track, sem buffers gigantes de resultado. 100%/tom original ignora DSP. Espaço de disco necessário depende da duração e velocidade. Excluir projeto também remove caches associados.
-- Falta de blocos é detectada: pausa conjunta em vez de permitir drift entre tracks; há contador diagnóstico de underruns do streaming. Isso não mede todos os dropouts do dispositivo físico.
-- Formatos dependem do decoder do navegador. Saída apenas estéreo; não promete USB multicanal, reprodução em tela bloqueada ou equivalência de desempenho com Android.
-- Projetos de cada navegador/origem são separados; limpar dados pode apagar arquivos. Novos backups usam contêiner binário com Blobs em vez de materializar todo o áudio em base64. Leitura de backups antigos JSON/base64 continua disponível e ainda requer memória proporcional ao arquivo legado.
-- Sem autenticação/sincronização em nuvem, conforme alternativa autorizada para evitar armazenamento remoto com custo. Hospedagem depende da plataforma e de seus limites.
-- UI responsiva testada em Chrome Windows; Safari/iPad e hardware real não certificados.
-- Não houve pagamento real nem envio automático de nomes. Inclusão de apoiadores é manual no asset.
-
-## Testes
-
-`npm ci`, servidor local acima, `npm test`. `node tests/stress.cjs` executa cenários sintéticos curtos, não certifica estabilidade em palco. Tests usam Chrome instalado e Playwright como dependência de desenvolvimento. A exportação adicional SignalsmithWasm expõe a factory original para Worker; o algoritmo não foi modificado. Dependência DSP vendorizada a partir do submódulo Android (Signalsmith 1.3.2), licença MIT em dist/vendor.
-
-
-## Validação 0.10.0
-
-`node tests/stream.cjs`: caminho real Worker/AudioWorklet, DSP +2 com 80/100/120%, seek e loop. `node tests/large-project.cjs`: requer fixtures WAV em verification/fixtures-web-large; importa 30 arquivos reais e verifica reprodução/reabertura. Resultados e duração dos cenários no relatório de entrega; não equivalem a certificação em palco.
-
-## Abrir no Windows
-
-Execute `Abrir ATMyTrack Web.bat` nesta pasta. Ele usa `abrir_web.py` para iniciar o servidor em http://127.0.0.1:4173/ e abrir o navegador. Requer Python instalado; reutiliza o servidor quando já está disponível. O caminho de `dist` é relativo ao script. Logs ficam em `%LOCALAPPDATA%/ATMyTrack/WebShortcut/servidor.log`. Um atalho Windows pode apontar para o BAT e usar o ícone do app.
+Signalsmith Stretch: código vendorizado, licença MIT em dist/vendor/Signalsmith-LICENSE.txt. Fonte Outfit: licença em dist/assets/Outfit-OFL.txt.

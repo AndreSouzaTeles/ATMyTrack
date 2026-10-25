@@ -26,6 +26,6 @@ export async function readAtRate(source,start,count,rate){
  for(let i=0;i<count;i++){const x=(start+i)*ratio-first,base=Math.floor(x),phase=Math.min(1023,Math.floor((x-base)*1024))*32;for(let c=0;c<2;c++){let v=0;for(let k=0;k<32;k++)v+=(data[c][base+k-15]||0)*kernel[phase+k];out[c][i]=v;}}return out;
 }
 export async function scanPeaks(source,progress=()=>{}){
- const peaks=new Array(512).fill(0),f=source.format,block=65536;
- for(let pos=0;pos<f.frames;pos+=block){const data=await readPCM(source,pos,Math.min(block,f.frames-pos));for(let i=0;i<data[0].length;i++){const j=Math.min(511,Math.floor((pos+i)*512/f.frames));peaks[j]=Math.max(peaks[j],Math.min(1,Math.abs(data[0][i])),Math.min(1,Math.abs(data[1][i])));}progress((pos+data[0].length)/f.frames);}return peaks;
+ const bins=2048,energy=new Float64Array(bins),counts=new Uint32Array(bins),f=source.format,block=65536;
+ for(let pos=0;pos<f.frames;pos+=block){const data=await readPCM(source,pos,Math.min(block,f.frames-pos));for(let i=0;i<data[0].length;i++){const j=Math.min(bins-1,Math.floor((pos+i)*bins/f.frames)),v=Math.max(Math.abs(data[0][i]),Math.abs(data[1][i]));if(Number.isFinite(v)){energy[j]+=Math.min(1,v)**2;counts[j]++;}}progress((pos+data[0].length)/f.frames);}return Array.from(energy,(v,i)=>counts[i]?Math.sqrt(v/counts[i]):0);
 }

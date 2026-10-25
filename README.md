@@ -1,8 +1,16 @@
 # ATMyTrack
 
-**[APK ATMyTrack original 0.23.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.23.0/ATMyTrack-debug.apk)**
+**[APK ATMyTrack original 0.24.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.24.0/ATMyTrack-debug.apk)**
 
 Player multitrack para Android 8.0+ (API 26), em Kotlin/Compose.
+
+## Versão 0.24.0 — recursos do app no site
+
+O [site ATMyTrack](https://atmytrack-web.andmtu.chatgpt.site) recebeu a tela unificada com mixer/timeline, layout de tablet e celular, marca Outfit, waveform RMS, PAN rotativo, cores manuais, faders de console, cartões reordenáveis, importação por pasta e edição após importar. Inclui CrossMusic com PAD por projeto, metrônomo independente, percussão com dez batidas e loops importados, estimativa de tom, busca maior/menor, DCA/BUS e ferramentas na barra superior.
+
+Projetos e backups web anteriores continuam legíveis. Dados Android e web permanecem separados; USB multicanal e execução em segundo plano dependem do navegador. [Recursos e limites web](web/README.md). [Validação da entrega](verification/REPORT-0.24.0.md).
+
+O APK desta entrega mantém os recursos Android anteriores e incrementa a versão para 0.24.0 (40), com pacote e assinatura originais. Arquivo local: `dist/ATMyTrack-debug.apk`.
 
 ## Android 0.23.0 — metrônomo independente e percussão
 

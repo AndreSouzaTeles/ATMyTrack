@@ -1,0 +1,4 @@
+class RhythmProcessor extends AudioWorkletProcessor{
+ constructor(options){super();this.c=options.processorOptions;this.active=true;this.volume=this.c.volume;this.port.onmessage=({data})=>{if(data==='stop')this.active=false;else if(Number.isFinite(data.volume))this.c.volume=data.volume;};}
+ process(inputs,outputs){if(!this.active)return false;const c=this.c,o=outputs[0],length=c.channels[0].length;for(let i=0;i<o[0].length;i++){const now=(currentFrame+i)/sampleRate;if(now<c.when)continue;let time=c.position+now-c.when;if(c.loop&&time>=c.loop[1])time=c.loop[0]+(time-c.loop[0])%(c.loop[1]-c.loop[0]);const index=Math.max(0,Math.floor(time*sampleRate))%length;this.volume+=(c.volume-this.volume)*.005;for(let ch=0;ch<o.length;ch++)o[ch][i]=Math.max(-.98,Math.min(.98,c.channels[ch%c.channels.length][index]*this.volume));}return true;}
+}registerProcessor('atmytrack-rhythm',RhythmProcessor);

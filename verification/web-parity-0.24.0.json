@@ -1,0 +1,40 @@
+{
+  "status": "passed",
+  "errors": [],
+  "imported": {
+    "length": 144000,
+    "rate": 48000,
+    "frequency": 220.00043730481715,
+    "settings": {
+      "source": "6638ca6d-6dd3-4f3b-a8ed-65d07aa40382",
+      "bpm": 80,
+      "meter": 4,
+      "denominator": 4,
+      "bars": 1,
+      "volume": 0.4,
+      "follow": false
+    },
+    "key": "[\"6638ca6d-6dd3-4f3b-a8ed-65d07aa40382\",80,4,4,1,48000]",
+    "enabled": true,
+    "revision": 6
+  },
+  "checks": [
+    "no-project metronome",
+    "unified transport",
+    "tablet toolbar",
+    "track colors",
+    "console gain",
+    "locks",
+    "percussion 10",
+    "independent percussion",
+    "imported pitch-preserved loop",
+    "key search",
+    "DCA channels",
+    "natural CrossMusic",
+    "pause does not advance",
+    "project order",
+    "mobile toolbar",
+    "menu brand",
+    "support globe"
+  ]
+}
