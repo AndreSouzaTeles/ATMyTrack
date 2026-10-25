@@ -1,5 +1,7 @@
 # Dependências e licenças
 
+As 10 batidas de percussão da 0.23.0 são sintetizadas por código original (`PercussionSynth`), sem amostras de terceiros. O ajuste de tempo dos loops importados usa o Signalsmith Stretch já incluído no projeto, com a licença MIT existente.
+
 Fonte do nome no menu: Outfit (Google Fonts), incluída localmente em `res/font/outfit.ttf`, SIL Open Font License 1.1. Fonte: https://github.com/google/fonts/tree/main/ofl/outfit. Licença distribuída no APK em `assets/Outfit-OFL.txt`.
 
 Versões fixadas, verificadas em 06/10/2026. Bibliotecas AndroidX/Kotlin são projetos mantidos por Google/JetBrains. As versões escolhidas formam a base compilada desta entrega; não são uma alegação de serem as versões mais recentes.

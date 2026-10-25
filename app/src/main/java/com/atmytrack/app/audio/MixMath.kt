@@ -32,7 +32,7 @@ object MixMath {
         for (i in 0 until frames) {
             val gain=fromGain+(target-fromGain)*(i+1f)/frames
             val pan=(fromPan+(p.masterPan-fromPan)*(i+1f)/frames).coerceIn(-1f,1f)
-            val click = if (p.click) click(start + i, p.sampleRate, p.bpm, p.multiplier, p.beats,p.clickSound,p.accent,p.beatOffset) * p.clickVolume else 0f
+            val click = if (p.click && p.clickFollow) click(start + i, p.sampleRate, p.bpm, p.multiplier, p.beats,p.clickSound,p.accent,p.beatOffset) * p.clickVolume else 0f
             val a = (output[2*i] + if(p.clickRoute=="RIGHT")0f else click) * gain*(1f-max(0f,pan)); val b = (output[2*i+1] + if(p.clickRoute=="LEFT")0f else click) * gain*(1f+min(0f,pan))
             l = max(l, abs(a)); r = max(r, abs(b))
             output[2*i] = if(clamp)a.coerceIn(-1f, 1f) else a; output[2*i+1] = if(clamp)b.coerceIn(-1f, 1f) else b

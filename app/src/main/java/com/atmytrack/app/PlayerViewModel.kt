@@ -10,6 +10,7 @@ class PlayerViewModel(app:Application):AndroidViewModel(app) {
     val library=session.library
     val playback=session.playback
     val pad=session.pad
+    val rhythm=session.rhythm
     val crossMusic=session.crossMusic
     val crossPlan=session.crossPlan
     fun message(value:String?)=session.message(value)

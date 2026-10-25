@@ -24,7 +24,7 @@ class ProjectStore(private val root: File) {
     private fun encode(p: Project): JSONObject = JSONObject().apply {
         put("unlockedFaders",JSONArray(p.unlockedFaders));put("masterFaderLock",p.masterFaderLock);put("lockedFaders",JSONArray(p.lockedFaders));put("keyAnalyzed",p.keyAnalyzed);put("speed",p.speed); put("speedTracks",p.speedTracks?.let { JSONArray(it) }); put("speedPreset",p.speedPreset); put("selectedMarker",p.selectedMarker); put("smartClick",p.smartClick); put("id", p.id); put("name", p.name); put("rate", p.sampleRate); put("bpm", p.bpm)
         put("beats", p.beats); put("denominator", p.denominator); put("multiplier", p.multiplier)
-        put("click", p.click); put("clickVolume", p.clickVolume); put("master", p.master)
+        put("click", p.click); put("clickVolume", p.clickVolume); put("clickFollow",p.clickFollow); put("master", p.master)
         put("masterPan",p.masterPan);put("masterMute", p.masterMute); put("loop", p.loop); put("key", p.key); put("artwork", p.artwork)
         put("semitones",p.semitones); put("targetKey",p.targetKey); put("pitchTracks",JSONArray(p.pitchTracks))
         put("clickSound",p.clickSound); put("accent",p.accent); put("clickRoute",p.clickRoute)
@@ -47,7 +47,7 @@ class ProjectStore(private val root: File) {
             PcmFormat(s.optInt("channels", 2), PcmEncoding.valueOf(s.optString("encoding", "FLOAT32")), s.optLong("dataOffset", 0)),
             s.optBoolean("external"),s.optBoolean("compressed"),s.optString("fingerprint"),s.optString("bus"),s.optString("route","BOTH"),s.optString("pitchFile"),s.optInt("pitchApplied"),s.optInt("sourceRate"),s.optLong("sourceFrames"),s.optInt("dspSpeed",100).coerceIn(50,200),if(s.isNull("color"))null else (s.optLong("color") and 0xFFFFFF) or 0xFF000000) },
         bpm = j.getDouble("bpm"), beats = j.getInt("beats"), denominator = j.optInt("denominator", 4),
-        multiplier = j.getDouble("multiplier"), click = j.getBoolean("click"), clickVolume = j.getDouble("clickVolume").toFloat(),
+        multiplier = j.getDouble("multiplier"), click = j.getBoolean("click"), clickVolume = j.getDouble("clickVolume").toFloat(), clickFollow=j.optBoolean("clickFollow",true),
         master = j.getDouble("master").toFloat(), masterPan=j.optDouble("masterPan",0.0).toFloat().coerceIn(-1f,1f), masterMute = j.getBoolean("masterMute"), loop = j.getBoolean("loop"),
         key = j.getString("key"), artwork = j.getString("artwork"),
         markers = j.getJSONArray("markers").objects().map { m -> Marker(m.getString("id"), m.getString("name"), m.getLong("start"), m.getLong("end"), (m.optLong("color",0xFFB79A61) and 0xFFFFFF) or 0xFF000000) },

@@ -1,8 +1,18 @@
 # ATMyTrack
 
-**[APK ATMyTrack original 0.22.1](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.22.1/ATMyTrack-debug.apk)**
+**[APK ATMyTrack original 0.23.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.23.0/ATMyTrack-debug.apk)**
 
 Player multitrack para Android 8.0+ (API 26), em Kotlin/Compose.
+
+## Android 0.23.0 — metrônomo independente e percussão
+
+O metrônomo oferece **Acompanhar música**, ativado por padrão nos projetos anteriores. Desative para tocar o click com a música pausada ou parada. Também pode ser aberto sem projeto.
+
+**Percussão**, ao lado do PAD, oferece 10 batidas originais: Pop/Rock, Rock 16, Balada, Disco, Funk, Samba, Bossa nova, Reggae, Shuffle e Afro/6-8. Ajuste BPM (30–300), compasso e volume, ou ative **Acompanhar música** para seguir o BPM, compasso e transporte do projeto. No modo independente, parar a música não desliga o ritmo; use o botão da própria ferramenta. Na notificação, Pausar/Parar interrompe todos os sons de ritmo.
+
+**Importar áudio** guarda loops de 0,05 a 60 segundos na biblioteca de percussão. Informe quantos compassos o áudio contém (1, 2, 4, 8, 16, 32 ou 64); o preparo ajusta a duração ao BPM sem mudar a afinação. Ajustes de 0,125× a 8× e duração final de até 120 segundos; combinações fora desses limites mostram uma mensagem para ajustar BPM/compassos. Áudios suportados dependem dos decoders do Android. Arquivos importados são copiados para armazenamento próprio, sem criar ou alterar projetos.
+
+[Validação, ambiente e limites](verification/REPORT-0.23.0.md).
 
 ## Android 0.22.1 — ferramentas diretamente na barra do tablet
 

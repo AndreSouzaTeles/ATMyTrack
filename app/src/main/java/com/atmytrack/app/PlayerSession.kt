@@ -37,6 +37,7 @@ class PlayerSession(private val app:Application) {
     private var crossPadOwned=false
     private val engine = (app as TrackApplication).engine
     val pad = (app as TrackApplication).pad
+    val rhythm = (app as TrackApplication).rhythm
     val playback = engine.state
     private val store = ProjectStore(app.filesDir)
     private val prefs = app.getSharedPreferences("settings", 0)
@@ -51,6 +52,12 @@ class PlayerSession(private val app:Application) {
     private var waveJob:Job?=null
     private var workJob:Job?=null
     init {
+        viewModelScope.launch { library.map { it.current }.distinctUntilChanged().collect(rhythm::syncProject) }
+        viewModelScope.launch {
+            rhythm.state.map { it.independentWanted }.distinctUntilChanged().collect { active ->
+                if(active)app.startForegroundService(Intent(app,PlaybackService::class.java).setAction("rhythm"))
+            }
+        }
         viewModelScope.launch {
             try {
                 val projects = withContext(Dispatchers.IO) {
@@ -354,13 +361,13 @@ class PlayerSession(private val app:Application) {
         app.startForegroundService(Intent(app, PlaybackService::class.java).setAction("play"))
     }
     fun pause() { autoPlayRequested=false;engine.pause() }
-    fun pauseForInterruption(reason:String) { autoPlayRequested=false;engine.pause(reason);pad.stop() }
+    fun pauseForInterruption(reason:String) { autoPlayRequested=false;engine.pause(reason);pad.stop();rhythm.stopAll() }
     fun refreshOutput() { library.value.current?.let { engine.pause(); engine.load(it,true) } }
     fun stop() {
         autoPlayRequested=false
         engine.stop()
         val app = getApplication<Application>()
-        app.stopService(Intent(app, PlaybackService::class.java))
+        if(!rhythm.state.value.independentWanted)app.stopService(Intent(app, PlaybackService::class.java))
     }
     fun seek(frame: Long) = engine.seek(frame)
     fun tap() { tapTempo.tap(SystemClock.elapsedRealtime())?.let { bpm -> update { it.copy(bpm = bpm) } } }

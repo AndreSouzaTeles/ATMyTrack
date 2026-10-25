@@ -77,6 +77,8 @@ fun PlayerScreen(vm: PlayerViewModel) {
     val cross by vm.crossMusic.collectAsState()
     var pitch by remember { mutableStateOf(false) }
     var padOpen by remember { mutableStateOf(false) }
+    var percussionOpen by remember { mutableStateOf(false) }
+    val rhythm by vm.rhythm.state.collectAsState()
     val padState by vm.pad.state.collectAsState()
     var speed by remember { mutableStateOf(false) }
     var tuner by remember { mutableStateOf(false) }
@@ -141,6 +143,8 @@ fun PlayerScreen(vm: PlayerViewModel) {
                                 add(ToolAction("VELOCIDADE",p.speed!=100){speed=true})
                             }
                             add(ToolAction("PAD",padState.playing){padOpen=true})
+                            add(ToolAction("PERCUSSÃO",rhythm.percussion.enabled){percussionOpen=true})
+                            if(p==null)add(ToolAction("METRÔNOMO",rhythm.metronomeArmed){metronome=true})
                             if(p!=null) {
                                 add(ToolAction("LOOP",p.loop){vm.update { it.copy(loop=!it.loop) }})
                                 add(ToolAction("+ SEÇÃO"){markers=true})
@@ -313,8 +317,9 @@ fun PlayerScreen(vm: PlayerViewModel) {
         }, confirmButton = {}, dismissButton = { TextButton(onClick = { importDialog = false }) { Text("FECHAR") } })
         if (p != null && edit) ProjectEditor(p, vm, { edit = false }, { art.launch(arrayOf("image/*")) }, { edit = false; delete = p })
         if (p != null && markers) MarkerEditor(p, playback.frame, vm, { markers = false })
-        if (p != null && metronome) MetronomeEditor(p, vm) { metronome = false }
+        if (metronome) MetronomeEditor(p, vm) { metronome = false }
         if(padOpen) PadDialog(vm.pad) { padOpen=false }
+        if(percussionOpen) PercussionDialog(vm,p) { percussionOpen=false }
         if(p!=null && speed) SpeedDialog(p,vm,library.background!=null) { speed=false }
         if (p != null && pitch) PitchDialog(p, vm, library.background != null) { pitch = false }
         if (p != null && group != null) GroupDialog(p, group!!, playback.outputChannels, vm) { group = null }
@@ -327,7 +332,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
         }
         val error = library.message ?: playback.error
         if (error != null) AlertDialog(onDismissRequest = vm::dismissError, title = { Text("ATMyTrack") }, text = { Text(error) }, confirmButton = { TextButton(onClick = vm::dismissError) { Text("ENTENDI") } })
-        if (help) AlertDialog(onDismissRequest = { help = false }, title = { Text("ATMyTrack • 0.22.1") }, text = {
+        if (help) AlertDialog(onDismissRequest = { help = false }, title = { Text("ATMyTrack • 0.23.0") }, text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("1. Importe uma pasta ou selecione as stems.\n2. Ajuste volume, pan, mute e solo.\n3. Defina BPM e compasso; o CLICK acompanha a timeline.\n4. Crie seções para saltar aos trechos da música.")
                 Text("A importação depende dos decoders disponíveis no Android. WAV, MP3, AAC/M4A, FLAC e OGG/Opus são tentados; arquivos incompatíveis geram erro.", color = Muted)
@@ -542,47 +547,61 @@ private fun ProjectEditor(p:Project,vm:PlayerViewModel,close:()->Unit,artwork:()
 }
 
 @Composable
-private fun MetronomeEditor(p: Project, vm: PlayerViewModel, close: () -> Unit) {
+private fun MetronomeEditor(project: Project?, vm: PlayerViewModel, close: () -> Unit) {
+    val rhythm by vm.rhythm.state.collectAsState()
+    val p=project ?: rhythm.metronome
+    fun change(transform:(Project)->Project) { if(project==null)vm.rhythm.configureMetronome(transform) else vm.update(transform) }
+    val tap=remember { TapTempo() }
+    val active=p.click && (p.clickFollow || rhythm.metronomeArmed)
     var bpm by remember(p.bpm) { mutableStateOf("%.1f".format(java.util.Locale.US, p.bpm)) }
     val library by vm.library.collectAsState()
     val valid = bpm.replace(',', '.').toDoubleOrNull()?.let { it in 30.0..300.0 } == true
     AlertDialog(onDismissRequest = close, title = { Text("Metrônomo") }, text = {
         Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(verticalAlignment=Alignment.CenterVertically) {
-                SmallButton("TAP",onClick=vm::tap)
+                Checkbox(p.clickFollow && project!=null,{ follow -> vm.rhythm.armMetronome(active);change { it.copy(clickFollow=follow) } },enabled=project!=null,
+                    modifier=Modifier.semantics { contentDescription="Acompanhar música do metrônomo" })
+                Text("Acompanhar música")
+            }
+            Text(if(p.clickFollow && project!=null)"O click segue o transporte da música." else "O click toca com a música pausada ou parada, sem iniciar o multitrack.",fontSize=12.sp,color=Muted)
+            Row(verticalAlignment=Alignment.CenterVertically) {
+                SmallButton("TAP",onClick={ if(project!=null)vm.tap() else tap.tap(android.os.SystemClock.elapsedRealtime())?.let { value -> change { it.copy(bpm=value) } } })
+                if(project!=null) {
                 Checkbox(p.smartClick,{vm.smartClick(it)},enabled=library.background==null || p.smartClick,modifier=Modifier.semantics { contentDescription="Smart Click" })
                 Text("Smart Click",fontSize=12.sp)
+                }
             }
             OutlinedTextField(bpm, { bpm = it }, label = { Text("BPM • 30 a 300") }, singleLine = true, isError = !valid)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 SmallButton("−", onClick = { bpm = ((bpm.toDoubleOrNull() ?: p.bpm) - 1).coerceAtLeast(30.0).toString() })
                 SmallButton("+", onClick = { bpm = ((bpm.toDoubleOrNull() ?: p.bpm) + 1).coerceAtMost(300.0).toString() })
             }
-            Text("Original: %.1f BPM · Atual: %.1f BPM".format(p.bpm,p.effectiveBpm),color=SecondaryText)
+            Text(if(p.clickFollow)"Original: %.1f BPM · Atual: %.1f BPM".format(p.bpm,p.effectiveBpm) else "Independente: %.1f BPM".format(p.bpm),color=SecondaryText)
             Text("Compasso", color = Muted)
-            Choice("Click sound", p.clickSound, listOf("Classic","Digital","Wood","Woodblock","Cowbell","Soft","High Tick","Low Tick").map { it to it }) { v -> vm.update { it.copy(clickSound = v) } }
+            Choice("Click sound", p.clickSound, listOf("Classic","Digital","Wood","Woodblock","Cowbell","Soft","High Tick","Low Tick").map { it to it }) { v -> change { it.copy(clickSound = v) } }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Switch(p.accent, { v -> vm.update { it.copy(accent = v) } }); Text("Acentuar primeira batida", fontSize = 12.sp)
+                Switch(p.accent, { v -> change { it.copy(accent = v) } }); Text("Acentuar primeira batida", fontSize = 12.sp)
             }
-            Choice("Saída do click", p.clickRoute, listOf("BOTH","LEFT","RIGHT").map { it to it }) { v -> vm.update { it.copy(clickRoute = v) } }
+            Choice("Saída do click", p.clickRoute, listOf("BOTH","LEFT","RIGHT").map { it to it }) { v -> change { it.copy(clickRoute = v) } }
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 listOf(2 to 4, 3 to 4, 4 to 4, 6 to 8, 7 to 8).forEach { (beats, denominator) ->
-                    SmallButton("$beats/$denominator", p.beats == beats && p.denominator == denominator, { vm.update { it.copy(beats = beats, denominator = denominator) } })
+                    SmallButton("$beats/$denominator", p.beats == beats && p.denominator == denominator, { change { it.copy(beats = beats, denominator = denominator) } })
                 }
             }
             Text("Subdivisão • não altera a velocidade das stems", color = Muted, fontSize = 12.sp)
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                listOf(.5, 1.0, 2.0).forEach { m -> SmallButton("${m}x", p.multiplier == m, { vm.update { it.copy(multiplier = m) } }) }
+                listOf(.5, 1.0, 2.0).forEach { m -> SmallButton("${m}x", p.multiplier == m, { change { it.copy(multiplier = m) } }) }
             }
             Text("Volume do click", color = Muted)
-            Slider(p.clickVolume, { v -> vm.update { it.copy(clickVolume = v) } }, modifier = Modifier.semantics { contentDescription = "Volume do metrônomo" })
+            Slider(p.clickVolume, { v -> change { it.copy(clickVolume = v) } }, modifier = Modifier.semantics { contentDescription = "Volume do metrônomo" })
             if(p.detectedBpm>0)Text("Detectado: %.2f BPM · confiança %d%%".format(p.detectedBpm,(p.confidence*100).roundToInt()),color=SecondaryText,fontSize=12.sp)
             library.background?.let { Text(it,color=SecondaryText,fontSize=12.sp) }
-            Text("Smart Click aplica o BPM detectado quando ativado. Play liga o metrônomo e inicia o transporte quando parado. Pausar desliga apenas o click.",fontSize=12.sp,color=Muted)
+            if(project!=null)Text("Smart Click aplica o BPM detectado quando ativado. Com Acompanhar música ativo, Play também inicia o transporte. Pausar aqui desliga apenas o click.",fontSize=12.sp,color=Muted)
+            rhythm.error?.let { Text(it,color=Red,fontSize=12.sp) }
         }
     }, confirmButton = { Row(horizontalArrangement=Arrangement.spacedBy(10.dp),verticalAlignment=Alignment.CenterVertically) {
-        Button(shape=RoundedCornerShape(10.dp),colors=ButtonDefaults.buttonColors(containerColor=Control,contentColor=Accent),modifier=Modifier.heightIn(min=48.dp).semantics { contentDescription="Reprodução do metrônomo" },onClick={val enable=!p.click;vm.update { it.copy(bpm=bpm.replace(',','.').toDouble(),click=enable) };if(enable && !vm.playback.value.playing)vm.play()},enabled=valid && library.background==null) { Text(if(p.click) "Ⅱ  PAUSAR" else "▶  PLAY",fontWeight=FontWeight.Bold) }
-        TextButton(onClick={if(valid)vm.update { it.copy(bpm=bpm.replace(',','.').toDouble()) };close()}) { Text("FECHAR") }
+        Button(shape=RoundedCornerShape(10.dp),colors=ButtonDefaults.buttonColors(containerColor=Control,contentColor=Accent),modifier=Modifier.heightIn(min=48.dp).semantics { contentDescription="Reprodução do metrônomo" },onClick={val enable=!active;vm.rhythm.armMetronome(enable);change { it.copy(bpm=bpm.replace(',','.').toDouble(),click=enable) };if(enable && p.clickFollow && project!=null && !vm.playback.value.playing)vm.play()},enabled=valid && library.background==null) { Text(if(active) "Ⅱ  PAUSAR" else "▶  PLAY",fontWeight=FontWeight.Bold) }
+        TextButton(onClick={if(valid)change { it.copy(bpm=bpm.replace(',','.').toDouble()) };close()}) { Text("FECHAR") }
     } })
 }
 

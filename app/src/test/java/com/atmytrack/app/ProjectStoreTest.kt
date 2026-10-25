@@ -11,6 +11,18 @@ import java.nio.file.Files
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [28], application = android.app.Application::class)
 class ProjectStoreTest {
+    @Test fun oldProjectsFollowMusicByDefaultAndIndependentModePersists() {
+        val dir=Files.createTempDirectory("click-follow-migration").toFile()
+        try {
+            val p=Project(name="Original",sampleRate=48000,stems=listOf(Stem(name="Guitar",pcm="preserved.wav",frames=96000,volume=.4f)),click=true)
+            ProjectStore(dir).save(listOf(p))
+            val file=java.io.File(dir,"library.json");val json=org.json.JSONObject(file.readText())
+            json.getJSONArray("projects").getJSONObject(0).remove("clickFollow");file.writeText(json.toString())
+            assertEquals(p,ProjectStore(dir).load().single())
+            ProjectStore(dir).save(listOf(p.copy(clickFollow=false)))
+            assertEquals(p.copy(clickFollow=false),ProjectStore(dir).load().single())
+        } finally { dir.deleteRecursively() }
+    }
     @Test fun speedMigrationPreservesOldDataAndEmptySelection() {
         val dir=Files.createTempDirectory("speed-migration").toFile()
         try {

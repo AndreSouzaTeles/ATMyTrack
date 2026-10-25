@@ -107,6 +107,7 @@ internal enum class MainDestination(val title:String,val symbol:String) {
         val stroke=androidx.compose.ui.graphics.drawscope.Stroke(2.dp.toPx())
         fun line(x:Float,y:Float,x2:Float,y2:Float)=drawLine(tint,Offset(size.width*x,size.height*y),Offset(size.width*x2,size.height*y2),2.dp.toPx())
         when(label) {
+            "PERCUSSÃO" -> { drawOval(tint,Offset(size.width*.1f,size.height*.3f),androidx.compose.ui.geometry.Size(size.width*.8f,size.height*.35f),style=stroke);line(.1f,.5f,.1f,.9f);line(.9f,.5f,.9f,.9f);line(.1f,.9f,.9f,.9f);line(.2f,.1f,.65f,.5f);line(.8f,.1f,.4f,.5f) }
             "CROSSMUSIC" -> {
                 drawPath(androidx.compose.ui.graphics.Path().apply { moveTo(size.width*.1f,size.height*.1f);lineTo(size.width*.6f,size.height*.5f);lineTo(size.width*.1f,size.height*.9f);close() },tint,style=stroke)
                 line(.6f,.15f,.9f,.5f);line(.9f,.5f,.6f,.85f)

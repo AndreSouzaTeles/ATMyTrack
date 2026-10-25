@@ -16,7 +16,7 @@ data class Project(
     val id: String = UUID.randomUUID().toString(), val name: String,
     val sampleRate: Int, val stems: List<Stem>, val bpm: Double = 70.0,
     val beats: Int = 4, val denominator: Int = 4, val multiplier: Double = 1.0,
-    val click: Boolean = false, val clickVolume: Float = 0.35f,
+    val click: Boolean = false, val clickVolume: Float = 0.35f, val clickFollow:Boolean = true,
     val master: Float = 1f, val masterMute: Boolean = false,
     val loop: Boolean = false, val key: String = "—", val artwork: String = "",
     val markers: List<Marker> = emptyList(),

@@ -37,7 +37,7 @@ internal fun toolColor(label: String): Color = when(label) {
     "VELOCIDADE", "DCA" -> Amber
     "PAD", "BUS", "CROSSMUSIC" -> Violet
     "LOOP", "BOTH ALL" -> Mint
-    "METRÔNOMO", "CLICK INTERNO" -> Coral
+    "METRÔNOMO", "CLICK INTERNO", "PERCUSSÃO" -> Coral
     "ROUTING", "STEREO SPLIT", "ATUALIZAR SAÍDA" -> Cyan
     else -> Accent
 }

@@ -356,6 +356,7 @@ class AudioEngine(private val context: Context) {
             } else ConsoleMath.route(buffer,output,count,1f,0f,bus.destination)
             busLevels[bus.id]=level
         }
+        (context.applicationContext as com.atmytrack.app.TrackApplication).rhythm.mixFollow(output,count,renderFrame,p)
         val levels = MixMath.finish(output, count, renderFrame, p, clamp=false,fromGain=masterGain,fromPan=masterPan)
         masterGain=if(p.masterMute)0f else p.master;masterPan=p.masterPan
         if(levels.first>1f || levels.second>1f)clippedBlocks++
