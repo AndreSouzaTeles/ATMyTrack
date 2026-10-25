@@ -1,0 +1,128 @@
+{
+  "rows": [
+    {
+      "pattern": "Pop / Rock",
+      "frames": 384000,
+      "peak": 0.7192835211753845,
+      "rms": 0.07111359917485098,
+      "barDifference": 0.04277696285053409
+    },
+    {
+      "pattern": "Rock 16",
+      "frames": 384000,
+      "peak": 0.7498558759689331,
+      "rms": 0.09419224187424877,
+      "barDifference": 0.06756983504376628
+    },
+    {
+      "pattern": "Balada",
+      "frames": 384000,
+      "peak": 0.6456797122955322,
+      "rms": 0.06243816620755119,
+      "barDifference": 0.02780584845618766
+    },
+    {
+      "pattern": "Disco",
+      "frames": 384000,
+      "peak": 0.7650792002677917,
+      "rms": 0.09531597530503429,
+      "barDifference": 0.06800248899764778
+    },
+    {
+      "pattern": "Funk",
+      "frames": 384000,
+      "peak": 0.713651180267334,
+      "rms": 0.09269969770632726,
+      "barDifference": 0.06516220950626878
+    },
+    {
+      "pattern": "Samba",
+      "frames": 384000,
+      "peak": 0.7215966582298279,
+      "rms": 0.11416880526987366,
+      "barDifference": 0.10551693332323277
+    },
+    {
+      "pattern": "Bossa nova",
+      "frames": 384000,
+      "peak": 0.7444097399711609,
+      "rms": 0.09842662038845275,
+      "barDifference": 0.07142473744267612
+    },
+    {
+      "pattern": "Reggae",
+      "frames": 384000,
+      "peak": 0.6606152653694153,
+      "rms": 0.06812831323780322,
+      "barDifference": 0.04029561434367812
+    },
+    {
+      "pattern": "Shuffle",
+      "frames": 384000,
+      "peak": 0.6559107303619385,
+      "rms": 0.0711882116301321,
+      "barDifference": 0.04130852550721135
+    },
+    {
+      "pattern": "Afro / 6-8",
+      "frames": 384000,
+      "peak": 0.6750101447105408,
+      "rms": 0.08861186989263145,
+      "barDifference": 0.07375597139844667
+    }
+  ],
+  "extremes": [
+    {
+      "bpm": 30,
+      "meter": 4,
+      "denominator": 4,
+      "frames": 1536000
+    },
+    {
+      "bpm": 300,
+      "meter": 4,
+      "denominator": 4,
+      "frames": 153600
+    },
+    {
+      "bpm": 120,
+      "meter": 6,
+      "denominator": 8,
+      "frames": 288000
+    },
+    {
+      "bpm": 120,
+      "meter": 7,
+      "denominator": 8,
+      "frames": 336000
+    }
+  ],
+  "roles": [
+    "kick",
+    "hat",
+    "openhat",
+    "crash",
+    "ride",
+    "snare",
+    "ghost",
+    "stick",
+    "tom",
+    "conga",
+    "shaker",
+    "tamb"
+  ],
+  "variants": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+  ]
+}

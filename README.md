@@ -1,8 +1,12 @@
 # ATMyTrack
 
-**[APK ATMyTrack original 0.24.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.24.0/ATMyTrack-debug.apk)**
+**[APK ATMyTrack original 0.24.1](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.24.1/ATMyTrack-debug.apk)**
 
 Player multitrack para Android 8.0+ (API 26), em Kotlin/Compose.
+
+## Versão 0.24.1 — bateria acústica e percussão real
+
+As dez batidas agora usam gravações reais de bumbo, caixa, chimbal, pratos, tom, congas, shaker e pandeiro, com duas variantes por articulação, dinâmica e frases de quatro compassos com viradas. App e site usam a mesma biblioteca CC0, incluída no APK e servida pelo próprio site, sem serviço externo de áudio. Loops importados e projetos preservados. [Validação e créditos](verification/REPORT-0.24.1.md).
 
 ## Versão 0.24.0 — recursos do app no site
 

@@ -23,6 +23,7 @@ import com.atmytrack.app.data.Project
     val canPlay=!state.loading && !state.preparing && state.soundReady && state.error==null && (p.follow || valid) && (!p.follow || project!=null)
     AlertDialog(onDismissRequest=close,title={Text("Percussão")},text={
         Column(Modifier.verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+            Text("Bateria acústica e percussão gravadas · variações em quatro compassos.",color=Muted,fontSize=12.sp)
             Row(verticalAlignment=Alignment.CenterVertically) {
                 Checkbox(p.follow,{ follow -> engine.configure { it.copy(follow=follow) } },modifier=Modifier.semantics { contentDescription="Acompanhar música da percussão" })
                 Text("Acompanhar música")

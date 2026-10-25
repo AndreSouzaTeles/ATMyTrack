@@ -7,16 +7,26 @@ import org.junit.Assert.*
 import kotlin.math.abs
 
 class PercussionTest {
-    @Test fun tenOriginalPatternsAreDistinctFiniteAndBounded() {
+    private val kit by lazy { AcousticKit.load { java.io.File("src/main/assets",it).inputStream() } }
+    @Test fun tenAcousticPatternsAreDistinctFiniteAndBounded() {
         assertEquals(10,PercussionSynth.patterns.size)
         val signatures=PercussionSynth.patterns.map { name ->
-            val audio=PercussionSynth.render(name,120.0,4,4)
-            assertEquals(96000*2,audio.size)
-            assertTrue(audio.all { it.isFinite() && abs(it)<=.651f })
+            val audio=PercussionSynth.render(name,120.0,4,4,kit=kit)
+            assertEquals(96000*4*2,audio.size)
+            assertTrue(audio.all { it.isFinite() && abs(it)<=.901f })
             assertTrue(audio.any { abs(it)>.05f })
             audio.contentHashCode()
         }
         assertEquals(10,signatures.distinct().size)
+    }
+    @Test fun recordingsAndFourBarVariationArePresent() {
+        assertEquals(12,kit.samples.size)
+        for(variants in kit.samples.values) {
+            assertEquals(2,variants.size);assertFalse(variants[0].contentEquals(variants[1]))
+            assertTrue(variants.all { samples -> samples.all { it.isFinite() } && samples.any { abs(it)>.05f } })
+        }
+        val loop=PercussionSynth.render("Pop / Rock",120.0,4,4,kit=kit)
+        assertFalse(loop.copyOfRange(0,192000).contentEquals(loop.copyOfRange(192000,384000)))
     }
     @Test fun meterAndBpmDetermineExactBarDuration() {
         assertEquals(96000,PercussionSynth.barFrames(48000,120.0,4,4))
@@ -25,7 +35,7 @@ class PercussionTest {
         assertEquals(48000,PercussionSynth.barFrames(48000,240.0,4,4))
     }
     @Test fun seekingAndBlockSplitsUseTheSameLoopClock() {
-        val loop=PercussionSynth.render("Funk",120.0,4,4)
+        val loop=PercussionSynth.render("Funk",120.0,4,4,kit=kit)
         val start=loop.size/2-93L
         val whole=FloatArray(1024);PercussionSynth.add(loop,whole,512,start,48000,.3f)
         val first=FloatArray(256);val second=FloatArray(768)

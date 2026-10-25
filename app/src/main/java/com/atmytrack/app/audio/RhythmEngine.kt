@@ -29,6 +29,7 @@ private data class PreparedBeat(val spec:PercussionSpec,val audio:FloatArray)
 
 /** A separate clock only for independent sounds; followed percussion uses the multitrack mixer clock. */
 class RhythmEngine(private val context:Context) {
+    private val acousticKit by lazy { AcousticKit.load { context.assets.open(it) } }
     private val prefs=context.getSharedPreferences("rhythm",0)
     private val root=File(context.filesDir,"rhythm").apply { mkdirs() }
     private val mutable=MutableStateFlow(RhythmState(preparing=true))
@@ -96,7 +97,7 @@ class RhythmEngine(private val context:Context) {
         mutable.update { it.copy(preparing=true,soundReady=false) }
         preparation=scope.launch {
             try {
-                val audio=if(spec.source in PercussionSynth.patterns)PercussionSynth.render(spec.source,spec.bpm,spec.beats,spec.denominator)
+                val audio=if(spec.source in PercussionSynth.patterns)PercussionSynth.render(spec.source,spec.bpm,spec.beats,spec.denominator,kit=acousticKit)
                 else {
                     val imported=state.value.imports.find { it.id==spec.source } ?: error("Selecione uma batida ou importe um loop.")
                     val original=withContext(Dispatchers.IO) { readPcm(File(root,"${imported.id}.pcm"),imported.frames) }

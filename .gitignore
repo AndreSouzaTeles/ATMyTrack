@@ -24,3 +24,4 @@ web/test-results/
 
 dist/site-source-*/
 dist/site-*.tar.gz
+dist/ATMyTrack-acoustic-preview.wav
