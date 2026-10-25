@@ -39,3 +39,7 @@ Signalsmith Stretch: código vendorizado, licença MIT em dist/vendor/Signalsmit
 ## Vínculo entre ritmos — 0.25.0
 
 Vincular à percussão / Vincular ao metrônomo são o mesmo ajuste, ativo por padrão e persistente. BPM, compasso e Acompanhar música são compartilhados; Play/Pausar em qualquer painel inicia/interrompe os dois. Desvincule para manter o funcionamento independente. Volumes e timbres continuam próprios. Na reprodução independente ambos usam a mesma época no AudioContext; no modo acompanhado usam o relógio do transporte. O preparo de loops precede o início do par.
+
+## TAP da percussão — 0.25.1
+
+TAP BPM define o tempo a partir de dois ou mais toques. Com Sincronizar com metrônomo/percussão ativo, o BPM propaga em ambos os sentidos, incluindo os toques. O metrônomo fica imediatamente à esquerda da percussão, na barra e no menu móvel. Sem sincronização e acompanhando música, desative Acompanhar música antes de definir um BPM separado.

@@ -5,6 +5,7 @@ import android.media.*
 import android.net.Uri
 import android.util.AtomicFile
 import com.atmytrack.app.data.Project
+import com.atmytrack.app.data.TapTempo
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import org.json.JSONArray
@@ -32,6 +33,7 @@ class RhythmEngine(private val context:Context) {
     private val acousticKit by lazy { AcousticKit.load { context.assets.open(it) } }
     var onLinkedProjectChange:((Project)->Unit)?=null
     private val clockRevision=AtomicInteger()
+    private val percussionTap=TapTempo()
     private val prefs=context.getSharedPreferences("rhythm",0)
     private val root=File(context.filesDir,"rhythm").apply { mkdirs() }
     private val mutable=MutableStateFlow(RhythmState(preparing=true))
@@ -86,6 +88,13 @@ class RhythmEngine(private val context:Context) {
         prefs.edit().putString("source",p.source).putFloat("bpm",p.bpm.toFloat()).putInt("beats",p.beats).putInt("denominator",p.denominator)
             .putInt("bars",p.bars).putFloat("volume",p.volume).putBoolean("follow",p.follow).apply()
         saveLinked();prepare();refreshWorker()
+    }
+    @Synchronized fun tapPercussion(nowMs:Long):Double? {
+        val s=state.value
+        if(s.percussion.follow && !s.linked)return null
+        val bpm=percussionTap.tap(nowMs) ?: return null
+        configure { it.copy(bpm=bpm) }
+        return bpm
     }
     private fun applyState(next:RhythmState) {
         val old=state.value

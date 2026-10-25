@@ -25,7 +25,7 @@ import com.atmytrack.app.data.Project
         Column(Modifier.verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(12.dp)) {
             Text("Bateria acústica e percussão gravadas · variações em quatro compassos.",color=Muted,fontSize=12.sp)
             Row(verticalAlignment=Alignment.CenterVertically) {
-                Checkbox(state.linked,{engine.setLinked(it,fromPercussion=true)},modifier=Modifier.semantics { contentDescription="Vincular ao metrônomo" });Text("Vincular ao metrônomo")
+                Checkbox(state.linked,{engine.setLinked(it,fromPercussion=true)},modifier=Modifier.semantics { contentDescription="Sincronizar com metrônomo" });Text("Sincronizar com metrônomo")
             }
             Row(verticalAlignment=Alignment.CenterVertically) {
                 Checkbox(p.follow,{ follow -> engine.configure { it.copy(follow=follow) } },modifier=Modifier.semantics { contentDescription="Acompanhar música da percussão" })
@@ -34,6 +34,8 @@ import com.atmytrack.app.data.Project
             Text(if(p.follow)project?.let { "Segue a música · %.1f BPM · %d/%d".format(it.effectiveBpm,it.beats,it.denominator) } ?: "Selecione um projeto para acompanhar."
                 else "Ritmo independente: toca mesmo sem multitrack, com a música pausada ou parada.",color=Muted,fontSize=12.sp)
             Choice("Batida",p.source,PercussionSynth.patterns.map { it to it }+state.imports.map { it.id to "Importado · ${it.name}" }) { source -> engine.configure { it.copy(source=source) } }
+            OutlinedButton(enabled=!p.follow || state.linked,onClick={engine.tapPercussion(android.os.SystemClock.elapsedRealtime())}) { Text("TAP BPM") }
+            if(p.follow && !state.linked)Text("Desative Acompanhar música para definir um BPM separado por toques.",color=Muted,fontSize=12.sp)
             if(!p.follow) {
                 OutlinedTextField(bpm,{ bpm=it },label={Text("BPM • 30 a 300")},singleLine=true,isError=!valid,modifier=Modifier.semantics { contentDescription="BPM da percussão" })
                 TextButton(enabled=valid,onClick={engine.configure { it.copy(bpm=parsed!!) }}) { Text("APLICAR BPM") }

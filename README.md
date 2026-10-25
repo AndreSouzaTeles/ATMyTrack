@@ -1,8 +1,12 @@
 # ATMyTrack
 
-**[APK ATMyTrack original 0.25.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.25.0/ATMyTrack-debug.apk)**
+**[APK ATMyTrack original 0.25.1](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.25.1/ATMyTrack-debug.apk)**
 
 Player multitrack para Android 8.0+ (API 26), em Kotlin/Compose.
+
+## Versão 0.25.1 — TAP BPM da percussão e sincronização visível
+
+Percussão ganhou TAP BPM. Com a sincronização ativa, o BPM dos toques atualiza os dois ritmos, inclusive o projeto no modo acompanhado. O painel Android do metrônomo agora exibe a opção **Sincronizar com percussão**; a percussão mostra **Sincronizar com metrônomo**, ambas ligadas à mesma preferência. Metrônomo fica imediatamente à esquerda da percussão na barra e no menu, sem separar o par entre linhas no celular. [Validação](verification/REPORT-0.25.1.md).
 
 ## Versão 0.25.0 — metrônomo e percussão vinculados
 

@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuite name="com.atmytrack.app.RhythmTap25UiTest" tests="1" failures="0" errors="0" skipped="0" time="8.894" timestamp="2026-10-25T22:57:14" hostname="localhost">
+  <properties>
+    <property name="device" value="ATMyTrack_OriginalKey_API35(AVD) - 15" />
+    <property name="flavor" value="" />
+    <property name="project" value=":app" />
+  </properties>
+  <testcase name="visibleMetronomeFlagTapAndButtonOrder" classname="com.atmytrack.app.RhythmTap25UiTest" time="7.74" />
+</testsuite>

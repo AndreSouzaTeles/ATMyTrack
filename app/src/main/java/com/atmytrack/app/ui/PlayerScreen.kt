@@ -143,12 +143,11 @@ fun PlayerScreen(vm: PlayerViewModel) {
                                 add(ToolAction("VELOCIDADE",p.speed!=100){speed=true})
                             }
                             add(ToolAction("PAD",padState.playing){padOpen=true})
+                            add(ToolAction("METRÔNOMO",p?.click ?: rhythm.metronomeArmed){metronome=true})
                             add(ToolAction("PERCUSSÃO",rhythm.percussion.enabled){percussionOpen=true})
-                            if(p==null)add(ToolAction("METRÔNOMO",rhythm.metronomeArmed){metronome=true})
                             if(p!=null) {
                                 add(ToolAction("LOOP",p.loop){vm.update { it.copy(loop=!it.loop) }})
                                 add(ToolAction("+ SEÇÃO"){markers=true})
-                                add(ToolAction("METRÔNOMO",p.click){metronome=true})
                                 add(ToolAction("DCA"){group="DCA:"})
                                 add(ToolAction("BUS"){group="BUS:"})
                                 add(ToolAction("ROUTING"){allRouting=true})
@@ -332,7 +331,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
         }
         val error = library.message ?: playback.error
         if (error != null) AlertDialog(onDismissRequest = vm::dismissError, title = { Text("ATMyTrack") }, text = { Text(error) }, confirmButton = { TextButton(onClick = vm::dismissError) { Text("ENTENDI") } })
-        if (help) AlertDialog(onDismissRequest = { help = false }, title = { Text("ATMyTrack • 0.25.0") }, text = {
+        if (help) AlertDialog(onDismissRequest = { help = false }, title = { Text("ATMyTrack • 0.25.1") }, text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("1. Importe uma pasta ou selecione as stems.\n2. Ajuste volume, pan, mute e solo.\n3. Defina BPM e compasso; o CLICK acompanha a timeline.\n4. Crie seções para saltar aos trechos da música.")
                 Text("A importação depende dos decoders disponíveis no Android. WAV, MP3, AAC/M4A, FLAC e OGG/Opus são tentados; arquivos incompatíveis geram erro.", color = Muted)
@@ -558,6 +557,10 @@ private fun MetronomeEditor(project: Project?, vm: PlayerViewModel, close: () ->
     val valid = bpm.replace(',', '.').toDoubleOrNull()?.let { it in 30.0..300.0 } == true
     AlertDialog(onDismissRequest = close, title = { Text("Metrônomo") }, text = {
         Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(verticalAlignment=Alignment.CenterVertically) {
+                Checkbox(rhythm.linked,{vm.rhythm.setLinked(it)},modifier=Modifier.semantics { contentDescription="Sincronizar com percussão" })
+                Text("Sincronizar com percussão")
+            }
             Row(verticalAlignment=Alignment.CenterVertically) {
                 Checkbox(p.clickFollow && project!=null,{ follow -> vm.rhythm.armMetronome(active);change { it.copy(clickFollow=follow) } },enabled=project!=null,
                     modifier=Modifier.semantics { contentDescription="Acompanhar música do metrônomo" })

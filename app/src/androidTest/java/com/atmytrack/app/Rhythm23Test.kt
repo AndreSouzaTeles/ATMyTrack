@@ -58,9 +58,9 @@ class Rhythm23Test {
         waitFor { !vm.playback.value.playing }
         if(compose.onAllNodesWithContentDescription("Ferramentas").fetchSemanticsNodes().isNotEmpty()) {
             compose.onNodeWithContentDescription("Ferramentas").performClick()
-            val pad=compose.onNodeWithContentDescription("PAD").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+            val metro=compose.onNodeWithContentDescription("METRÔNOMO").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
             val percussion=compose.onNodeWithContentDescription("PERCUSSÃO").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
-            assertEquals(pad.center.y,percussion.center.y,1f);assertTrue(percussion.left>=pad.right)
+            assertEquals(metro.center.y,percussion.center.y,1f);assertTrue(percussion.left>=metro.right)
             screenshot("tools-rhythm-0.23.0.png")
             compose.onNodeWithContentDescription("METRÔNOMO").performClick()
         } else {

@@ -59,3 +59,5 @@ main{padding:0 8px 24px;max-width:none}.transport-band{display:grid;grid-templat
 #toolHost .tools{margin:0}#toolHost .tools .dsp{grid-column:auto;align-items:center;justify-content:center}@media(max-width:599px),(max-height:599px){#toolHost .dsp{width:100%}#toolHost .dsp span{position:static;width:auto;height:auto;clip-path:none;font-size:8px;line-height:1.1}#toolHost .dsp span b{display:block;font-size:9px}}
 
 @media(max-width:599px),(max-height:599px){#toolHost .dsp{flex-direction:column;gap:3px;height:64px}#toolHost .dsp span{width:100%;font-size:8px;white-space:normal;overflow:visible;overflow-wrap:anywhere}#toolHost .dsp svg{flex:0 0 20px}}
+
+@media(max-width:599px),(max-height:599px){#toolHost #toolsPanel #metronome{grid-column:1}}
