@@ -332,7 +332,7 @@ fun PlayerScreen(vm: PlayerViewModel) {
         }
         val error = library.message ?: playback.error
         if (error != null) AlertDialog(onDismissRequest = vm::dismissError, title = { Text("ATMyTrack") }, text = { Text(error) }, confirmButton = { TextButton(onClick = vm::dismissError) { Text("ENTENDI") } })
-        if (help) AlertDialog(onDismissRequest = { help = false }, title = { Text("ATMyTrack • 0.24.1") }, text = {
+        if (help) AlertDialog(onDismissRequest = { help = false }, title = { Text("ATMyTrack • 0.25.0") }, text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("1. Importe uma pasta ou selecione as stems.\n2. Ajuste volume, pan, mute e solo.\n3. Defina BPM e compasso; o CLICK acompanha a timeline.\n4. Crie seções para saltar aos trechos da música.")
                 Text("A importação depende dos decoders disponíveis no Android. WAV, MP3, AAC/M4A, FLAC e OGG/Opus são tentados; arquivos incompatíveis geram erro.", color = Muted)
@@ -596,7 +596,7 @@ private fun MetronomeEditor(project: Project?, vm: PlayerViewModel, close: () ->
             Slider(p.clickVolume, { v -> change { it.copy(clickVolume = v) } }, modifier = Modifier.semantics { contentDescription = "Volume do metrônomo" })
             if(p.detectedBpm>0)Text("Detectado: %.2f BPM · confiança %d%%".format(p.detectedBpm,(p.confidence*100).roundToInt()),color=SecondaryText,fontSize=12.sp)
             library.background?.let { Text(it,color=SecondaryText,fontSize=12.sp) }
-            if(project!=null)Text("Smart Click aplica o BPM detectado quando ativado. Com Acompanhar música ativo, Play também inicia o transporte. Pausar aqui desliga apenas o click.",fontSize=12.sp,color=Muted)
+            if(project!=null)Text("Smart Click aplica o BPM detectado quando ativado. Com Acompanhar música ativo, Play também inicia o transporte. Com o vínculo ativo, Play/Pausar controla os dois ritmos.",fontSize=12.sp,color=Muted)
             rhythm.error?.let { Text(it,color=Red,fontSize=12.sp) }
         }
     }, confirmButton = { Row(horizontalArrangement=Arrangement.spacedBy(10.dp),verticalAlignment=Alignment.CenterVertically) {

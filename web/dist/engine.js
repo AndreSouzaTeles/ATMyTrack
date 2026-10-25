@@ -43,7 +43,7 @@ export class Engine {
     if(this.project.tracks.every(t=>this.buffers.get(t.id)?.stream))return this.playStream();
     this.busy=true;const generation=++this.generation,prepared=[];
     try{
-      const c=await this.context();await c.resume();
+      await this.beforePlay?.();const c=await this.context();await c.resume();
       if(!this.clickModule){await c.audioWorklet.addModule(new URL('./click-worklet.js',import.meta.url));this.clickModule=true;}
       if(this.position>=duration(this.project))this.position=0;
       for(const t of this.project.tracks){
@@ -75,7 +75,7 @@ export class Engine {
   async playStream(){
     this.busy=true;const generation=++this.generation;let stream;
     try{
-      const c=await this.context();await c.resume();
+      await this.beforePlay?.();const c=await this.context();await c.resume();
       if(!this.streamModule){await c.audioWorklet.addModule(new URL('./stream-worklet.js',import.meta.url));this.streamModule=true;}
       if(!this.clickModule){await c.audioWorklet.addModule(new URL('./click-worklet.js',import.meta.url));this.clickModule=true;}
       if(this.position>=duration(this.project))this.position=0;

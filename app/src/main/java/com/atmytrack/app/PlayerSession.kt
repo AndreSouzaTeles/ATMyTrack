@@ -354,16 +354,28 @@ class PlayerSession(private val app:Application) {
         if(next.stems.isEmpty()) { delete(p);return }
         persist(library.value.projects.map { if(it.id==p.id)next else it });activate(next)
     }
+    private var rhythmPlayJob:Job?=null
     fun play() {
         if (library.value.busy != null || library.value.current == null) return
         if(playback.value.projectId!=library.value.selected || !playback.value.ready || playback.value.preparing) { message("Preparando a saída de áudio. Tente novamente em instantes."); return }
         val app = getApplication<Application>()
-        app.startForegroundService(Intent(app, PlaybackService::class.java).setAction("play"))
+        rhythmPlayJob?.cancel()
+        rhythmPlayJob=viewModelScope.launch {
+            val selected=library.value.selected
+            rhythm.syncProject(library.value.current)
+            val waitForPair=rhythm.state.value.let { it.linked && it.percussion.enabled && it.percussion.follow }
+            if(waitForPair) {
+                val ready=rhythm.state.first { !it.preparing || !it.percussion.enabled }
+                if(!ready.percussion.enabled || ready.error!=null || !ready.soundReady)return@launch
+            }
+            if(selected==library.value.selected)app.startForegroundService(Intent(app, PlaybackService::class.java).setAction("play"))
+        }
     }
-    fun pause() { autoPlayRequested=false;engine.pause() }
-    fun pauseForInterruption(reason:String) { autoPlayRequested=false;engine.pause(reason);pad.stop();rhythm.stopAll() }
+    fun pause() { rhythmPlayJob?.cancel();autoPlayRequested=false;engine.pause() }
+    fun pauseForInterruption(reason:String) { rhythmPlayJob?.cancel();autoPlayRequested=false;engine.pause(reason);pad.stop();rhythm.stopAll() }
     fun refreshOutput() { library.value.current?.let { engine.pause(); engine.load(it,true) } }
     fun stop() {
+        rhythmPlayJob?.cancel()
         autoPlayRequested=false
         engine.stop()
         val app = getApplication<Application>()

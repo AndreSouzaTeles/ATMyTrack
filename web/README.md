@@ -1,4 +1,4 @@
-# ATMyTrack Web 0.24.1
+# ATMyTrack Web 0.25.0
 
 Player multitrack local no navegador. Site público: https://atmytrack-web.andmtu.chatgpt.site . Áudios e projetos ficam no navegador, sem upload de músicas ou conta.
 
@@ -32,6 +32,10 @@ Dependências: pnpm install --frozen-lockfile . Execute pnpm test com o servidor
 
 Signalsmith Stretch: código vendorizado, licença MIT em dist/vendor/Signalsmith-LICENSE.txt. Fonte Outfit: licença em dist/assets/Outfit-OFL.txt.
 
-## Biblioteca acústica 0.24.1
+## Biblioteca acústica 0.25.0
 
 24 gravações reais (duas por articulação) de Virtuosity Drums e VCSL, CC0. Frases de quatro compassos, alternância de golpes, dinâmica, ghost notes e viradas. Os padrões são sequenciados a partir dos golpes gravados; não são loops completos executados por um baterista. Créditos, licenças e proveniência em dist/assets/drumkit/.
+
+## Vínculo entre ritmos — 0.25.0
+
+Vincular à percussão / Vincular ao metrônomo são o mesmo ajuste, ativo por padrão e persistente. BPM, compasso e Acompanhar música são compartilhados; Play/Pausar em qualquer painel inicia/interrompe os dois. Desvincule para manter o funcionamento independente. Volumes e timbres continuam próprios. Na reprodução independente ambos usam a mesma época no AudioContext; no modo acompanhado usam o relógio do transporte. O preparo de loops precede o início do par.

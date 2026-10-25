@@ -21,7 +21,7 @@ data class PercussionSettings(val source:String=PercussionSynth.patterns.first()
     val bars:Int=1,val volume:Float=.4f,val follow:Boolean=false,val enabled:Boolean=false)
 data class ImportedBeat(val id:String,val name:String,val frames:Int)
 data class RhythmState(val percussion:PercussionSettings=PercussionSettings(),val metronome:Project=Project(id="standalone-metronome",name="Metrônomo",sampleRate=48000,stems=emptyList(),bpm=100.0,clickFollow=false),
-    val metronomeArmed:Boolean=false,val imports:List<ImportedBeat> = emptyList(),val loading:Boolean=false,val preparing:Boolean=false,val soundReady:Boolean=false,val error:String?=null) {
+    val linked:Boolean=true,val metronomeArmed:Boolean=false,val imports:List<ImportedBeat> = emptyList(),val loading:Boolean=false,val preparing:Boolean=false,val soundReady:Boolean=false,val error:String?=null) {
     val independentWanted get()=(metronomeArmed && metronome.click && !metronome.clickFollow) || (percussion.enabled && !percussion.follow)
 }
 data class PercussionSpec(val source:String,val bpm:Double,val beats:Int,val denominator:Int,val bars:Int)
@@ -30,6 +30,8 @@ private data class PreparedBeat(val spec:PercussionSpec,val audio:FloatArray)
 /** A separate clock only for independent sounds; followed percussion uses the multitrack mixer clock. */
 class RhythmEngine(private val context:Context) {
     private val acousticKit by lazy { AcousticKit.load { context.assets.open(it) } }
+    var onLinkedProjectChange:((Project)->Unit)?=null
+    private val clockRevision=AtomicInteger()
     private val prefs=context.getSharedPreferences("rhythm",0)
     private val root=File(context.filesDir,"rhythm").apply { mkdirs() }
     private val mutable=MutableStateFlow(RhythmState(preparing=true))
@@ -51,7 +53,7 @@ class RhythmEngine(private val context:Context) {
         val metro=state.value.metronome.copy(bpm=prefs.getFloat("metroBpm",100f).toDouble(),beats=prefs.getInt("metroBeats",4),
             denominator=prefs.getInt("metroDenominator",4),clickVolume=prefs.getFloat("metroVolume",.35f),clickSound=prefs.getString("metroSound","Classic")!!,
             multiplier=prefs.getFloat("metroMultiplier",1f).toDouble(),accent=prefs.getBoolean("metroAccent",true),clickRoute=prefs.getString("metroRoute","BOTH")!!)
-        mutable.value=state.value.copy(percussion=percussion,metronome=metro)
+        mutable.value=RhythmLink.fromMetronome(state.value.copy(linked=prefs.getBoolean("linked",true),percussion=percussion),metro)
         scope.launch(Dispatchers.IO) {
             val imports=runCatching {
                 val array=JSONArray(AtomicFile(File(root,"library.json")).openRead().bufferedReader().use { it.readText() })
@@ -63,27 +65,44 @@ class RhythmEngine(private val context:Context) {
     }
     @Synchronized fun syncProject(value:Project?) {
         val changed=project?.id!=value?.id;project=value
-        if(value!=null)mutable.update { it.copy(metronome=value,metronomeArmed=if(changed)false else it.metronomeArmed) }
-        else if(changed)mutable.update { it.copy(metronome=RhythmState().metronome,metronomeArmed=false) }
+        if(value!=null)applyState(RhythmLink.fromMetronome(state.value,value,if(changed)false else state.value.metronomeArmed))
+        else if(changed)applyState(RhythmLink.fromMetronome(state.value,RhythmState().metronome,false))
         prepare();refreshWorker()
     }
     fun configureMetronome(transform:(Project)->Project) {
         val p=transform(state.value.metronome)
-        mutable.update { it.copy(metronome=p,error=null) }
+        applyState(RhythmLink.fromMetronome(state.value,p).copy(error=null))
         prefs.edit().putFloat("metroBpm",p.bpm.toFloat()).putInt("metroBeats",p.beats).putInt("metroDenominator",p.denominator)
             .putFloat("metroVolume",p.clickVolume).putString("metroSound",p.clickSound).putFloat("metroMultiplier",p.multiplier.toFloat())
             .putBoolean("metroAccent",p.accent).putString("metroRoute",p.clickRoute).apply()
-        refreshWorker()
+        saveLinked();prepare();refreshWorker()
     }
-    fun armMetronome(enabled:Boolean) { mutable.update { it.copy(metronomeArmed=enabled,error=null) };refreshWorker() }
+    fun armMetronome(enabled:Boolean) { applyState(RhythmLink.fromMetronome(state.value,state.value.metronome.copy(click=enabled),enabled).copy(error=null));saveLinked();prepare();refreshWorker() }
     fun audioFocus(granted:Boolean) { focusGranted=granted;refreshWorker() }
     @Synchronized fun configure(transform:(PercussionSettings)->PercussionSettings) {
         val p=transform(state.value.percussion)
         require(p.bpm.isFinite() && p.bpm in 30.0..300.0 && p.beats in 1..12 && p.denominator in listOf(4,8) && p.bars in 1..64 && p.volume.isFinite() && p.volume in 0f..1f)
-        mutable.update { it.copy(percussion=p,error=null) }
+        applyState(RhythmLink.fromPercussion(state.value,p).copy(error=null))
         prefs.edit().putString("source",p.source).putFloat("bpm",p.bpm.toFloat()).putInt("beats",p.beats).putInt("denominator",p.denominator)
             .putInt("bars",p.bars).putFloat("volume",p.volume).putBoolean("follow",p.follow).apply()
-        prepare();refreshWorker()
+        saveLinked();prepare();refreshWorker()
+    }
+    private fun applyState(next:RhythmState) {
+        val old=state.value
+        if(next.linked && (old.linked!=next.linked || old.metronome.bpm!=next.metronome.bpm || old.metronome.clickFollow!=next.metronome.clickFollow || old.percussion.enabled!=next.percussion.enabled || old.metronome.beats!=next.metronome.beats || old.metronome.denominator!=next.metronome.denominator))clockRevision.incrementAndGet()
+        mutable.value=next
+    }
+    private fun saveLinked() {
+        val s=state.value
+        prefs.edit().putBoolean("linked",s.linked).putFloat("bpm",s.percussion.bpm.toFloat()).putBoolean("follow",s.percussion.follow)
+            .putInt("beats",s.percussion.beats).putInt("denominator",s.percussion.denominator)
+            .putFloat("metroBpm",s.metronome.bpm.toFloat()).putInt("metroBeats",s.metronome.beats).putInt("metroDenominator",s.metronome.denominator).apply()
+        if(s.linked && project!=null && project!=s.metronome) { project=s.metronome;onLinkedProjectChange?.invoke(s.metronome) }
+    }
+    @Synchronized fun setLinked(enabled:Boolean,fromPercussion:Boolean=false) {
+        var next=state.value.copy(linked=enabled)
+        if(enabled)next=if(fromPercussion)RhythmLink.fromPercussion(next,next.percussion) else RhythmLink.fromMetronome(next,next.metronome)
+        applyState(next);saveLinked();prepare();refreshWorker()
     }
     private fun spec():PercussionSpec {
         val p=state.value.percussion;val music=project?.takeIf { p.follow }
@@ -177,12 +196,14 @@ class RhythmEngine(private val context:Context) {
                 track=AudioTrack.Builder().setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
                     .setAudioFormat(AudioFormat.Builder().setSampleRate(48000).setChannelMask(AudioFormat.CHANNEL_OUT_STEREO).setEncoding(AudioFormat.ENCODING_PCM_FLOAT).build()).setBufferSizeInBytes(buffer).build()
                 check(track.state==AudioTrack.STATE_INITIALIZED)
-                val output=FloatArray(1024);val limiter=PeakLimiter();var metroFrame=0L;var percussionFrame=0L
+                val output=FloatArray(1024);val limiter=PeakLimiter();var metroFrame=0L;var percussionFrame=0L;var revision=clockRevision.get()
                 track.play()
                 while(generation.get()==token) {
                     val state=state.value;val m=state.metronome;val percussion=state.percussion;val loop=prepared
+                    if(state.linked && revision!=clockRevision.get()){revision=clockRevision.get();metroFrame=0;percussionFrame=0}
+                    val pairReady=!state.linked || !percussion.enabled || (!state.preparing && loop!=null && loop.spec==spec())
                     output.fill(0f)
-                    if(state.metronomeArmed && m.click && !m.clickFollow) {
+                    if(pairReady && state.metronomeArmed && m.click && !m.clickFollow) {
                         repeat(512) { i ->
                             val v=MixMath.click(metroFrame+i,48000,m.bpm,m.multiplier,m.beats,m.clickSound,m.accent)*m.clickVolume
                             if(m.clickRoute!="RIGHT")output[i*2]+=v
@@ -190,7 +211,7 @@ class RhythmEngine(private val context:Context) {
                         }
                         metroFrame+=512
                     } else metroFrame=0
-                    if(percussion.enabled && !percussion.follow && !state.preparing && loop!=null) { PercussionSynth.add(loop.audio,output,512,percussionFrame,48000,percussion.volume);percussionFrame+=512 }
+                    if(pairReady && percussion.enabled && !percussion.follow && !state.preparing && loop!=null) { PercussionSynth.add(loop.audio,output,512,percussionFrame,48000,percussion.volume);percussionFrame+=512 }
                     else percussionFrame=0
                     limiter.process(output,512,2,48000)
                     check(track.write(output,0,output.size,AudioTrack.WRITE_BLOCKING)==output.size)

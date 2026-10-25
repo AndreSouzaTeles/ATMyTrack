@@ -25,6 +25,9 @@ import com.atmytrack.app.data.Project
         Column(Modifier.verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(12.dp)) {
             Text("Bateria acústica e percussão gravadas · variações em quatro compassos.",color=Muted,fontSize=12.sp)
             Row(verticalAlignment=Alignment.CenterVertically) {
+                Checkbox(state.linked,{engine.setLinked(it,fromPercussion=true)},modifier=Modifier.semantics { contentDescription="Vincular ao metrônomo" });Text("Vincular ao metrônomo")
+            }
+            Row(verticalAlignment=Alignment.CenterVertically) {
                 Checkbox(p.follow,{ follow -> engine.configure { it.copy(follow=follow) } },modifier=Modifier.semantics { contentDescription="Acompanhar música da percussão" })
                 Text("Acompanhar música")
             }
@@ -54,7 +57,7 @@ import com.atmytrack.app.data.Project
             Text(if(p.enabled) { if(p.follow)"ATIVADA · acompanha o transporte" else "TOCANDO · independente" } else "PARADA",color=SecondaryText,fontSize=12.sp)
         }
     },confirmButton={
-        Button(onClick={ engine.configure { it.copy(enabled=!it.enabled,bpm=if(!it.follow && valid)parsed!! else it.bpm) } },enabled=p.enabled || canPlay,
+        Button(onClick={ val enable=!p.enabled;engine.configure { it.copy(enabled=enable,bpm=if(!it.follow && valid)parsed!! else it.bpm) };if(enable && p.follow && state.linked && project!=null && !vm.playback.value.playing)vm.play() },enabled=p.enabled || canPlay,
             modifier=Modifier.semantics { contentDescription="Reprodução da percussão" }) { Text(if(p.enabled)"■ PARAR" else "▶ PLAY") }
     },dismissButton={TextButton(onClick=close){Text("FECHAR")}})
 }

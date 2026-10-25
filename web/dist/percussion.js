@@ -40,7 +40,7 @@ export class Rhythm {
  save(){localStorage.setItem('percussion',JSON.stringify(this.settings));}
  disconnect(which){const node=this[which];if(node){try{node.port?.postMessage('stop');node.port?.close();node.disconnect();}catch{}this[which]=null;}}
  async click(q){this.disconnect('metro');for(const node of this.metroConnections||[])node.disconnect();this.metroConnections=[];if(!this.metroArmed||!q.click||q.clickFollow!==false)return;const c=await this.engine.context();await c.resume();if(!this.clickModule){await c.audioWorklet.addModule(new URL('./click-worklet.js',import.meta.url));this.clickModule=true;}
- this.metro=new AudioWorkletNode(c,'atmytrack-click',{numberOfInputs:0,numberOfOutputs:1,outputChannelCount:[1],processorOptions:{bpm:q.bpm*q.clickDivision,meter:q.meter,accent:q.clickAccent,kind:q.clickTone||0,tone:[1,.65,1.4,.8,1.8,.5,1.15,.88][q.clickTone||0],gain:q.clickDb<=-79.9?0:10**(q.clickDb/20),when:c.currentTime+.02,position:0}});
+ this.metro=new AudioWorkletNode(c,'atmytrack-click',{numberOfInputs:0,numberOfOutputs:1,outputChannelCount:[1],processorOptions:{bpm:q.bpm*q.clickDivision,meter:q.meter,accent:q.clickAccent,kind:q.clickTone||0,tone:[1,.65,1.4,.8,1.8,.5,1.15,.88][q.clickTone||0],gain:q.clickDb<=-79.9?0:10**(q.clickDb/20),when:this.linkController?.linked?this.pairEpoch||c.currentTime+.02:c.currentTime+.02,position:0}});
  const mono=c.createGain();mono.channelCount=1;mono.channelCountMode='explicit';const pan=c.createStereoPanner();pan.pan.value=q.clickRoute==='left'?-1:q.clickRoute==='right'?1:0;this.metro.connect(mono).connect(pan).connect(c.destination);this.metroConnections=[mono,pan];
  }
  stopClick(){this.metroArmed=false;this.disconnect('metro');for(const n of this.metroConnections||[])n.disconnect();this.metroConnections=[];}
@@ -56,11 +56,11 @@ export class Rhythm {
  this.startPrepared();
  }catch(e){if(revision!==this.revision)return;this.enabled=false;this.onerror?.(e);throw e;}finally{if(revision===this.revision){this.preparing=false;this.onchange?.();}}
  }
- startPrepared(){this.disconnect('beat');if(!this.enabled||!this.prepared)return;const s=this.settings,e=this.engine,c=e.ctx;if(s.follow&&!e.playing)return;
- this.beat=new AudioWorkletNode(c,'atmytrack-rhythm',{numberOfInputs:0,numberOfOutputs:1,outputChannelCount:[2],processorOptions:{channels:this.prepared.channels,rate:this.prepared.rate,volume:s.volume,when:s.follow?e.epoch:c.currentTime+.02,position:s.follow?e.position:0,loop:s.follow?e.loopBounds():null}});
+ startPrepared(){if(this.pairPending)return;this.disconnect('beat');if(!this.enabled||!this.prepared)return;const s=this.settings,e=this.engine,c=e.ctx;if(s.follow&&!e.playing)return;
+ this.beat=new AudioWorkletNode(c,'atmytrack-rhythm',{numberOfInputs:0,numberOfOutputs:1,outputChannelCount:[2],processorOptions:{channels:this.prepared.channels,rate:this.prepared.rate,volume:s.volume,when:s.follow?e.epoch:this.linkController?.linked?this.pairEpoch||c.currentTime+.02:c.currentTime+.02,position:s.follow?e.position:0,loop:s.follow?e.loopBounds():null}});
  this.beat.connect(s.follow?e.master:c.destination);
  }
- transport(){if(this.settings.follow){if(this.engine.playing)this.refresh().catch(()=>{});else this.disconnect('beat');}}
+ transport(){if(this.linkController?.linked){this.linkController.transport().catch(e=>this.onerror?.(e));return;}if(this.settings.follow){if(this.engine.playing)this.refresh().catch(()=>{});else this.disconnect('beat');}}
  volume(v){this.settings.volume=v;this.save();this.beat?.port.postMessage({volume:v});}
  stop(){this.enabled=false;this.revision++;this.disconnect('beat');this.stopClick();this.onchange?.();}
 }

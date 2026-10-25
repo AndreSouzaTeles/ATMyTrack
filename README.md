@@ -1,8 +1,12 @@
 # ATMyTrack
 
-**[APK ATMyTrack original 0.24.1](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.24.1/ATMyTrack-debug.apk)**
+**[APK ATMyTrack original 0.25.0](https://github.com/AndreSouzaTeles/ATMyTrack/releases/download/v0.25.0/ATMyTrack-debug.apk)**
 
 Player multitrack para Android 8.0+ (API 26), em Kotlin/Compose.
+
+## Versão 0.25.0 — metrônomo e percussão vinculados
+
+Os dois painéis oferecem a mesma opção de vínculo, selecionada por padrão e salva entre sessões. Vinculados, compartilham BPM, compasso e Acompanhar música; Play/Pausar em qualquer um controla os dois. Com o vínculo desativado, cada ferramenta volta a funcionar separadamente. Volumes, timbres e divisão do click continuam próprios. App, site e APK atualizados. [Validação](verification/REPORT-0.25.0.md).
 
 ## Versão 0.24.1 — bateria acústica e percussão real
 

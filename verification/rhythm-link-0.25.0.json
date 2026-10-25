@@ -1,0 +1,10 @@
+{
+  "defaultLinked": true,
+  "bidirectionalBpm": true,
+  "playStopBoth": true,
+  "unlinkIndependent": true,
+  "persisted": true,
+  "followMusicPair": true,
+  "sharedEpoch": 0.18,
+  "errors": []
+}
